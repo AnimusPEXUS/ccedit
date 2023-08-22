@@ -1,0 +1,96 @@
+BreakBeforeBraces: Allman
+UseTab: Never
+IndentWidth: 4
+TabWidth: 4
+AllowShortIfStatementsOnASingleLine: false
+IndentCaseLabels: false
+ColumnLimit: 0
+AlignAfterOpenBracket: BlockIndent
+AlignArrayOfStructures: Left
+AlignConsecutiveAssignments: 
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: true
+  AlignCompound: true
+  PadOperators: true
+AlignConsecutiveBitFields:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: true
+  AlignCompound: true
+  PadOperators: true
+AlignConsecutiveDeclarations:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: true
+  AlignCompound: true
+  PadOperators: true
+AlignConsecutiveMacros:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: true
+  AlignCompound: true
+  PadOperators: true
+AlignEscapedNewlines: Left
+AlignOperands: AlignAfterOperator
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 2
+AllowAllArgumentsOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: true
+AllowShortBlocksOnASingleLine: Always
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLambdasOnASingleLine: All
+AllowShortLoopsOnASingleLine: true
+AlwaysBreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: true
+AlwaysBreakTemplateDeclarations: Yes
+BinPackArguments: false
+BinPackParameters: false
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterClass: true
+  AfterCaseLabel: true
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: false
+  AfterStruct: true
+  AfterUnion: true
+  BeforeCatch: false
+  BeforeElse: true
+  BeforeLambdaBody: false
+  BeforeWhile: false
+  # BraceWrappingAfterControlStatementStyle: Always
+  IndentBraces: false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: false
+BreakAfterAttributes: Always
+BreakArrays: true
+BreakBeforeBinaryOperators: true
+BreakBeforeBraces: Allman
+BreakBeforeTernaryOperators: false
+BreakConstructorInitializers: AfterColon
+CompactNamespaces: true
+DerivePointerAlignment: false
+EmptyLineAfterAccessModifier: Never
+EmptyLineBeforeAccessModifier: Always
+IncludeBlocks: Preserve
+IndentAccessModifiers: false
+IndentCaseBlocks: false
+IndentCaseLabels: false
+IndentExternBlock: AfterExternBlock
+IndentPPDirectives: BeforeHash
+IndentWrappedFunctionNames: true
+InsertNewlineAtEOF: true
+# KeepEmptyLinesAtEOF: true
+NamespaceIndentation: Inner
+# SpacesInParens: Custom
+# SpacesInParensOptions:
+#   InConditionalStatements: false
+#   InCStyleCasts: false
+#   InEmptyParentheses: false
+#   Other: false
