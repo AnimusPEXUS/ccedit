@@ -63,12 +63,15 @@ ProjectMgr::ProjectMgr(std::shared_ptr<Controller> controller)
     button_box.append(open_proj);
     button_box.append(button_box_sec);
 
+    button_box_sec.append(modules_info_print);
     button_box_sec.append(save_cfg);
 
     add_proj.set_label("add");
     rm_proj.set_label("rm");
     edit_proj.set_label("edit");
     open_proj.set_label("open");
+
+    modules_info_print.set_label("print mods");
     save_cfg.set_label("rewrite config");
 
     // save_cfg.set_hexpand(true);
@@ -88,6 +91,10 @@ ProjectMgr::ProjectMgr(std::shared_ptr<Controller> controller)
 
     save_cfg.signal_clicked().connect(
         sigc::mem_fun(*this, &ProjectMgr::on_save_cfg)
+    );
+
+    modules_info_print.signal_clicked().connect(
+        sigc::mem_fun(*this, &ProjectMgr::on_modules_info_print)
     );
 
     // project_list.set_model(project_list_store);
@@ -224,7 +231,11 @@ void ProjectMgr::on_save_cfg()
 
 void ProjectMgr::on_modules_info_print()
 {
-    for (auto x : controller->getBuiltinModules())
+    auto mods = controller->getBuiltinModules();
+
+    std::cout << "module count: " << mods.size() << std::endl;
+
+    for (auto x : mods)
     {
         printInfoCodeEditorModule(x);
     }

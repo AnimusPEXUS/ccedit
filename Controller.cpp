@@ -28,6 +28,8 @@ int Controller::run(int argc, char *argv[])
     //     // std::cout << format("couldn't ensure directory existance: {}")
     // };
 
+    addBuiltinModules();
+
     app->signal_startup()
         .connect(
             sigc::mem_fun(*this, &Controller::on_app_startup)

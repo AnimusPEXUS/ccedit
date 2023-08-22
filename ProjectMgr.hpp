@@ -35,6 +35,8 @@ namespace codeeditor
         Gtk::Button    edit_proj;
         Gtk::Separator separ;
         Gtk::Button    open_proj;
+
+        Gtk::Button    modules_info_print;
         Gtk::Button    save_cfg;
 
         void on_add_click();
@@ -43,8 +45,8 @@ namespace codeeditor
         void on_open_click();
         
 
-        void on_save_cfg();
         void on_modules_info_print();
+        void on_save_cfg();
 
         void add_columns();
 
