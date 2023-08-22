@@ -189,6 +189,11 @@ Glib::RefPtr<Gio::ListStore<ProjectTableRow>> Controller::getProjectListStore()
     return project_list_store;
 }
 
+std::vector<CodeEditorModule *> Controller::getBuiltinModules()
+{
+    return builtin_modules;
+}
+
 int Controller::addBuiltinModule(CodeEditorModule *module)
 {
     builtin_modules.push_back(module);
@@ -197,7 +202,7 @@ int Controller::addBuiltinModule(CodeEditorModule *module)
 
 int Controller::addBuiltinModules()
 {
-    addBuiltinModule(&module_info_ccpp);
+    addBuiltinModule(get_module_info_ccpp());
     return 0;
 }
 

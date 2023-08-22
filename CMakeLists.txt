@@ -22,10 +22,12 @@ pkg_check_modules(gtkmm REQUIRED IMPORTED_TARGET gtkmm-4.0)
 
 add_executable(
     codeedit 
+    main.cpp
     Controller.cpp 
     ProjectMgr.cpp  
-    ProjectMgrEditor.cpp  
-    main.cpp
+    ProjectMgrEditor.cpp
+    modularity.cpp
+    module_ccpp.cpp
     )
 
 target_link_libraries(

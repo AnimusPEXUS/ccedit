@@ -29,6 +29,9 @@ namespace codeeditor
                 std::shared_ptr<WorkSubject> subj
             );
     };
+
+    void printInfoCodeEditorModule(CodeEditorModule *info);
+
 } // namespace codeeditor
 } // namespace wayround_i2p
 

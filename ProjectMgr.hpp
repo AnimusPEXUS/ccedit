@@ -41,7 +41,10 @@ namespace codeeditor
         void on_rm_click();
         void on_edit_click();
         void on_open_click();
+        
+
         void on_save_cfg();
+        void on_modules_info_print();
 
         void add_columns();
 

@@ -21,6 +21,8 @@ namespace codeeditor
     class ProjectMgr;
     class ProjectTableRow;
 
+    struct CodeEditorModule;
+
     class Controller : public Gtk::Window
     {
       public:
@@ -49,6 +51,7 @@ namespace codeeditor
         int loadConfig();
 
         Glib::RefPtr<Gio::ListStore<ProjectTableRow>> getProjectListStore();
+        std::vector<CodeEditorModule *>               getBuiltinModules();
 
         int addBuiltinModule(CodeEditorModule *module);
 

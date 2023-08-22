@@ -221,3 +221,11 @@ void ProjectMgr::on_save_cfg()
 {
     controller->saveConfig();
 }
+
+void ProjectMgr::on_modules_info_print()
+{
+    for (auto x : controller->getBuiltinModules())
+    {
+        printInfoCodeEditorModule(x);
+    }
+}
