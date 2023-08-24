@@ -23,17 +23,24 @@ namespace codeeditor
 
     struct CodeEditorModule;
 
-    class Controller : public Gtk::Window
+    class Controller //: public Gtk::Window
     {
       public:
         Controller(Glib::RefPtr<Gtk::Application> app);
+        ~Controller();
+
+        std::shared_ptr<Controller> own_ptr;
 
         int run(int argc, char *argv[]);
 
         void showProjectMgr();
-        void closeProjectMgr();
+        void cleanupProjectMgr();
 
-        int createProject(std::string name, std::string path, bool save_to_config);
+        int createProject(
+            std::string name,
+            std::string path,
+            bool        save_to_config
+        );
 
         int editProject(
             std::string name,
@@ -55,10 +62,14 @@ namespace codeeditor
 
         int addBuiltinModule(CodeEditorModule *module);
 
+        void showGlobalProjCtl();
+        void cleanupGlobalProjCtl();
+
       private:
         Glib::RefPtr<Gtk::Application> app;
 
         std::shared_ptr<ProjectMgr> project_mgr;
+        std::shared_ptr<ProjectCtl> global_proj_ctl;
 
         // todo: use mutex on all project_list methods?
         Glib::RefPtr<Gio::ListStore<ProjectTableRow>> project_list_store;

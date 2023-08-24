@@ -7,6 +7,8 @@ namespace wayround_i2p
 {
 namespace codeeditor
 {
+    class ProjectCtl;
+
     struct ProjectListItem
     {
         std::string                 name;

@@ -26,6 +26,7 @@ namespace codeeditor
 
         std::tuple<std::shared_ptr<CodeEditorAbstract>, int>
             newEditorForSubject(
+                std::shared_ptr<Controller>  ctl,
                 std::shared_ptr<WorkSubject> subj
             );
     };

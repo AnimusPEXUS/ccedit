@@ -54,13 +54,18 @@ ProjectMgr::ProjectMgr(std::shared_ptr<Controller> controller)
     button_box_sec.set_orientation(Gtk::Orientation::HORIZONTAL);
     button_box_sec.set_halign(Gtk::Align::END);
 
-    separ.set_orientation(Gtk::Orientation::VERTICAL);
+    // separ.set_orientation(Gtk::Orientation::VERTICAL);
 
     button_box.append(add_proj);
     button_box.append(rm_proj);
     button_box.append(edit_proj);
-    button_box.append(separ);
+    // todo: mem leak?
+    button_box.append(*(new Gtk::Separator(Gtk::Orientation::VERTICAL)));
     button_box.append(open_proj);
+    // todo: mem leak?
+    button_box.append(*(new Gtk::Separator(Gtk::Orientation::VERTICAL)));
+    button_box.append(open_global);
+
     button_box.append(button_box_sec);
 
     button_box_sec.append(modules_info_print);
@@ -69,7 +74,9 @@ ProjectMgr::ProjectMgr(std::shared_ptr<Controller> controller)
     add_proj.set_label("add");
     rm_proj.set_label("rm");
     edit_proj.set_label("edit");
-    open_proj.set_label("open");
+    open_proj.set_label("open proj ctrl");
+
+    open_global.set_label("open global ctrl");
 
     modules_info_print.set_label("print mods");
     save_cfg.set_label("rewrite config");
@@ -89,12 +96,20 @@ ProjectMgr::ProjectMgr(std::shared_ptr<Controller> controller)
         sigc::mem_fun(*this, &ProjectMgr::on_edit_click)
     );
 
+    open_global.signal_clicked().connect(
+        sigc::mem_fun(*this, &ProjectMgr::on_open_global_click)
+    );
+
     save_cfg.signal_clicked().connect(
         sigc::mem_fun(*this, &ProjectMgr::on_save_cfg)
     );
 
     modules_info_print.signal_clicked().connect(
         sigc::mem_fun(*this, &ProjectMgr::on_modules_info_print)
+    );
+
+    signal_destroy().connect(
+        sigc::mem_fun(*this, &ProjectMgr::on_destroy_sig)
     );
 
     // project_list.set_model(project_list_store);
@@ -173,6 +188,7 @@ void ProjectMgr::table_path_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_it
 
 void ProjectMgr::on_add_click()
 {
+    // todo: mem leak?
     auto w = new ProjectMgrEditor(controller, "", "");
     w->set_transient_for(*this);
     w->set_destroy_with_parent(true);
@@ -206,6 +222,7 @@ void ProjectMgr::on_edit_click()
         auto item = list->get_item(*i);
         std::cout << "   editing: " << item->proj_name << std::endl;
 
+        // todo: mem leak?
         auto w = new ProjectMgrEditor(
             controller,
             item->proj_name,
@@ -224,6 +241,11 @@ void ProjectMgr::on_open_click()
 {
 }
 
+void ProjectMgr::on_open_global_click()
+{
+    controller->showGlobalProjCtl();
+}
+
 void ProjectMgr::on_save_cfg()
 {
     controller->saveConfig();
@@ -239,4 +261,10 @@ void ProjectMgr::on_modules_info_print()
     {
         printInfoCodeEditorModule(x);
     }
+}
+
+void ProjectMgr::on_destroy_sig()
+{
+    std::cout << "ProjectMgr sig destroy" << std::endl;
+    controller->cleanupProjectMgr();
 }

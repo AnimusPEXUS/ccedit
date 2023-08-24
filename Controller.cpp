@@ -20,6 +20,11 @@ Controller::Controller(Glib::RefPtr<Gtk::Application> app)
     project_list_store = Gio::ListStore<ProjectTableRow>::create();
 }
 
+Controller::~Controller()
+{
+    std::cout << "~Controller()" << std::endl;
+};
+
 int Controller::run(int argc, char *argv[])
 {
 
@@ -45,16 +50,18 @@ void Controller::on_app_startup()
 
 void Controller::showProjectMgr()
 {
-    project_mgr = std::shared_ptr<ProjectMgr>(
-        new ProjectMgr(std::shared_ptr<Controller>(this))
-    );
+    if (!project_mgr)
+    {
+        project_mgr = std::shared_ptr<ProjectMgr>(
+            new ProjectMgr(own_ptr)
+        );
+        app->add_window(*project_mgr);
+    }
 
-    app->add_window(*project_mgr.get());
-
-    project_mgr.get()->show();
+    project_mgr->show();
 }
 
-void Controller::closeProjectMgr()
+void Controller::cleanupProjectMgr()
 {
     project_mgr.reset();
 }
@@ -208,7 +215,32 @@ int Controller::addBuiltinModules()
     return 0;
 }
 
+void Controller::showGlobalProjCtl()
+{
+    if (!global_proj_ctl)
+    {
+        global_proj_ctl = std::shared_ptr<ProjectCtl>(
+            new ProjectCtl(own_ptr)
+        );
+        global_proj_ctl->own_ptr = global_proj_ctl;
+        app->add_window(*global_proj_ctl);
+    }
+
+    global_proj_ctl->show();
+}
+
+void Controller::cleanupGlobalProjCtl()
+{
+    if (global_proj_ctl)
+    {
+        global_proj_ctl->own_ptr.reset();
+        global_proj_ctl.reset();
+    }
+}
+
 const std::string CODEEDIT_CFG = "codeedit.cfg";
+
+// ----------------------------------
 
 #ifdef __unix__
 

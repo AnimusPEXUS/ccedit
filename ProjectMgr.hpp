@@ -22,28 +22,28 @@ namespace codeeditor
 
         // ProjectMgrTableRow ProjectMgrTableRow;
 
-        Gtk::ScrolledWindow                project_list_sw;
-        Gtk::ColumnView                    project_list_view;
+        Gtk::ScrolledWindow               project_list_sw;
+        Gtk::ColumnView                   project_list_view;
         Glib::RefPtr<Gtk::MultiSelection> project_list_view_selection;
 
         Gtk::Box main_box;
         Gtk::Box button_box;
         Gtk::Box button_box_sec;
 
-        Gtk::Button    add_proj;
-        Gtk::Button    rm_proj;
-        Gtk::Button    edit_proj;
-        Gtk::Separator separ;
-        Gtk::Button    open_proj;
+        Gtk::Button add_proj;
+        Gtk::Button rm_proj;
+        Gtk::Button edit_proj;
+        Gtk::Button open_proj;
+        Gtk::Button open_global;
 
-        Gtk::Button    modules_info_print;
-        Gtk::Button    save_cfg;
+        Gtk::Button modules_info_print;
+        Gtk::Button save_cfg;
 
         void on_add_click();
         void on_rm_click();
         void on_edit_click();
         void on_open_click();
-        
+        void on_open_global_click();
 
         void on_modules_info_print();
         void on_save_cfg();
@@ -56,6 +56,8 @@ namespace codeeditor
         );
         void table_name_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_item);
         void table_path_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_item);
+
+        void on_destroy_sig();
     };
 
 } // namespace codeeditor

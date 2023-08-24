@@ -8,7 +8,24 @@ int main(int argc, char *argv[])
 {
     auto app = Gtk::Application::create("i2p.wayround.codeeditor");
 
-    auto controller = new Controller(app);
+    int ret = 0;
 
-    return controller->run(argc, argv);
+    {
+        auto controller = std::shared_ptr<Controller>(
+            new Controller(app)
+        );
+
+        // some subprogramms needs to use Controller.
+        // so we copying it's shared_ptr here.
+        controller->own_ptr = controller;
+
+        ret = controller->run(argc, argv);
+
+        controller->own_ptr.reset();
+        controller.reset();
+    }
+
+    std::cout << "thx for using CodeEditor" << std::endl;
+
+    return ret;
 }
