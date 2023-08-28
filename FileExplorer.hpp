@@ -14,6 +14,8 @@ namespace codeeditor
 {
     class FileExplorerWidget;
 
+    class ProjectCtl;
+
     class FileExplorer : public Gtk::Window
     {
       public:
@@ -26,13 +28,10 @@ namespace codeeditor
       private:
         std::shared_ptr<ProjectCtl> proj_ctl;
 
-        // few have to be pointer, because FileExplorerWidget
-        // incomplete at this point.
-        // few can't be simple pointer, because othervise
-        // it's deletion causes segfault
-        std::shared_ptr<FileExplorerWidget> few;
-
-        void cleanup_few();
+        // can't allocate FileExplorerWidget on stack
+        // because it has circular dependency on ProjectCtl
+        // and incomplete at this point
+        FileExplorerWidget *few;
 
         void on_destroy_sig();
     };

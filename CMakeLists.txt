@@ -29,6 +29,9 @@ add_executable(
     ProjectCtl.cpp
     FileExplorer.cpp
     FileExplorerWidget.cpp
+    EditorListView.cpp
+    WorkSubject.cpp
+    WorkSubjectListView.cpp
     modularity.cpp
     module_ccpp.cpp
     )

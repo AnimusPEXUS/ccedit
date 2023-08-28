@@ -5,14 +5,17 @@
 
 #include <gtkmm.h>
 
-#include "ProjectCtl.hpp"
+// #include "ProjectCtl.hpp"
+// #include "WorkSubject.hpp"
 
 namespace wayround_i2p
 {
 namespace codeeditor
 {
 
-    // class ProjectCtl;
+    class ProjectCtl;
+    class WorkSubject;
+    class CodeEditorAbstract;
 
     class ProjectTableRow : public Glib::Object
     {
@@ -31,6 +34,44 @@ namespace codeeditor
       protected:
         ProjectTableRow() :
             Glib::ObjectBase(typeid(ProjectTableRow))
+        {
+        }
+    };
+
+    class WorkSubjectTableRow : public Glib::Object
+    {
+      public:
+        std::shared_ptr<WorkSubject> work_subj;
+
+        static Glib::RefPtr<WorkSubjectTableRow> create()
+        {
+            return Glib::make_refptr_for_instance<WorkSubjectTableRow>(
+                new WorkSubjectTableRow()
+            );
+        }
+
+      protected:
+        WorkSubjectTableRow() :
+            Glib::ObjectBase(typeid(WorkSubjectTableRow))
+        {
+        }
+    };
+
+    class CodeEditorTableRow : public Glib::Object
+    {
+      public:
+        std::shared_ptr<CodeEditorAbstract> editor;
+
+        static Glib::RefPtr<CodeEditorTableRow> create()
+        {
+            return Glib::make_refptr_for_instance<CodeEditorTableRow>(
+                new CodeEditorTableRow()
+            );
+        }
+
+      protected:
+        CodeEditorTableRow() :
+            Glib::ObjectBase(typeid(CodeEditorTableRow))
         {
         }
     };

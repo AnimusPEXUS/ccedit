@@ -2,6 +2,7 @@
 #include "ProjectCtl.hpp"
 #include "Controller.hpp"
 #include "FileExplorer.hpp"
+#include "WorkSubjectListView.hpp"
 
 using namespace wayround_i2p::codeeditor;
 
@@ -11,10 +12,22 @@ ProjectCtl::ProjectCtl(std::shared_ptr<Controller> controller)
 
     show_file_explorer_btn.set_label("File Explorer");
 
-    set_child(show_file_explorer_btn);
+    set_child(main_box);
+
+    main_box.set_margin_top(5);
+    main_box.set_margin_start(5);
+    main_box.set_margin_end(5);
+    main_box.set_margin_bottom(5);
+
+    main_box.append(show_file_explorer_btn);
+    main_box.append(show_new_worksubject_list_btn);
 
     show_file_explorer_btn.signal_clicked().connect(
         sigc::mem_fun(*this, &ProjectCtl::on_show_file_explorer_btn)
+    );
+
+    show_new_worksubject_list_btn.signal_clicked().connect(
+        sigc::mem_fun(*this, &ProjectCtl::on_show_new_worksubject_list_btn)
     );
 
     signal_hide().connect(
@@ -31,50 +44,17 @@ std::shared_ptr<Controller> ProjectCtl::getController()
     return controller;
 }
 
-void ProjectCtl::registerFileExplorer(std::shared_ptr<FileExplorer> fe)
-{
-    auto i = explorer_windows.begin();
-    while (i != explorer_windows.end())
-    {
-        if (fe == *i)
-        {
-            return;
-        }
-        ++i;
-    }
-    explorer_windows.push_back(fe);
-}
-
-void ProjectCtl::unregisterFileExplorer(FileExplorer *fe)
-{
-    auto i = explorer_windows.begin();
-    while (i != explorer_windows.end())
-    {
-        if ((*i).get() == fe)
-        {
-            std::cout << " unregisterFileExplorer :: match found - deleting" << std::endl;
-            i = explorer_windows.erase(i);
-            std::cout << " unregisterFileExplorer :: match found - deleted" << std::endl;
-            continue;
-        }
-        ++i;
-    }
-}
-
-void ProjectCtl::unregisterFileExplorer(std::shared_ptr<FileExplorer> fe)
-{
-    unregisterFileExplorer(fe.get());
-}
-
 void ProjectCtl::on_show_file_explorer_btn()
 {
-
-    auto x = std::shared_ptr<FileExplorer>(
-        new FileExplorer(this->own_ptr)
-    );
-    registerFileExplorer(x);
+    auto x = new FileExplorer(this->own_ptr);
     x->show();
-    // todo: mem leak?
+    controller->getGtkApp()->add_window(*x);
+}
+
+void ProjectCtl::on_show_new_worksubject_list_btn()
+{
+    auto x = new WorkSubjectListView(this->own_ptr);
+    x->show();
     controller->getGtkApp()->add_window(*x);
 }
 

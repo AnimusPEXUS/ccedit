@@ -59,11 +59,11 @@ ProjectMgr::ProjectMgr(std::shared_ptr<Controller> controller)
     button_box.append(add_proj);
     button_box.append(rm_proj);
     button_box.append(edit_proj);
-    // todo: mem leak?
-    button_box.append(*(new Gtk::Separator(Gtk::Orientation::VERTICAL)));
+
+    button_box.append(sep0);
     button_box.append(open_proj);
-    // todo: mem leak?
-    button_box.append(*(new Gtk::Separator(Gtk::Orientation::VERTICAL)));
+
+    button_box.append(sep1);
     button_box.append(open_global);
 
     button_box.append(button_box_sec);
@@ -117,14 +117,7 @@ ProjectMgr::ProjectMgr(std::shared_ptr<Controller> controller)
 
 void ProjectMgr::add_columns()
 {
-    /* column for fixed toggles */
     auto factory = Gtk::SignalListItemFactory::create();
-    //   factory->signal_setup().connect(
-    //     sigc::mem_fun(*this, &Example_ListView_ListStore::on_setup_checkbutton));
-    //   factory->signal_bind().connect(
-    //     sigc::mem_fun(*this, &Example_ListView_ListStore::on_bind_fixed));
-    //   factory->signal_unbind().connect(
-    //     sigc::mem_fun(*this, &Example_ListView_ListStore::on_unbind_fixed));
     factory->signal_setup().connect(
         sigc::bind(
             sigc::mem_fun(*this, &ProjectMgr::table_cell_setup),
@@ -136,12 +129,13 @@ void ProjectMgr::add_columns()
             sigc::mem_fun(*this, &ProjectMgr::table_name_cell_bind)
         )
     );
+
     auto column = Gtk::ColumnViewColumn::create("Project", factory);
     column->set_fixed_width(200);
     column->set_resizable(true);
-    // column->set_fixed_width(60);
     project_list_view.append_column(column);
 
+    // -------------
     factory = Gtk::SignalListItemFactory::create();
     factory->signal_setup().connect(
         sigc::bind(

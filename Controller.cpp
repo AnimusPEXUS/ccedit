@@ -102,7 +102,7 @@ int Controller::saveConfig()
     root["test"] = 123;
 
     auto f = std::ofstream(pth);
-
+    
     f << root;
 
     f.close();

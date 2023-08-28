@@ -30,11 +30,13 @@ namespace codeeditor
         Gtk::Box button_box;
         Gtk::Box button_box_sec;
 
-        Gtk::Button add_proj;
-        Gtk::Button rm_proj;
-        Gtk::Button edit_proj;
-        Gtk::Button open_proj;
-        Gtk::Button open_global;
+        Gtk::Button    add_proj;
+        Gtk::Button    rm_proj;
+        Gtk::Button    edit_proj;
+        Gtk::Separator sep0;
+        Gtk::Button    open_proj;
+        Gtk::Separator sep1;
+        Gtk::Button    open_global;
 
         Gtk::Button modules_info_print;
         Gtk::Button save_cfg;
