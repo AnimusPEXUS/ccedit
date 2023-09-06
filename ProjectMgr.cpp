@@ -11,6 +11,12 @@ ProjectMgr::ProjectMgr(std::shared_ptr<Controller> controller)
 {
     this->controller = controller;
 
+    project_list_view_selection = Gtk::MultiSelection::create(
+        this->controller->getProjectListStore()
+    );
+    // project_list_view_selection->set_autoselect(false);
+    // project_list_view_selection->set_can_unselect(true);
+
     set_title("Project Manager :: Create/Edit/Remove/Open - Code Editor");
     set_child(main_box);
 
@@ -18,12 +24,6 @@ ProjectMgr::ProjectMgr(std::shared_ptr<Controller> controller)
     main_box.set_margin_start(5);
     main_box.set_margin_end(5);
     main_box.set_margin_bottom(5);
-
-    project_list_view_selection = Gtk::MultiSelection::create(
-        this->controller->getProjectListStore()
-    );
-    // project_list_view_selection->set_autoselect(false);
-    // project_list_view_selection->set_can_unselect(true);
 
     project_list_view.set_hexpand();
     project_list_view.set_vexpand();

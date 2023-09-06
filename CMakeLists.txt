@@ -21,19 +21,19 @@ find_package(Boost REQUIRED COMPONENTS json)
 pkg_check_modules(gtkmm REQUIRED IMPORTED_TARGET gtkmm-4.0)
 
 add_executable(
-    codeedit 
-    main.cpp
-    Controller.cpp
-    ProjectMgr.cpp
-    ProjectMgrEditor.cpp
-    ProjectCtl.cpp
-    FileExplorer.cpp
-    FileExplorerWidget.cpp
-    EditorListView.cpp
-    WorkSubject.cpp
-    WorkSubjectListView.cpp
-    modularity.cpp
-    module_ccpp.cpp
+	codeedit 
+	CommonEditorWindow.cpp
+	Controller.cpp
+	EditorListView.cpp
+	FileExplorer.cpp
+	main.cpp
+	modularity.cpp
+	module_ccpp.cpp
+	ProjectCtl.cpp
+	ProjectMgr.cpp
+	ProjectMgrEditor.cpp
+	WorkSubject.cpp
+	WorkSubjectListView.cpp
     )
 
 target_link_libraries(

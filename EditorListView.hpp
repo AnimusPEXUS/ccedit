@@ -16,6 +16,7 @@ namespace codeeditor
     {
       public:
         EditorListView(std::shared_ptr<ProjectCtl> project_ctl);
+        ~EditorListView();
 
       private:
         std::shared_ptr<ProjectCtl> project_ctl;

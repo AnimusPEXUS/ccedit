@@ -1,5 +1,5 @@
 #!/bin/bash
 
 echo "------------------------------------------"
-mkdir build
-cd build && cmake .. && make
+mkdir build > /dev/null 2>&1
+cd build && cmake .. && make -j4

@@ -1,3 +1,6 @@
+#include <cstdio>
+#include <experimental/scope>
+
 #include "WorkSubject.hpp"
 
 using namespace wayround_i2p::codeeditor;
@@ -5,14 +8,19 @@ using namespace wayround_i2p::codeeditor;
 WorkSubject::WorkSubject(
     std::shared_ptr<Controller> controller,
     std::shared_ptr<ProjectCtl> project_ctl,
-    std::filesystem::path       path
+    std::filesystem::path       fpth
 )
 {
     this->controller  = controller;
     this->project_ctl = project_ctl;
-    this->path        = path;
+    this->fpth        = fpth;
 
     createNew();
+}
+
+WorkSubject::~WorkSubject()
+{
+    std::cout << "~WorkSubject()" << std::endl;
 }
 
 std::shared_ptr<Controller> WorkSubject::getController()
@@ -27,31 +35,91 @@ std::shared_ptr<ProjectCtl> WorkSubject::getProject()
 
 std::filesystem::path WorkSubject::getPath()
 {
-    return path;
+    return fpth;
 }
 
 std::filesystem::path WorkSubject::getFullPath()
 {
-    return path; // fixme
+    return fpth; // fixme
 }
 
 void WorkSubject::createNew()
 {
-    buff = Gtk::TextBuffer::create();
+    txt_buff = Gtk::TextBuffer::create();
 }
 
 int WorkSubject::load()
 {
+    return load(false);
+}
+
+int WorkSubject::load(bool allow_nonexist)
+{
     auto fp = getFullPath();
 
+    // todo: mode tests?
     if (!std::filesystem::exists(fp))
     {
-        return 1;
+        if (allow_nonexist)
+        {
+            txt_buff->set_text("");
+            return 0;
+        }
+        else
+        {
+            return 1;
+        }
     }
 
-    // todo
+    int          err     = 0;
+    int          err_eof = 0;
+    std::string  txt("");
+    const size_t size2mib = 1024 * 1024 * 2;
+    char        *buffer   = new char[size2mib];
 
-    return 0;
+    auto se01 = std::experimental::fundamentals_v3::scope_exit(
+        [buffer]()
+        {
+            std::cout << "scope_exit 1" << std::endl;
+            delete buffer;
+        }
+    );
+
+    auto f = std::fopen(fp.c_str(), "r");
+    if (err = std::ferror(f); err != 0)
+    {
+        return err;
+    }
+    auto se02 = std::experimental::fundamentals_v3::scope_exit(
+        [f]()
+        {
+            std::cout << "scope_exit 2" << std::endl;
+            std::fclose(f);
+        }
+    );
+
+    std::cout << "while" << std::endl;
+    while (true)
+    {
+        err     = std::ferror(f);
+        err_eof = std::feof(f);
+
+        std::cout << "err: " << err << " err_eof: " << err_eof << std::endl;
+
+        if (err != 0)
+        {
+            return err;
+        }
+
+        if (err_eof != 0)
+        {
+            txt_buff->set_text(txt);
+            return 0;
+        }
+        auto readed = std::fread(buffer, sizeof(buffer[0]), size2mib, f);
+        txt.append(std::string(buffer, readed));
+        // std::cout << "while2" << std::endl;
+    }
 }
 
 int WorkSubject::save()
@@ -62,4 +130,14 @@ int WorkSubject::save()
 bool WorkSubject::modified()
 {
     return 1;
+}
+
+Glib::RefPtr<Gtk::TextBuffer> WorkSubject::getTextBuffer()
+{
+    return txt_buff;
+}
+
+void WorkSubject::getBinaryBuffer()
+{
+    // todo:
 }

@@ -1,6 +1,8 @@
 #ifndef PROJECT_MGR_EDITOR_HPP
 #define PROJECT_MGR_EDITOR_HPP
 
+#include <iostream>
+
 #include <gtkmm.h>
 
 #include "Controller.hpp"
@@ -19,6 +21,7 @@ namespace codeeditor
             std::string                 proj_name,
             std::string                 proj_path
         );
+        ~ProjectMgrEditor();
 
       private:
         std::shared_ptr<Controller> controller;

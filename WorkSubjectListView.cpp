@@ -4,16 +4,42 @@ using namespace wayround_i2p::codeeditor;
 
 WorkSubjectListView::WorkSubjectListView(
     std::shared_ptr<ProjectCtl> project_ctl
-)
+) :
+    main_box(Gtk::Orientation::VERTICAL, 5),
+    tools_box(Gtk::Orientation::HORIZONTAL, 5)
 {
     this->project_ctl = project_ctl;
+
+    ws_view_sel = Gtk::MultiSelection::create(
+        this->project_ctl->getWorkSubjectListStore()
+    );
+
+    main_box.set_margin_top(5);
+    main_box.set_margin_start(5);
+    main_box.set_margin_end(5);
+    main_box.set_margin_bottom(5);
 
     main_box.append(tools_box);
     main_box.append(ws_view_sw);
 
     ws_view_sw.set_child(ws_view);
+    ws_view_sw.set_vexpand(true);
+    ws_view_sw.set_has_frame(true);
 
     add_columns();
+
+    ws_view.set_model(ws_view_sel);
+
+    set_child(main_box);
+
+    signal_destroy().connect(
+        sigc::mem_fun(*this, &WorkSubjectListView::on_destroy_sig)
+    );
+}
+
+WorkSubjectListView::~WorkSubjectListView()
+{
+    std::cout << "~WorkSubjectListView()" << std::endl;
 }
 
 void WorkSubjectListView::add_columns()
@@ -34,6 +60,7 @@ void WorkSubjectListView::add_columns()
     auto column = Gtk::ColumnViewColumn::create("Subject", factory);
     // column->set_fixed_width(200);
     // column->set_resizable(true);
+    column->set_expand(true);
     ws_view.append_column(column);
 
     // -------------
@@ -62,7 +89,7 @@ void WorkSubjectListView::table_cell_setup(const Glib::RefPtr<Gtk::ListItem> &li
 
 void WorkSubjectListView::table_subject_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_item)
 {
-    auto col = std::dynamic_pointer_cast<ProjectTableRow>(list_item->get_item());
+    auto col = std::dynamic_pointer_cast<WorkSubjectTableRow>(list_item->get_item());
     if (!col)
         return;
     auto label = dynamic_cast<Gtk::Label *>(list_item->get_child());

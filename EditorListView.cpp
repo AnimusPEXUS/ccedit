@@ -4,16 +4,42 @@ using namespace wayround_i2p::codeeditor;
 
 EditorListView::EditorListView(
     std::shared_ptr<ProjectCtl> project_ctl
-)
+) :
+    main_box(Gtk::Orientation::VERTICAL, 5),
+    tools_box(Gtk::Orientation::HORIZONTAL, 5)
 {
     this->project_ctl = project_ctl;
+
+    eds_view_sel = Gtk::MultiSelection::create(
+        this->project_ctl->getCodeEditorListStore()
+    );
+
+    main_box.set_margin_top(5);
+    main_box.set_margin_start(5);
+    main_box.set_margin_end(5);
+    main_box.set_margin_bottom(5);
 
     main_box.append(tools_box);
     main_box.append(eds_view_sw);
 
     eds_view_sw.set_child(eds_view);
+    eds_view_sw.set_vexpand(true);
+    eds_view_sw.set_has_frame(true);
 
     add_columns();
+
+    eds_view.set_model(eds_view_sel);
+
+    set_child(main_box);
+
+    signal_destroy().connect(
+        sigc::mem_fun(*this, &EditorListView::on_destroy_sig)
+    );
+}
+
+EditorListView::~EditorListView()
+{
+    std::cout << "~EditorListView()" << std::endl;
 }
 
 void EditorListView::add_columns()
@@ -31,9 +57,10 @@ void EditorListView::add_columns()
         )
     );
 
-    auto column = Gtk::ColumnViewColumn::create("Subject", factory);
+    auto column = Gtk::ColumnViewColumn::create("FN", factory);
     // column->set_fixed_width(200);
     // column->set_resizable(true);
+    column->set_expand(true);
     eds_view.append_column(column);
 
     // -------------
@@ -62,7 +89,7 @@ void EditorListView::table_cell_setup(const Glib::RefPtr<Gtk::ListItem> &list_it
 
 void EditorListView::table_subject_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_item)
 {
-    auto col = std::dynamic_pointer_cast<ProjectTableRow>(list_item->get_item());
+    auto col = std::dynamic_pointer_cast<CodeEditorTableRow>(list_item->get_item());
     if (!col)
         return;
     auto label = dynamic_cast<Gtk::Label *>(list_item->get_child());

@@ -89,6 +89,11 @@ ProjectMgrEditor::ProjectMgrEditor(
     );
 }
 
+ProjectMgrEditor::~ProjectMgrEditor()
+{
+    std::cout << "~ProjectMgrEditor()" << std::endl;
+}
+
 void ProjectMgrEditor::on_ok_click()
 {
     assert(controller != NULL);
