@@ -14,7 +14,7 @@ namespace wayround_i2p
 namespace codeeditor
 {
 
-    class CommonEditorWindow : public CodeEditorAbstract, public Gtk::Window
+    class CommonEditorWindow : public CodeEditorAbstract, public Gtk::ApplicationWindow
     {
       public:
         CommonEditorWindow(
@@ -40,6 +40,23 @@ namespace codeeditor
         Gtk::TextView       text_view;
         Gtk::ScrolledWindow outline_view_sw;
         Gtk::ColumnView     outline_view;
+
+        void make_menubar();
+        void make_actions();
+        void make_hotkeys();
+
+        Gtk::PopoverMenuBar menu_bar;
+
+        Glib::RefPtr<Gio::Menu> menu_model;
+
+        Glib::RefPtr<Gio::Menu>     mm_buffer;
+        Glib::RefPtr<Gio::MenuItem> mm_buffer_reload;
+        Glib::RefPtr<Gio::MenuItem> mm_buffer_save;
+        Glib::RefPtr<Gio::MenuItem> mm_buffer_save_as;
+
+        void action_buffer_reload();
+        void action_buffer_save();
+        void action_buffer_save_as();
 
         void on_destroy_sig();
     };

@@ -13,6 +13,7 @@ CommonEditorWindow::CommonEditorWindow(
 
     set_child(main_box);
 
+    main_box.append(menu_bar);
     main_box.append(paned);
 
     paned.set_start_child(text_view_sw);
@@ -25,9 +26,68 @@ CommonEditorWindow::CommonEditorWindow(
 
     text_view.set_buffer(subject->getTextBuffer());
 
+    make_menubar();
+    make_actions();
+    make_hotkeys();
+
     signal_destroy().connect(
         sigc::mem_fun(*this, &CommonEditorWindow::on_destroy_sig)
     );
+}
+
+void CommonEditorWindow::make_menubar()
+{
+    menu_model = Gio::Menu::create();
+    menu_bar.set_menu_model(menu_model);
+
+    mm_buffer = Gio::Menu::create();
+    menu_model->append_submenu("Buffer", mm_buffer);
+
+    mm_buffer_reload  = Gio::MenuItem::create("(Re)load", "editor_window.buffer_reload");
+    mm_buffer_save    = Gio::MenuItem::create("Save", "editor_window.buffer_save");
+    mm_buffer_save_as = Gio::MenuItem::create("Save as..", "editor_window.buffer_save_as");
+
+    mm_buffer->append_item(mm_buffer_reload);
+    mm_buffer->append_item(mm_buffer_save);
+    mm_buffer->append_item(mm_buffer_save_as);
+};
+
+void CommonEditorWindow::make_actions()
+{
+    auto action_group = Gio::SimpleActionGroup::create();
+    action_group->add_action(
+        "buffer_reload",
+        sigc::mem_fun(*this, &CommonEditorWindow::action_buffer_reload)
+    );
+    action_group->add_action(
+        "buffer_save",
+        sigc::mem_fun(*this, &CommonEditorWindow::action_buffer_save)
+    );
+    action_group->add_action(
+        "buffer_save_as",
+        sigc::mem_fun(*this, &CommonEditorWindow::action_buffer_save_as)
+    );
+    insert_action_group("editor_window", action_group);
+}
+
+void CommonEditorWindow::make_hotkeys()
+{
+    auto controller = Gtk::ShortcutController::create();
+    controller->set_scope(Gtk::ShortcutScope::LOCAL);
+
+    controller->add_shortcut(Gtk::Shortcut::create(
+        Gtk::KeyvalTrigger::create(GDK_KEY_r, Gdk::ModifierType::CONTROL_MASK),
+        Gtk::NamedAction::create("editor_window.buffer_reload")
+    ));
+    controller->add_shortcut(Gtk::Shortcut::create(
+        Gtk::KeyvalTrigger::create(GDK_KEY_s, Gdk::ModifierType::CONTROL_MASK),
+        Gtk::NamedAction::create("editor_window.buffer_save")
+    ));
+    controller->add_shortcut(Gtk::Shortcut::create(
+        Gtk::KeyvalTrigger::create(GDK_KEY_s, Gdk::ModifierType::CONTROL_MASK | Gdk::ModifierType::SHIFT_MASK),
+        Gtk::NamedAction::create("editor_window.buffer_save_as")
+    ));
+    add_controller(controller);
 }
 
 CommonEditorWindow::~CommonEditorWindow()
@@ -50,6 +110,21 @@ void CommonEditorWindow::close()
 {
     auto x = (Gtk::Window *)this;
     x->close();
+}
+
+void CommonEditorWindow::action_buffer_reload()
+{
+    std::cout << "reload" << std::endl;
+}
+
+void CommonEditorWindow::action_buffer_save()
+{
+    std::cout << "save" << std::endl;
+}
+
+void CommonEditorWindow::action_buffer_save_as()
+{
+    std::cout << "save as" << std::endl;
 }
 
 void CommonEditorWindow::on_destroy_sig()
