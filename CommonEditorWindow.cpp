@@ -115,11 +115,13 @@ void CommonEditorWindow::close()
 void CommonEditorWindow::action_buffer_reload()
 {
     std::cout << "reload" << std::endl;
+    subject->reload();
 }
 
 void CommonEditorWindow::action_buffer_save()
 {
     std::cout << "save" << std::endl;
+    subject->save();
 }
 
 void CommonEditorWindow::action_buffer_save_as()

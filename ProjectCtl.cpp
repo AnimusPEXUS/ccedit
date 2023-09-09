@@ -91,7 +91,7 @@ void ProjectCtl::workSubjectEnsureExistance(std::filesystem::path fpth)
             )
         );
         work_subj_list_store->append(new_item);
-        new_item->work_subj->load();
+        new_item->work_subj->reload();
     }
     return;
 }

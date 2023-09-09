@@ -33,8 +33,8 @@ namespace codeeditor
         std::filesystem::path       getPath();
         std::filesystem::path       getFullPath();
         void                        createNew();
-        int                         load();
-        int                         load(bool allow_nonexist);
+        int                         reload();
+        int                         reload(bool allow_nonexist);
         int                         save();
         bool                        modified();
 

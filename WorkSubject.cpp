@@ -48,12 +48,14 @@ void WorkSubject::createNew()
     txt_buff = Gtk::TextBuffer::create();
 }
 
-int WorkSubject::load()
+int WorkSubject::reload()
 {
-    return load(false);
+    return reload(false);
 }
 
-int WorkSubject::load(bool allow_nonexist)
+const size_t size2mib = 1024 * 1024 * 2;
+
+int WorkSubject::reload(bool allow_nonexist)
 {
     auto fp = getFullPath();
 
@@ -71,15 +73,20 @@ int WorkSubject::load(bool allow_nonexist)
         }
     }
 
-    int          err     = 0;
-    int          err_eof = 0;
-    std::string  txt("");
-    const size_t size2mib = 1024 * 1024 * 2;
-    char        *buffer   = new char[size2mib];
+    int         err     = 0;
+    int         err_eof = 0;
+    std::string txt("");
+    char       *buffer = new char[size2mib];
+
+    if (sizeof(buffer[0]) != 1)
+    {
+        throw std::length_error("unsupported char size: not 1");
+    }
 
     auto se01 = std::experimental::fundamentals_v3::scope_exit(
         [buffer]()
         {
+            // todo: remove debug code
             std::cout << "scope_exit 1" << std::endl;
             delete buffer;
         }
@@ -93,6 +100,7 @@ int WorkSubject::load(bool allow_nonexist)
     auto se02 = std::experimental::fundamentals_v3::scope_exit(
         [f]()
         {
+            // todo: remove debug code
             std::cout << "scope_exit 2" << std::endl;
             std::fclose(f);
         }
@@ -104,6 +112,7 @@ int WorkSubject::load(bool allow_nonexist)
         err     = std::ferror(f);
         err_eof = std::feof(f);
 
+        // todo: remove debug code
         std::cout << "err: " << err << " err_eof: " << err_eof << std::endl;
 
         if (err != 0)
@@ -124,7 +133,49 @@ int WorkSubject::load(bool allow_nonexist)
 
 int WorkSubject::save()
 {
-    return 1;
+    int  err = 0;
+    auto fp  = getFullPath();
+
+    // todo: ensure directory exists. create if needed.
+
+    auto txt      = txt_buff->get_text();
+    auto txt_c    = txt.c_str();
+    auto txt_size = txt.size();
+
+    if (sizeof(txt_c[0]) != 1)
+    {
+        throw std::length_error("unsupported char size: not 1");
+    }
+
+    auto f = std::fopen(fp.c_str(), "w");
+    if (err = std::ferror(f); err != 0)
+    {
+        return err;
+    }
+    auto se02 = std::experimental::fundamentals_v3::scope_exit(
+        [f]()
+        {
+            // todo: remove debug code
+            std::cout << "scope_exit 2" << std::endl;
+            std::fclose(f);
+        }
+    );
+
+    auto offset = 0;
+
+    while (true)
+    {
+        if (offset == txt_size)
+        {
+            break;
+        }
+        auto length_minus_offset  = txt_size - offset;
+        auto count_to_write       = (size2mib <= length_minus_offset ? size2mib : length_minus_offset);
+        auto writen_count         = std::fwrite(txt_c + offset, sizeof(txt_c[0]), count_to_write, f);
+        offset                   += writen_count;
+    }
+
+    return 0;
 }
 
 bool WorkSubject::modified()
