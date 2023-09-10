@@ -18,7 +18,9 @@ set(Boost_USE_MULTITHREADED      ON)
 
 find_package(Boost REQUIRED COMPONENTS json)
 
-pkg_check_modules(gtkmm REQUIRED IMPORTED_TARGET gtkmm-4.0)
+#pkg_check_modules(gtkmm3 REQUIRED IMPORTED_TARGET gtkmm-3.0)
+pkg_check_modules(gtkmm4 REQUIRED IMPORTED_TARGET gtkmm-4.0)
+#pkg_check_modules(gtksourceviewmm REQUIRED IMPORTED_TARGET gtksourceviewmm-3.0)
 
 add_executable(
 	codeedit 
@@ -34,13 +36,16 @@ add_executable(
 	ProjectMgrEditor.cpp
 	WorkSubject.cpp
 	WorkSubjectListView.cpp
+	utils.cpp
     )
 
 target_link_libraries(
     codeedit 
     PUBLIC 
     # -static
-    PkgConfig::gtkmm 
+    PkgConfig::gtkmm4 
+    # PkgConfig::gtkmm3 
+    # PkgConfig::gtksourceviewmm 
     Boost::json
     ${Boost_LIBRARIES}
     )

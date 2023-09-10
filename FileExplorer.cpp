@@ -7,6 +7,8 @@ FileExplorer::FileExplorer(std::shared_ptr<ProjectCtl> proj_ctl) :
 {
     this->proj_ctl = proj_ctl;
 
+    updateTitle();
+
     main_box.set_margin_top(5);
     main_box.set_margin_start(5);
     main_box.set_margin_end(5);
@@ -72,6 +74,12 @@ FileExplorer::~FileExplorer()
     std::cout << "~FileExplorer()" << std::endl;
 }
 
+void FileExplorer::updateTitle()
+{
+    // todo: do something better
+    set_title("File Explorer - Code Editor");
+}
+
 void FileExplorer::on_destroy_sig()
 {
     std::cout << "FileExplorer sig destroy" << std::endl;
@@ -82,6 +90,18 @@ void FileExplorer::on_destroy_sig()
 void FileExplorer::on_temp_file_selector_btn()
 {
     select_file_dialog = Gtk::FileDialog::create();
+
+    auto lbl_txt = selected_file_lbl.get_text();
+
+    if (lbl_txt.length() != 0)
+    {
+        auto lbl_gio_file = Gio::File::create_for_path(lbl_txt);
+
+        std::cout << "applying file to dialog: " << lbl_gio_file->get_path() << std::endl;
+
+        select_file_dialog->set_initial_file(lbl_gio_file);
+    }
+
     select_file_dialog->set_title("select a file to edit");
     select_file_dialog->open(
         *this,

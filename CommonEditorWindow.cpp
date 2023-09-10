@@ -4,12 +4,14 @@ using namespace wayround_i2p::codeeditor;
 
 CommonEditorWindow::CommonEditorWindow(
     std::shared_ptr<ProjectCtl>  project_ctl,
-    std::shared_ptr<WorkSubject> subject
+    std::shared_ptr<WorkSubject> subject,
+    CodeEditorModule            *module
 ) :
     main_box(Gtk::Orientation::VERTICAL, 5)
 {
     this->project_ctl = project_ctl;
     this->subject     = subject;
+    this->module      = module;
 
     set_child(main_box);
 
@@ -19,20 +21,43 @@ CommonEditorWindow::CommonEditorWindow(
     paned.set_start_child(text_view_sw);
     paned.set_end_child(outline_view_sw);
 
+    text_view_sw.set_policy(Gtk::PolicyType::ALWAYS, Gtk::PolicyType::ALWAYS);
+    outline_view_sw.set_policy(Gtk::PolicyType::ALWAYS, Gtk::PolicyType::ALWAYS);
+
+    text_view_sw.set_overlay_scrolling(false);
+    outline_view_sw.set_overlay_scrolling(false);
+
+    text_view_sw.set_kinetic_scrolling(false);
+    outline_view_sw.set_kinetic_scrolling(false);
+
     paned.set_vexpand(true);
+    paned.set_resize_end_child(false);
 
     text_view_sw.set_child(text_view);
     outline_view_sw.set_child(outline_view);
 
+    text_view.set_monospace(true);
     text_view.set_buffer(subject->getTextBuffer());
+
+    if (this->module->setupTextView != nullptr)
+    {
+        this->module->setupTextView(&text_view);
+    }
 
     make_menubar();
     make_actions();
     make_hotkeys();
 
+    updateTitle();
+
     signal_destroy().connect(
         sigc::mem_fun(*this, &CommonEditorWindow::on_destroy_sig)
     );
+}
+
+CommonEditorWindow::~CommonEditorWindow()
+{
+    std::cout << "~CommonEditorWindow()" << std::endl;
 }
 
 void CommonEditorWindow::make_menubar()
@@ -90,9 +115,10 @@ void CommonEditorWindow::make_hotkeys()
     add_controller(controller);
 }
 
-CommonEditorWindow::~CommonEditorWindow()
+void CommonEditorWindow::updateTitle()
 {
-    std::cout << "~CommonEditorWindow()" << std::endl;
+    auto pth = subject->getPath();
+    set_title((pth.filename()).string());
 }
 
 void CommonEditorWindow::saveOwnPtr(std::shared_ptr<CodeEditorAbstract> val)

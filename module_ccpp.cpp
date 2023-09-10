@@ -15,11 +15,17 @@ namespace codeeditor
         std::shared_ptr<WorkSubject> subj
     )
     {
+        // todo: maybe Controller should pass pointer to module_info_ccpp
+        //       via create_window_ccpp() parameter
         auto x = std::shared_ptr<CodeEditorAbstract>(
-            new CommonEditorWindow(proj_ctl, subj)
+            new CommonEditorWindow(proj_ctl, subj, get_module_info_ccpp())
         );
         x->saveOwnPtr(x);
         return std::tuple(x, 0);
+    }
+
+    void setupTextView_ccpp(Gtk::TextView *view)
+    {
     }
 
     CodeEditorModule module_info_ccpp = {
@@ -27,7 +33,8 @@ namespace codeeditor
         title : "C/C++",
         description : "C/C++ editor",
         supported_extensions : {".cpp", ".c", ".cc", ".hpp", ".h", ".hh"},
-        newEditorForSubject : &create_window_ccpp
+        newEditorForSubject : &create_window_ccpp,
+        setupTextView : &setupTextView_ccpp
     };
 
     CodeEditorModule *get_module_info_ccpp()

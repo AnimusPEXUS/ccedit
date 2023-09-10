@@ -49,6 +49,8 @@ namespace codeeditor
         Gtk::Label  selected_file_lbl;
         Gtk::Button temp_file_open_btn;
 
+        void updateTitle();
+
         void on_destroy_sig();
 
         void on_temp_file_selector_btn();

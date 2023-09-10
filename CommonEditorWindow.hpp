@@ -4,6 +4,7 @@
 #include <memory>
 
 #include <gtkmm.h>
+// #include <gtksourceview/gtksource.h>
 
 #include "CodeEditorAbstract.hpp"
 #include "ProjectCtl.hpp"
@@ -19,7 +20,8 @@ namespace codeeditor
       public:
         CommonEditorWindow(
             std::shared_ptr<ProjectCtl>  project_ctl,
-            std::shared_ptr<WorkSubject> subject
+            std::shared_ptr<WorkSubject> subject,
+            CodeEditorModule            *module
         );
         ~CommonEditorWindow();
 
@@ -31,6 +33,7 @@ namespace codeeditor
       private:
         std::shared_ptr<ProjectCtl>  project_ctl;
         std::shared_ptr<WorkSubject> subject;
+        CodeEditorModule            *module;
 
         std::shared_ptr<CodeEditorAbstract> own_ptr;
 
@@ -57,6 +60,8 @@ namespace codeeditor
         void action_buffer_reload();
         void action_buffer_save();
         void action_buffer_save_as();
+
+        void updateTitle();
 
         void on_destroy_sig();
     };
