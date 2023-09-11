@@ -10,7 +10,7 @@
 
 #include "Controller.hpp"
 
-#include "module_ccpp.hpp"
+#include "builtin_mods/ccpp/module_ccpp.hpp"
 
 using namespace wayround_i2p::codeeditor;
 

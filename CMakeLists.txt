@@ -17,6 +17,7 @@ set(Boost_USE_MULTITHREADED      ON)
 
 
 find_package(Boost REQUIRED COMPONENTS json)
+# find_package(Boost REQUIRED COMPONENTS process)
 
 #pkg_check_modules(gtkmm3 REQUIRED IMPORTED_TARGET gtkmm-3.0)
 pkg_check_modules(gtkmm4 REQUIRED IMPORTED_TARGET gtkmm-4.0)
@@ -30,13 +31,13 @@ add_executable(
 	FileExplorer.cpp
 	main.cpp
 	modularity.cpp
-	module_ccpp.cpp
 	ProjectCtl.cpp
 	ProjectMgr.cpp
 	ProjectMgrEditor.cpp
 	WorkSubject.cpp
 	WorkSubjectListView.cpp
 	utils.cpp
+	builtin_mods/ccpp/module_ccpp.cpp
     )
 
 target_link_libraries(

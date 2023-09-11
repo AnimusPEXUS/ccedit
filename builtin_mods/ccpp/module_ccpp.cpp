@@ -2,7 +2,7 @@
 #include <memory>
 #include <tuple>
 
-#include "CommonEditorWindow.hpp"
+#include "../../CommonEditorWindow.hpp"
 #include "module_ccpp.hpp"
 
 namespace wayround_i2p

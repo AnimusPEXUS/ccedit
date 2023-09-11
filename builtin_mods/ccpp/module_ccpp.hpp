@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "modularity.hpp"
+#include "../../modularity.hpp"
 
 namespace wayround_i2p
 {
