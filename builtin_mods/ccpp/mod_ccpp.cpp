@@ -3,6 +3,7 @@
 #include <tuple>
 
 #include "../../CommonEditorWindow.hpp"
+#include "CodeEditorCCPP.hpp"
 #include "mod_ccpp.hpp"
 
 namespace wayround_i2p
@@ -15,10 +16,8 @@ namespace codeeditor
         std::shared_ptr<WorkSubject> subj
     )
     {
-        // todo: maybe Controller should pass pointer to module_info_ccpp
-        //       via create_window_ccpp() parameter
         auto x = std::shared_ptr<CodeEditorAbstract>(
-            new CommonEditorWindow(proj_ctl, subj, get_mod_info_ccpp())
+            new CodeEditorCCPP(proj_ctl, subj)
         );
         x->saveOwnPtr(x);
         return std::tuple(x, 0);

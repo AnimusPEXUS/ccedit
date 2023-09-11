@@ -38,6 +38,7 @@ add_executable(
 	WorkSubjectListView.cpp
 	utils.cpp
 	builtin_mods/ccpp/mod_ccpp.cpp
+	builtin_mods/ccpp/CodeEditorCCPP.cpp
     )
 
 target_link_libraries(

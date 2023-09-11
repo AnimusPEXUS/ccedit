@@ -15,13 +15,13 @@ namespace wayround_i2p
 namespace codeeditor
 {
 
-    class CommonEditorWindow : public CodeEditorAbstract, public Gtk::ApplicationWindow
+    class CommonEditorWindow : public CodeEditorAbstract,
+                               public Gtk::ApplicationWindow
     {
       public:
         CommonEditorWindow(
             std::shared_ptr<ProjectCtl>  project_ctl,
-            std::shared_ptr<WorkSubject> subject,
-            CodeEditorMod               *mod
+            std::shared_ptr<WorkSubject> subject
         );
         ~CommonEditorWindow();
 
@@ -48,6 +48,8 @@ namespace codeeditor
         void make_actions();
         void make_hotkeys();
 
+        void make_special_menu();
+
         Gtk::PopoverMenuBar menu_bar;
 
         Glib::RefPtr<Gio::Menu> menu_model;
@@ -56,6 +58,8 @@ namespace codeeditor
         Glib::RefPtr<Gio::MenuItem> mm_buffer_reload;
         Glib::RefPtr<Gio::MenuItem> mm_buffer_save;
         Glib::RefPtr<Gio::MenuItem> mm_buffer_save_as;
+
+        Glib::RefPtr<Gio::Menu> mm_special;
 
         void action_buffer_reload();
         void action_buffer_save();
