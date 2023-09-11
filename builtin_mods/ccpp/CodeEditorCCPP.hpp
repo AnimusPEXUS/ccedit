@@ -17,6 +17,14 @@ namespace codeeditor
             std::shared_ptr<WorkSubject> subject
         );
         ~CodeEditorCCPP();
+
+      private:
+        Glib::RefPtr<Gio::Menu>     mm_special;
+        Glib::RefPtr<Gio::MenuItem> mm_special_clang_format;
+
+        void make_special_menu() override;
+        void make_special_actions() override;
+        void make_special_hotkeys() override;
     };
 } // namespace codeeditor
 } // namespace wayround_i2p

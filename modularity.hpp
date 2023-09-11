@@ -28,8 +28,6 @@ namespace codeeditor
             std::shared_ptr<ProjectCtl>  proj_ctl,
             std::shared_ptr<WorkSubject> subj
         );
-
-        void (*setupTextView)(Gtk::TextView *view);
     };
 
     void printInfoCodeEditorMod(CodeEditorMod *info);

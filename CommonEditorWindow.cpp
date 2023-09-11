@@ -68,13 +68,12 @@ void CommonEditorWindow::make_menubar()
     mm_buffer->append_item(mm_buffer_reload);
     mm_buffer->append_item(mm_buffer_save);
     mm_buffer->append_item(mm_buffer_save_as);
-
-    make_special_menu();
 };
 
 void CommonEditorWindow::make_special_menu()
 {
     // note: this is to be overriden by inheriting class
+    return;
 }
 
 void CommonEditorWindow::make_actions()
@@ -95,6 +94,12 @@ void CommonEditorWindow::make_actions()
     insert_action_group("editor_window", action_group);
 }
 
+void CommonEditorWindow::make_special_actions()
+{
+    // note: this is to be overriden by inheriting class
+    return;
+}
+
 void CommonEditorWindow::make_hotkeys()
 {
     auto controller = Gtk::ShortcutController::create();
@@ -113,6 +118,17 @@ void CommonEditorWindow::make_hotkeys()
         Gtk::NamedAction::create("editor_window.buffer_save_as")
     ));
     add_controller(controller);
+}
+
+void CommonEditorWindow::make_special_hotkeys()
+{
+    // note: this is to be overriden by inheriting class
+    return;
+}
+
+Glib::RefPtr<Gio::Menu> CommonEditorWindow::getMenuModel()
+{
+    return menu_model;
 }
 
 void CommonEditorWindow::updateTitle()

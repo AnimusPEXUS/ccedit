@@ -48,8 +48,6 @@ namespace codeeditor
         void make_actions();
         void make_hotkeys();
 
-        void make_special_menu();
-
         Gtk::PopoverMenuBar menu_bar;
 
         Glib::RefPtr<Gio::Menu> menu_model;
@@ -59,8 +57,6 @@ namespace codeeditor
         Glib::RefPtr<Gio::MenuItem> mm_buffer_save;
         Glib::RefPtr<Gio::MenuItem> mm_buffer_save_as;
 
-        Glib::RefPtr<Gio::Menu> mm_special;
-
         void action_buffer_reload();
         void action_buffer_save();
         void action_buffer_save_as();
@@ -68,6 +64,14 @@ namespace codeeditor
         void updateTitle();
 
         void on_destroy_sig();
+
+      protected:
+        Glib::RefPtr<Gio::Menu> getMenuModel();
+
+      private:
+        virtual void make_special_menu();
+        virtual void make_special_actions();
+        virtual void make_special_hotkeys();
     };
 
 } // namespace codeeditor

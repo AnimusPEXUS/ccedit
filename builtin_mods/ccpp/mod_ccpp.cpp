@@ -23,17 +23,12 @@ namespace codeeditor
         return std::tuple(x, 0);
     }
 
-    void setupTextView_ccpp(Gtk::TextView *view)
-    {
-    }
-
     CodeEditorMod mod_info_ccpp = {
         name : "CCPP",
         title : "C/C++",
         description : "C/C++ editor",
         supported_extensions : {".cpp", ".c", ".cc", ".hpp", ".h", ".hh"},
-        newEditorForSubject : &create_window_ccpp,
-        setupTextView : &setupTextView_ccpp
+        newEditorForSubject : &create_window_ccpp
     };
 
     CodeEditorMod *get_mod_info_ccpp()
