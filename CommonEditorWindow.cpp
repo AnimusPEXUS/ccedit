@@ -5,13 +5,13 @@ using namespace wayround_i2p::codeeditor;
 CommonEditorWindow::CommonEditorWindow(
     std::shared_ptr<ProjectCtl>  project_ctl,
     std::shared_ptr<WorkSubject> subject,
-    CodeEditorMod            *mod
+    CodeEditorMod               *mod
 ) :
     main_box(Gtk::Orientation::VERTICAL, 5)
 {
     this->project_ctl = project_ctl;
     this->subject     = subject;
-    this->mod      = mod;
+    this->mod         = mod;
 
     set_child(main_box);
 

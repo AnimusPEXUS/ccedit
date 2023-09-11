@@ -58,7 +58,7 @@ namespace codeeditor
         int loadConfig();
 
         Glib::RefPtr<Gio::ListStore<ProjectTableRow>> getProjectListStore();
-        std::vector<CodeEditorMod *>               getBuiltinMods();
+        std::vector<CodeEditorMod *>                  getBuiltinMods();
 
         void showGlobalProjCtl();
         void cleanupGlobalProjCtl();
