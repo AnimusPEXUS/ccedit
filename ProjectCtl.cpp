@@ -107,7 +107,7 @@ int ProjectCtl::workSubjectNewEditor(std::filesystem::path fpth)
         return err;
     }
 
-    auto x = controller->getBuiltinModules()[0];
+    auto x = controller->getBuiltinMods()[0];
 
     {
         auto [editor, err] = x->newEditorForSubject(own_ptr, subj);

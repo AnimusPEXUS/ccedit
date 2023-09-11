@@ -10,7 +10,7 @@
 
 #include "Controller.hpp"
 
-#include "builtin_mods/ccpp/module_ccpp.hpp"
+#include "builtin_mods/ccpp/mod_ccpp.hpp"
 
 using namespace wayround_i2p::codeeditor;
 
@@ -33,7 +33,7 @@ int Controller::run(int argc, char *argv[])
     //     // std::cout << format("couldn't ensure directory existance: {}")
     // };
 
-    addBuiltinModules();
+    addBuiltinMods();
 
     app->signal_startup()
         .connect(
@@ -198,20 +198,20 @@ Glib::RefPtr<Gio::ListStore<ProjectTableRow>> Controller::getProjectListStore()
     return project_list_store;
 }
 
-std::vector<CodeEditorModule *> Controller::getBuiltinModules()
+std::vector<CodeEditorMod *> Controller::getBuiltinMods()
 {
-    return builtin_modules;
+    return builtin_mods;
 }
 
-int Controller::addBuiltinModule(CodeEditorModule *module)
+int Controller::addBuiltinMod(CodeEditorMod *mod)
 {
-    builtin_modules.push_back(module);
+    builtin_mods.push_back(mod);
     return 0;
 }
 
-int Controller::addBuiltinModules()
+int Controller::addBuiltinMods()
 {
-    addBuiltinModule(get_module_info_ccpp());
+    addBuiltinMod(get_mod_info_ccpp());
     return 0;
 }
 

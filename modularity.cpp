@@ -7,10 +7,10 @@ namespace wayround_i2p
 namespace codeeditor
 {
 
-    void printInfoCodeEditorModule(CodeEditorModule *info)
+    void printInfoCodeEditorMod(CodeEditorMod *info)
     {
         std::cout
-            << "Module Name: " << info->name << std::endl
+            << "Mod Name: " << info->name << std::endl
             << "  Title    : " << info->title << std::endl
 
             ;

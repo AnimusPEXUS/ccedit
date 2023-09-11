@@ -21,7 +21,7 @@ namespace codeeditor
     class ProjectMgr;
     class ProjectTableRow;
 
-    struct CodeEditorModule;
+    struct CodeEditorMod;
 
     class Controller //: public Gtk::Window
     {
@@ -58,9 +58,7 @@ namespace codeeditor
         int loadConfig();
 
         Glib::RefPtr<Gio::ListStore<ProjectTableRow>> getProjectListStore();
-        std::vector<CodeEditorModule *>               getBuiltinModules();
-
-        int addBuiltinModule(CodeEditorModule *module);
+        std::vector<CodeEditorMod *>               getBuiltinMods();
 
         void showGlobalProjCtl();
         void cleanupGlobalProjCtl();
@@ -82,9 +80,10 @@ namespace codeeditor
         std::tuple<std::filesystem::path, int> getConfigFullPath();
         int                                    ensureConfigDirExists();
 
-        std::vector<CodeEditorModule *> builtin_modules;
+        std::vector<CodeEditorMod *> builtin_mods;
 
-        int addBuiltinModules();
+        int addBuiltinMods();
+        int addBuiltinMod(CodeEditorMod *mod);
     };
 } // namespace codeeditor
 } // namespace wayround_i2p

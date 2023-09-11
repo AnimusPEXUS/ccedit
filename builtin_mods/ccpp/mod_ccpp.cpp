@@ -3,7 +3,7 @@
 #include <tuple>
 
 #include "../../CommonEditorWindow.hpp"
-#include "module_ccpp.hpp"
+#include "mod_ccpp.hpp"
 
 namespace wayround_i2p
 {
@@ -18,7 +18,7 @@ namespace codeeditor
         // todo: maybe Controller should pass pointer to module_info_ccpp
         //       via create_window_ccpp() parameter
         auto x = std::shared_ptr<CodeEditorAbstract>(
-            new CommonEditorWindow(proj_ctl, subj, get_module_info_ccpp())
+            new CommonEditorWindow(proj_ctl, subj, get_mod_info_ccpp())
         );
         x->saveOwnPtr(x);
         return std::tuple(x, 0);
@@ -28,7 +28,7 @@ namespace codeeditor
     {
     }
 
-    CodeEditorModule module_info_ccpp = {
+    CodeEditorMod mod_info_ccpp = {
         name : "CCPP",
         title : "C/C++",
         description : "C/C++ editor",
@@ -37,9 +37,9 @@ namespace codeeditor
         setupTextView : &setupTextView_ccpp
     };
 
-    CodeEditorModule *get_module_info_ccpp()
+    CodeEditorMod *get_mod_info_ccpp()
     {
-        return &module_info_ccpp;
+        return &mod_info_ccpp;
     }
 
 } // namespace codeeditor

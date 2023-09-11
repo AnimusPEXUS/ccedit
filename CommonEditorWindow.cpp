@@ -5,13 +5,13 @@ using namespace wayround_i2p::codeeditor;
 CommonEditorWindow::CommonEditorWindow(
     std::shared_ptr<ProjectCtl>  project_ctl,
     std::shared_ptr<WorkSubject> subject,
-    CodeEditorModule            *module
+    CodeEditorMod            *mod
 ) :
     main_box(Gtk::Orientation::VERTICAL, 5)
 {
     this->project_ctl = project_ctl;
     this->subject     = subject;
-    this->module      = module;
+    this->mod      = mod;
 
     set_child(main_box);
 
@@ -39,9 +39,9 @@ CommonEditorWindow::CommonEditorWindow(
     text_view.set_monospace(true);
     text_view.set_buffer(subject->getTextBuffer());
 
-    if (this->module->setupTextView != nullptr)
+    if (this->mod->setupTextView != nullptr)
     {
-        this->module->setupTextView(&text_view);
+        this->mod->setupTextView(&text_view);
     }
 
     make_menubar();

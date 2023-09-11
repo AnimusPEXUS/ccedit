@@ -37,7 +37,7 @@ add_executable(
 	WorkSubject.cpp
 	WorkSubjectListView.cpp
 	utils.cpp
-	builtin_mods/ccpp/module_ccpp.cpp
+	builtin_mods/ccpp/mod_ccpp.cpp
     )
 
 target_link_libraries(

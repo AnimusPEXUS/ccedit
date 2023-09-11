@@ -247,13 +247,13 @@ void ProjectMgr::on_save_cfg()
 
 void ProjectMgr::on_modules_info_print()
 {
-    auto mods = controller->getBuiltinModules();
+    auto mods = controller->getBuiltinMods();
 
-    std::cout << "module count: " << mods.size() << std::endl;
+    std::cout << "mod count: " << mods.size() << std::endl;
 
     for (auto x : mods)
     {
-        printInfoCodeEditorModule(x);
+        printInfoCodeEditorMod(x);
     }
 }
 

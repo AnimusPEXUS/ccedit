@@ -13,7 +13,7 @@ namespace wayround_i2p
 {
 namespace codeeditor
 {
-    struct CodeEditorModule
+    struct CodeEditorMod
     {
         std::string              name;
         std::string              title;
@@ -32,7 +32,7 @@ namespace codeeditor
         void (*setupTextView)(Gtk::TextView *view);
     };
 
-    void printInfoCodeEditorModule(CodeEditorModule *info);
+    void printInfoCodeEditorMod(CodeEditorMod *info);
 
 } // namespace codeeditor
 } // namespace wayround_i2p

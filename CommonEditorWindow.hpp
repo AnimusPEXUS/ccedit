@@ -21,7 +21,7 @@ namespace codeeditor
         CommonEditorWindow(
             std::shared_ptr<ProjectCtl>  project_ctl,
             std::shared_ptr<WorkSubject> subject,
-            CodeEditorModule            *module
+            CodeEditorMod            *mod
         );
         ~CommonEditorWindow();
 
@@ -33,7 +33,7 @@ namespace codeeditor
       private:
         std::shared_ptr<ProjectCtl>  project_ctl;
         std::shared_ptr<WorkSubject> subject;
-        CodeEditorModule            *module;
+        CodeEditorMod            *mod;
 
         std::shared_ptr<CodeEditorAbstract> own_ptr;
 
