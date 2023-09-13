@@ -218,3 +218,8 @@ void ProjectCtl::on_destroy_sig()
     std::cout << "ProjectCtl sig destroy" << std::endl;
     controller->cleanupGlobalProjCtl();
 }
+
+std::tuple<std::filesystem::path, int> ProjectCtl::getProjectPath()
+{
+    return controller->getPathProject(this);
+}

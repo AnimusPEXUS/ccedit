@@ -22,6 +22,8 @@ namespace codeeditor
         Glib::RefPtr<Gio::Menu>     mm_special;
         Glib::RefPtr<Gio::MenuItem> mm_special_clang_format;
 
+        void clang_format_buffer();
+
         void make_special_menu() override;
         void make_special_actions() override;
         void make_special_hotkeys() override;

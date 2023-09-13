@@ -19,8 +19,14 @@ CommonEditorWindow::CommonEditorWindow(
     paned.set_start_child(text_view_sw);
     paned.set_end_child(outline_view_sw);
 
-    text_view_sw.set_policy(Gtk::PolicyType::ALWAYS, Gtk::PolicyType::ALWAYS);
-    outline_view_sw.set_policy(Gtk::PolicyType::ALWAYS, Gtk::PolicyType::ALWAYS);
+    text_view_sw.set_policy(
+        Gtk::PolicyType::ALWAYS,
+        Gtk::PolicyType::ALWAYS
+    );
+    outline_view_sw.set_policy(
+        Gtk::PolicyType::ALWAYS,
+        Gtk::PolicyType::ALWAYS
+    );
 
     text_view_sw.set_overlay_scrolling(false);
     outline_view_sw.set_overlay_scrolling(false);
@@ -61,9 +67,18 @@ void CommonEditorWindow::make_menubar()
     mm_buffer = Gio::Menu::create();
     menu_model->append_submenu("Buffer", mm_buffer);
 
-    mm_buffer_reload  = Gio::MenuItem::create("(Re)load", "editor_window.buffer_reload");
-    mm_buffer_save    = Gio::MenuItem::create("Save", "editor_window.buffer_save");
-    mm_buffer_save_as = Gio::MenuItem::create("Save as..", "editor_window.buffer_save_as");
+    mm_buffer_reload = Gio::MenuItem::create(
+        "(Re)load",
+        "editor_window.buffer_reload"
+    );
+    mm_buffer_save = Gio::MenuItem::create(
+        "Save",
+        "editor_window.buffer_save"
+    );
+    mm_buffer_save_as = Gio::MenuItem::create(
+        "Save as..",
+        "editor_window.buffer_save_as"
+    );
 
     mm_buffer->append_item(mm_buffer_reload);
     mm_buffer->append_item(mm_buffer_save);
@@ -106,15 +121,25 @@ void CommonEditorWindow::make_hotkeys()
     controller->set_scope(Gtk::ShortcutScope::LOCAL);
 
     controller->add_shortcut(Gtk::Shortcut::create(
-        Gtk::KeyvalTrigger::create(GDK_KEY_r, Gdk::ModifierType::CONTROL_MASK),
+        Gtk::KeyvalTrigger::create(
+            GDK_KEY_r,
+            Gdk::ModifierType::CONTROL_MASK
+        ),
         Gtk::NamedAction::create("editor_window.buffer_reload")
     ));
     controller->add_shortcut(Gtk::Shortcut::create(
-        Gtk::KeyvalTrigger::create(GDK_KEY_s, Gdk::ModifierType::CONTROL_MASK),
+        Gtk::KeyvalTrigger::create(
+            GDK_KEY_s,
+            Gdk::ModifierType::CONTROL_MASK
+        ),
         Gtk::NamedAction::create("editor_window.buffer_save")
     ));
     controller->add_shortcut(Gtk::Shortcut::create(
-        Gtk::KeyvalTrigger::create(GDK_KEY_s, Gdk::ModifierType::CONTROL_MASK | Gdk::ModifierType::SHIFT_MASK),
+        Gtk::KeyvalTrigger::create(
+            GDK_KEY_s,
+            Gdk::ModifierType::CONTROL_MASK
+                | Gdk::ModifierType::SHIFT_MASK
+        ),
         Gtk::NamedAction::create("editor_window.buffer_save_as")
     ));
     add_controller(controller);
@@ -175,4 +200,9 @@ void CommonEditorWindow::on_destroy_sig()
 {
     project_ctl->unregisterEditor(own_ptr);
     own_ptr.reset();
+}
+
+std::shared_ptr<ProjectCtl> CommonEditorWindow::getProjectCtl()
+{
+    return project_ctl;
 }

@@ -43,6 +43,8 @@ namespace codeeditor
         void unregisterEditor(CodeEditorAbstract *);
         void unregisterEditor(std::shared_ptr<CodeEditorAbstract>);
 
+        std::tuple<std::filesystem::path, int> getProjectPath();
+
         Glib::RefPtr<Gio::ListStore<WorkSubjectTableRow>> getWorkSubjectListStore();
         Glib::RefPtr<Gio::ListStore<CodeEditorTableRow>>  getCodeEditorListStore();
 

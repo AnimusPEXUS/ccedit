@@ -11,6 +11,15 @@ namespace codeeditor
 {
     const size_t size2mib = 1024 * 1024 * 2;
 
+    int saveStringToDesc(
+        FILE       *f,
+        std::string str
+    );
+
+    std::tuple<std::string, int> loadStringFromDesc(
+        FILE *f
+    );
+
     int saveStringToFile(
         std::filesystem::path pth,
         std::string           str

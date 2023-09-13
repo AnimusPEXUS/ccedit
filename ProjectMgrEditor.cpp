@@ -104,7 +104,7 @@ void ProjectMgrEditor::on_ok_click()
     {
         auto err = controller->createProject(
             new_name,
-            new_path,
+            std::filesystem::path(new_path),
             false
         );
     }
@@ -114,7 +114,7 @@ void ProjectMgrEditor::on_ok_click()
         auto err = controller->editProject(
             proj_name_orig,
             new_name,
-            new_path
+            std::filesystem::path(new_path)
         );
     }
 

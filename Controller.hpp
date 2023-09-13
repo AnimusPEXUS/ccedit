@@ -37,19 +37,31 @@ namespace codeeditor
         void cleanupProjectMgr();
 
         int createProject(
-            std::string name,
-            std::string path,
-            bool        save_to_config
+            std::string           name,
+            std::filesystem::path path,
+            bool                  save_to_config
         );
 
         int editProject(
-            std::string name,
-            std::string new_name,
-            std::string new_path
+            std::string           name,
+            std::string           new_name,
+            std::filesystem::path new_path
         );
 
-        std::tuple<std::string, int>
+        std::tuple<
+            std::filesystem::path,
+            int>
             getPathProject(std::string name);
+
+        std::tuple<
+            std::filesystem::path,
+            int>
+            getPathProject(std::shared_ptr<ProjectCtl> p_ctl);
+
+        std::tuple<
+            std::filesystem::path,
+            int>
+            getPathProject(ProjectCtl *p_ctl);
 
         Glib::RefPtr<Gtk::Application>
             getGtkApp();

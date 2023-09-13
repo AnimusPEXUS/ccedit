@@ -177,7 +177,7 @@ void ProjectMgr::table_path_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_it
     auto label = dynamic_cast<Gtk::Label *>(list_item->get_child());
     if (!label)
         return;
-    label->set_text(col->proj_path);
+    label->set_text(col->proj_path.string());
 }
 
 void ProjectMgr::on_add_click()

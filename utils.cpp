@@ -15,21 +15,11 @@ namespace codeeditor
     )
     {
         // todo: pth must always be absolute?
-        int  err = 0;
-        auto fp  = pth;
-
         // todo: ensure directory exists. create if needed.
 
-        auto txt      = str;
-        auto txt_c    = txt.c_str();
-        auto txt_size = txt.size();
+        int err = 0;
 
-        if (sizeof(txt_c[0]) != 1)
-        {
-            throw std::length_error("unsupported char size: not 1");
-        }
-
-        auto f = std::fopen(fp.c_str(), "w");
+        auto f = std::fopen(pth.c_str(), "w");
         if (err = std::ferror(f); err != 0)
         {
             return err;
@@ -43,21 +33,7 @@ namespace codeeditor
             }
         );
 
-        auto offset = 0;
-
-        while (true)
-        {
-            if (offset == txt_size)
-            {
-                break;
-            }
-            auto length_minus_offset  = txt_size - offset;
-            auto count_to_write       = (size2mib <= length_minus_offset ? size2mib : length_minus_offset);
-            auto writen_count         = std::fwrite(txt_c + offset, sizeof(txt_c[0]), count_to_write, f);
-            offset                   += writen_count;
-        }
-
-        return 0;
+        return saveStringToDesc(f, str);
     }
 
     std::tuple<std::string, int> loadStringFromFile(
@@ -72,11 +48,9 @@ namespace codeeditor
         bool                  allow_nonexist
     )
     {
-        auto fp = pth;
-
         // todo: pth must always be absolute?
         // todo: mode tests?
-        if (!std::filesystem::exists(fp))
+        if (!std::filesystem::exists(pth))
         {
             if (allow_nonexist)
             {
@@ -88,6 +62,62 @@ namespace codeeditor
             }
         }
 
+        int err = 0;
+
+        auto f = std::fopen(pth.c_str(), "r");
+        if (err = std::ferror(f); err != 0)
+        {
+            return std::tuple("", err);
+        }
+        auto se02 = std::experimental::fundamentals_v3::scope_exit(
+            [f]()
+            {
+                // todo: remove debug code
+                std::cout << "scope_exit 2" << std::endl;
+                std::fclose(f);
+            }
+        );
+
+        return loadStringFromDesc(f);
+    }
+
+    int saveStringToDesc(
+        FILE       *f,
+        std::string str
+    )
+    {
+
+        int err = 0;
+
+        auto str_c    = str.c_str();
+        auto str_size = str.size();
+
+        if (sizeof(str_c[0]) != 1)
+        {
+            throw std::length_error("unsupported char size: not 1");
+        }
+
+        auto offset = 0;
+
+        while (true)
+        {
+            if (offset == str_size)
+            {
+                break;
+            }
+            auto length_minus_offset  = str_size - offset;
+            auto count_to_write       = (size2mib <= length_minus_offset ? size2mib : length_minus_offset);
+            auto writen_count         = std::fwrite(str_c + offset, sizeof(str_c[0]), count_to_write, f);
+            offset                   += writen_count;
+        }
+
+        return 0;
+    }
+
+    std::tuple<std::string, int> loadStringFromDesc(
+        FILE *f
+    )
+    {
         int         err     = 0;
         int         err_eof = 0;
         std::string txt("");
@@ -104,20 +134,6 @@ namespace codeeditor
                 // todo: remove debug code
                 std::cout << "scope_exit 1" << std::endl;
                 delete buffer;
-            }
-        );
-
-        auto f = std::fopen(fp.c_str(), "r");
-        if (err = std::ferror(f); err != 0)
-        {
-            return std::tuple("", err);
-        }
-        auto se02 = std::experimental::fundamentals_v3::scope_exit(
-            [f]()
-            {
-                // todo: remove debug code
-                std::cout << "scope_exit 2" << std::endl;
-                std::fclose(f);
             }
         );
 

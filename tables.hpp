@@ -21,7 +21,7 @@ namespace codeeditor
     {
       public:
         std::string                 proj_name;
-        std::string                 proj_path;
+        std::filesystem::path       proj_path;
         std::shared_ptr<ProjectCtl> proj_ctl;
 
         static Glib::RefPtr<ProjectTableRow> create()

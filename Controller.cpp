@@ -116,9 +116,9 @@ int Controller::loadConfig()
 }
 
 int Controller::createProject(
-    std::string proj_name,
-    std::string proj_path,
-    bool        save_to_config
+    std::string           proj_name,
+    std::filesystem::path proj_path,
+    bool                  save_to_config
 )
 {
     auto index = findProjectIndex(proj_name);
@@ -142,9 +142,9 @@ int Controller::createProject(
 }
 
 int Controller::editProject(
-    std::string name,
-    std::string new_name,
-    std::string new_path
+    std::string           name,
+    std::string           new_name,
+    std::filesystem::path new_path
 )
 {
     auto index = findProjectIndex(name);
@@ -176,7 +176,7 @@ int Controller::editProject(
     return 0;
 }
 
-std::tuple<std::string, int> Controller::getPathProject(std::string name)
+std::tuple<std::filesystem::path, int> Controller::getPathProject(std::string name)
 {
     auto index = findProjectIndex(name);
     if (index != -1)
@@ -191,6 +191,34 @@ std::tuple<std::string, int> Controller::getPathProject(std::string name)
     }
 
     return std::tuple(x->proj_path, 0);
+}
+
+std::tuple<
+    std::filesystem::path,
+    int>
+    Controller::getPathProject(std::shared_ptr<ProjectCtl> p_ctl)
+{
+    return getPathProject(p_ctl.get());
+}
+
+std::tuple<
+    std::filesystem::path,
+    int>
+    Controller::getPathProject(ProjectCtl *p_ctl)
+{
+    for (
+        int i = 0;
+        i != project_list_store->get_n_items();
+        i++
+    )
+    {
+        auto x = project_list_store->get_item(i);
+        if (x->proj_ctl.get() == p_ctl)
+        {
+            return std::tuple(x->proj_path, 0);
+        }
+    }
+    return std::tuple(std::filesystem::path("/"), 1);
 }
 
 Glib::RefPtr<Gio::ListStore<ProjectTableRow>> Controller::getProjectListStore()

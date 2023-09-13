@@ -66,7 +66,8 @@ namespace codeeditor
         void on_destroy_sig();
 
       protected:
-        Glib::RefPtr<Gio::Menu> getMenuModel();
+        std::shared_ptr<ProjectCtl> getProjectCtl();
+        Glib::RefPtr<Gio::Menu>     getMenuModel();
 
       private:
         virtual void make_special_menu();
