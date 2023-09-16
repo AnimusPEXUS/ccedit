@@ -43,6 +43,9 @@ namespace codeeditor
         // todo:
         void getBinaryBuffer();
 
+        std::string getText();
+        void        setText(std::string txt);
+
       private:
         std::shared_ptr<Controller> controller;
         std::shared_ptr<ProjectCtl> project_ctl;

@@ -12,13 +12,13 @@ namespace codeeditor
     class CodeEditorCCPP : public CommonEditorWindow
     {
       public:
-        CodeEditorCCPP(
-            std::shared_ptr<ProjectCtl>  project_ctl,
-            std::shared_ptr<WorkSubject> subject
-        );
+        CodeEditorCCPP(std::shared_ptr<ProjectCtl> project_ctl, std::shared_ptr<WorkSubject> subject);
         ~CodeEditorCCPP();
 
       private:
+        std::shared_ptr<ProjectCtl>  project_ctl;
+        std::shared_ptr<WorkSubject> subject;
+
         Glib::RefPtr<Gio::Menu>     mm_special;
         Glib::RefPtr<Gio::MenuItem> mm_special_clang_format;
 

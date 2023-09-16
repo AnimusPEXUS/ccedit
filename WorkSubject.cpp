@@ -93,3 +93,14 @@ void WorkSubject::getBinaryBuffer()
 {
     // todo:
 }
+
+std::string WorkSubject::getText()
+{
+    return txt_buff->get_text();
+}
+
+void WorkSubject::setText(std::string txt)
+{
+    txt_buff->set_text(txt);
+    return;
+}

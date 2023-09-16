@@ -34,6 +34,8 @@ namespace codeeditor
         std::filesystem::path pth,
         bool                  allow_nonexist
     );
+
+    void mutexed_println(std::string s);
 } // namespace codeeditor
 } // namespace wayround_i2p
 

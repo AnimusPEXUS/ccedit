@@ -1,6 +1,8 @@
 
 #include <experimental/scope>
+#include <format>
 #include <iostream>
+#include <mutex>
 
 #include "utils.hpp"
 
@@ -160,5 +162,14 @@ namespace codeeditor
             // std::cout << "while2" << std::endl;
         }
     }
+
+    void mutexed_println(std::string s)
+    {
+        static std::mutex mut;
+        mut.lock();
+        std::cout << s << std::endl;
+        mut.unlock();
+    }
+
 } // namespace codeeditor
 } // namespace wayround_i2p

@@ -206,6 +206,17 @@ std::tuple<
     int>
     Controller::getPathProject(ProjectCtl *p_ctl)
 {
+
+    std::filesystem::path root("/");
+
+    if (global_proj_ctl)
+    {
+        if (p_ctl == global_proj_ctl.get())
+        {
+            return std::tuple(root, 0);
+        }
+    }
+
     for (
         int i = 0;
         i != project_list_store->get_n_items();
@@ -218,7 +229,7 @@ std::tuple<
             return std::tuple(x->proj_path, 0);
         }
     }
-    return std::tuple(std::filesystem::path("/"), 1);
+    return std::tuple(root, 1);
 }
 
 Glib::RefPtr<Gio::ListStore<ProjectTableRow>> Controller::getProjectListStore()
