@@ -1,3 +1,5 @@
+#include <format>
+
 #include "CommonEditorWindow.hpp"
 
 using namespace wayround_i2p::codeeditor;
@@ -48,6 +50,10 @@ CommonEditorWindow::CommonEditorWindow(
     make_hotkeys();
 
     updateTitle();
+
+    subject->signal_modified_changed()->connect(
+        sigc::mem_fun(*this, &CommonEditorWindow::updateTitle)
+    );
 
     signal_destroy().connect(
         sigc::mem_fun(*this, &CommonEditorWindow::on_destroy_sig)
@@ -158,8 +164,23 @@ Glib::RefPtr<Gio::Menu> CommonEditorWindow::getMenuModel()
 
 void CommonEditorWindow::updateTitle()
 {
+    std::string new_title;
+
     auto pth = subject->getPath();
-    set_title((pth.filename()).string());
+
+    std::string mod_bullet("");
+    if (subject->modified())
+    {
+        mod_bullet = "*";
+    }
+
+    new_title = std::format(
+        "{}{} - Code Editor",
+        mod_bullet,
+        (pth.filename()).string()
+    );
+
+    set_title(new_title);
 }
 
 void CommonEditorWindow::saveOwnPtr(std::shared_ptr<CodeEditorAbstract> val)
@@ -202,7 +223,9 @@ void CommonEditorWindow::on_destroy_sig()
     own_ptr.reset();
 }
 
+/*
 std::shared_ptr<ProjectCtl> CommonEditorWindow::getProjectCtl()
 {
     return project_ctl;
 }
+*/

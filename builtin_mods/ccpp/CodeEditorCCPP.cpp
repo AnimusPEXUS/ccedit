@@ -89,15 +89,20 @@ namespace codeeditor
     void CodeEditorCCPP::clang_format_buffer()
     {
         // todo: display error messages
+        int err = 0;
 
         int in_pipe[2];
         int out_pipe[2];
 
-        auto [proj_pth, err] = getProjectCtl()->getProjectPath();
-        if (err != 0)
-        {
-            return;
-        }
+        auto pp = subject->getFullPath().parent_path();
+
+        /*
+            auto [proj_pth, err] = project_ctl->getProjectPath();
+            if (err != 0)
+            {
+                return;
+            }
+            */
 
         err = pipe(in_pipe);
         if (err != 0)
@@ -139,7 +144,7 @@ namespace codeeditor
             se01.release();
             se02.release();
 
-            std::filesystem::current_path(proj_pth);
+            std::filesystem::current_path(pp);
 
             auto dup_r1 = dup2(in_pipe[0], 0);
             auto dup_r2 = dup2(out_pipe[1], 1);

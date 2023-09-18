@@ -22,6 +22,7 @@ find_package(Boost REQUIRED COMPONENTS json)
 #pkg_check_modules(gtkmm3 REQUIRED IMPORTED_TARGET gtkmm-3.0)
 pkg_check_modules(gtkmm4 REQUIRED IMPORTED_TARGET gtkmm-4.0)
 #pkg_check_modules(gtksourceviewmm REQUIRED IMPORTED_TARGET gtksourceviewmm-3.0)
+pkg_check_modules(sigc REQUIRED IMPORTED_TARGET sigc++-3.0)
 
 add_executable(
 	codeedit 
@@ -46,6 +47,7 @@ target_link_libraries(
     PUBLIC 
     # -static
     PkgConfig::gtkmm4 
+    PkgConfig::sigc 
     # PkgConfig::gtkmm3 
     # PkgConfig::gtksourceviewmm 
     Boost::json

@@ -15,6 +15,10 @@ WorkSubject::WorkSubject(
     this->project_ctl = project_ctl;
     this->fpth        = fpth;
 
+    priv_signal_modified_changed = std::shared_ptr<sigc::signal<void()>>(
+        new sigc::signal<void()>()
+    );
+
     createNew();
 }
 
@@ -48,6 +52,19 @@ std::filesystem::path WorkSubject::getFullPath()
 void WorkSubject::createNew()
 {
     txt_buff = Gtk::TextBuffer::create();
+
+    txt_buff->signal_modified_changed().connect(
+        sigc::mem_fun(
+            *this,
+            &WorkSubject::emit_signal_modified_changed
+        )
+    );
+}
+
+void WorkSubject::emit_signal_modified_changed()
+{
+    std::cout << "WorkSubject::emit_signal_modified_changed(): " << txt_buff->get_modified() << std ::endl;
+    priv_signal_modified_changed->emit();
 }
 
 // shortcut to reload() with allow_nonexist=false
@@ -76,12 +93,13 @@ int WorkSubject::save()
         getFullPath(),
         txt_buff->get_text()
     );
+    txt_buff->set_modified(false);
     return err;
 }
 
 bool WorkSubject::modified()
 {
-    return 1;
+    return txt_buff->get_modified();
 }
 
 Glib::RefPtr<Gtk::TextBuffer> WorkSubject::getTextBuffer()
@@ -103,4 +121,9 @@ void WorkSubject::setText(std::string txt)
 {
     txt_buff->set_text(txt);
     return;
+}
+
+std::shared_ptr<sigc::signal<void()>> WorkSubject::signal_modified_changed()
+{
+    return priv_signal_modified_changed;
 }
