@@ -174,10 +174,26 @@ void CommonEditorWindow::updateTitle()
         mod_bullet = "*";
     }
 
+    std::string proj_name("(global)");
+    if (!project_ctl->isGlobalProject())
+    {
+        int err                  = 0;
+        std::tie(proj_name, err) = project_ctl->getProjectName();
+        if (err != 0)
+        {
+            proj_name = "error getting project name :-(";
+        }
+        proj_name = std::format(
+            "(proj: {})",
+            proj_name
+        );
+    }
+
     new_title = std::format(
-        "{}{} - Code Editor",
+        "{}{} {} - Code Editor",
         mod_bullet,
-        (pth.filename()).string()
+        (pth.filename()).string(),
+        proj_name
     );
 
     set_title(new_title);

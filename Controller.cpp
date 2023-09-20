@@ -33,6 +33,8 @@ int Controller::run(int argc, char *argv[])
     //     // std::cout << format("couldn't ensure directory existance: {}")
     // };
 
+    loadConfig();
+
     addBuiltinMods();
 
     app->signal_startup()
@@ -91,7 +93,7 @@ int Controller::findProjectIndex(std::string proj_name)
 
 int Controller::saveConfig()
 {
-
+    // todo: optimizations? use pointers and scope_exits?
     auto [pth, err] = getConfigFullPath();
     if (err != 0)
     {
@@ -99,20 +101,75 @@ int Controller::saveConfig()
     }
 
     boost::json::object root;
-    root["test"] = 123;
 
+    boost::json::array projects = boost::json::array();
+
+    for (
+        int i = 0;
+        i != project_list_store->get_n_items();
+        i++
+    )
+    {
+        projects.push_back(
+            boost::json::object(
+                {
+                    std::pair(
+                        "name",
+                        project_list_store->get_item(i)->proj_name
+                    ),
+                    std::pair(
+                        "path",
+                        project_list_store->get_item(i)->proj_path.string()
+                    ),
+                }
+            )
+        );
+    }
+
+    root["projects"] = projects;
+
+    // todo: error checks for file operations
     auto f = std::ofstream(pth);
 
     f << root;
 
     f.close();
 
-    return 1;
+    return 0;
 }
 
 int Controller::loadConfig()
 {
-    return 1;
+    // todo: optimizations? use pointers and scope_exits?
+    auto [pth, err] = getConfigFullPath();
+    if (err != 0)
+    {
+        return err;
+    }
+
+    // todo: error checks
+    auto f = std::ifstream(pth);
+
+    std::string root_str("");
+    f >> root_str;
+
+    f.close();
+
+    auto root = boost::json::parse(root_str).as_object();
+
+    auto projects = root["projects"].as_array();
+
+    for (std::size_t i = 0; i != projects.size(); i++)
+    {
+        auto x = projects[i].as_object();
+        createProject(
+            std::string(x["name"].as_string().c_str()),
+            std::filesystem::path(std::string(x["path"].as_string().c_str())),
+            false
+        );
+    }
+
+    return 0;
 }
 
 int Controller::createProject(
@@ -176,6 +233,35 @@ int Controller::editProject(
     return 0;
 }
 
+std::tuple<
+    std::string,
+    int>
+    Controller::getNameProject(std::shared_ptr<ProjectCtl> p_ctl)
+{
+    return getNameProject(p_ctl.get());
+}
+
+std::tuple<
+    std::string,
+    int>
+    Controller::getNameProject(ProjectCtl *p_ctl)
+{
+    for (
+        int i = 0;
+        i != project_list_store->get_n_items();
+        i++
+    )
+    {
+        auto x = project_list_store->get_item(i);
+        if (x->proj_ctl.get() == p_ctl)
+        {
+            return std::tuple(x->proj_name, 0);
+        }
+    }
+
+    return std::tuple("", 1);
+}
+
 std::tuple<std::filesystem::path, int> Controller::getPathProject(std::string name)
 {
     auto index = findProjectIndex(name);
@@ -229,6 +315,7 @@ std::tuple<
             return std::tuple(x->proj_path, 0);
         }
     }
+
     return std::tuple(root, 1);
 }
 
@@ -274,6 +361,95 @@ void Controller::cleanupGlobalProjCtl()
     {
         global_proj_ctl->own_ptr.reset();
         global_proj_ctl.reset();
+    }
+}
+
+bool Controller::isGlobalProjCtl(std::shared_ptr<ProjectCtl> p_ctl)
+{
+    return isGlobalProjCtl(p_ctl.get());
+}
+
+bool Controller::isGlobalProjCtl(ProjectCtl *p_ctl)
+{
+    return global_proj_ctl && p_ctl == global_proj_ctl.get();
+}
+
+void Controller::showProjCtl(std::string name)
+{
+    for (
+        int i = 0;
+        i != project_list_store->get_n_items();
+        i++
+    )
+    {
+        auto x = project_list_store->get_item(i);
+        if (x->proj_name == name)
+        {
+            if (!(x->proj_ctl))
+            {
+                auto new_ctl = std::shared_ptr<ProjectCtl>(
+                    new ProjectCtl(own_ptr)
+                );
+                x->proj_ctl      = new_ctl;
+                new_ctl->own_ptr = new_ctl;
+                app->add_window(*new_ctl);
+            }
+
+            x->proj_ctl->show();
+            x->proj_ctl->updateTitle();
+        }
+    }
+}
+
+void Controller::cleanupProjCtl(std::string name)
+{
+    for (
+        int i = 0;
+        i != project_list_store->get_n_items();
+        i++
+    )
+    {
+        auto x = project_list_store->get_item(i);
+        if (x->proj_name == name)
+        {
+            if ((x->proj_ctl))
+            {
+                auto z = x->proj_ctl;
+                x->proj_ctl.reset();
+                z->close();
+                z->own_ptr.reset();
+            }
+        }
+    }
+}
+
+void Controller::cleanupProjCtl(std::shared_ptr<ProjectCtl> p_ctl)
+{
+    return cleanupProjCtl(p_ctl.get());
+}
+
+void Controller::cleanupProjCtl(ProjectCtl *p_ctl)
+{
+    if (isGlobalProjCtl(p_ctl))
+    {
+        cleanupGlobalProjCtl();
+        return;
+    }
+
+    for (
+        int i = 0;
+        i != project_list_store->get_n_items();
+        i++
+    )
+    {
+        auto x = project_list_store->get_item(i);
+        if ((x->proj_ctl.get() == p_ctl))
+        {
+            auto z = x->proj_ctl;
+            x->proj_ctl.reset();
+            z->close();
+            z->own_ptr.reset();
+        }
     }
 }
 

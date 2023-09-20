@@ -238,6 +238,7 @@ namespace codeeditor
             if (exitstatus == 0)
             {
                 subject->setText(str_to_read);
+                subject->modified(true);
             }
 
             return;

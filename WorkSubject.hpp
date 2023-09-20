@@ -38,6 +38,7 @@ namespace codeeditor
         int                         reload(bool allow_nonexist);
         int                         save();
         bool                        modified();
+        void                        modified(bool val);
 
         Glib::RefPtr<Gtk::TextBuffer> getTextBuffer();
 

@@ -102,6 +102,11 @@ bool WorkSubject::modified()
     return txt_buff->get_modified();
 }
 
+void WorkSubject::modified(bool val)
+{
+    txt_buff->set_modified(val);
+}
+
 Glib::RefPtr<Gtk::TextBuffer> WorkSubject::getTextBuffer()
 {
     return txt_buff;

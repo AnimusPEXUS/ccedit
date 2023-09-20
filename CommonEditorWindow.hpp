@@ -30,6 +30,8 @@ namespace codeeditor
         void show() override;
         void close() override;
 
+        void updateTitle();
+
       private:
         std::shared_ptr<ProjectCtl>  project_ctl;
         std::shared_ptr<WorkSubject> subject;
@@ -60,8 +62,6 @@ namespace codeeditor
         void action_buffer_reload();
         void action_buffer_save();
         void action_buffer_save_as();
-
-        void updateTitle();
 
         void on_destroy_sig();
 

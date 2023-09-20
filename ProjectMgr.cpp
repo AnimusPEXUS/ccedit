@@ -96,6 +96,10 @@ ProjectMgr::ProjectMgr(std::shared_ptr<Controller> controller)
         sigc::mem_fun(*this, &ProjectMgr::on_edit_click)
     );
 
+    open_proj.signal_clicked().connect(
+        sigc::mem_fun(*this, &ProjectMgr::on_open_click)
+    );
+
     open_global.signal_clicked().connect(
         sigc::mem_fun(*this, &ProjectMgr::on_open_global_click)
     );
@@ -214,7 +218,6 @@ void ProjectMgr::on_edit_click()
     while (i != x->end())
     {
         auto item = list->get_item(*i);
-        std::cout << "   editing: " << item->proj_name << std::endl;
 
         // todo: mem leak?
         auto w = new ProjectMgrEditor(
@@ -233,6 +236,15 @@ void ProjectMgr::on_edit_click()
 
 void ProjectMgr::on_open_click()
 {
+    auto x    = project_list_view_selection->get_selection();
+    auto i    = x->begin();
+    auto list = controller->getProjectListStore();
+    while (i != x->end())
+    {
+        auto item = list->get_item(*i);
+        controller->showProjCtl(item->proj_name);
+        ++i;
+    }
 }
 
 void ProjectMgr::on_open_global_click()

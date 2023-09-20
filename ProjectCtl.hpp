@@ -32,6 +32,10 @@ namespace codeeditor
 
         std::shared_ptr<Controller> getController();
 
+        bool                                   isGlobalProject();
+        std::tuple<std::string, int>           getProjectName();
+        std::tuple<std::filesystem::path, int> getProjectPath();
+
         bool workSubjectExists(std::filesystem::path fpth);
         void workSubjectEnsureExistance(std::filesystem::path fpth); // todo: return new WorkSubject?
         int  workSubjectNewEditor(std::filesystem::path fpth);       // todo: return new editor?
@@ -43,10 +47,10 @@ namespace codeeditor
         void unregisterEditor(CodeEditorAbstract *);
         void unregisterEditor(std::shared_ptr<CodeEditorAbstract>);
 
-        std::tuple<std::filesystem::path, int> getProjectPath();
-
         Glib::RefPtr<Gio::ListStore<WorkSubjectTableRow>> getWorkSubjectListStore();
         Glib::RefPtr<Gio::ListStore<CodeEditorTableRow>>  getCodeEditorListStore();
+
+        void updateTitle();
 
       private:
         std::shared_ptr<Controller> controller;

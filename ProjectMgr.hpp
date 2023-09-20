@@ -41,15 +41,6 @@ namespace codeeditor
         Gtk::Button modules_info_print;
         Gtk::Button save_cfg;
 
-        void on_add_click();
-        void on_rm_click();
-        void on_edit_click();
-        void on_open_click();
-        void on_open_global_click();
-
-        void on_modules_info_print();
-        void on_save_cfg();
-
         void add_columns();
 
         void table_cell_setup(
@@ -58,6 +49,15 @@ namespace codeeditor
         );
         void table_name_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_item);
         void table_path_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_item);
+
+        void on_add_click();
+        void on_rm_click();
+        void on_edit_click();
+        void on_open_click();
+        void on_open_global_click();
+
+        void on_modules_info_print();
+        void on_save_cfg();
 
         void on_destroy_sig();
     };

@@ -1,8 +1,10 @@
 
-#include "ProjectCtl.hpp"
+#include <format>
+
 #include "Controller.hpp"
 #include "EditorListView.hpp"
 #include "FileExplorer.hpp"
+#include "ProjectCtl.hpp"
 #include "WorkSubjectListView.hpp"
 
 using namespace wayround_i2p::codeeditor;
@@ -30,6 +32,8 @@ ProjectCtl::ProjectCtl(std::shared_ptr<Controller> controller)
     main_box.append(show_file_explorer_btn);
     main_box.append(show_new_worksubject_list_btn);
     main_box.append(show_new_editor_list_btn);
+
+    updateTitle();
 
     show_file_explorer_btn.signal_clicked().connect(
         sigc::mem_fun(*this, &ProjectCtl::on_show_file_explorer_btn)
@@ -65,7 +69,7 @@ std::shared_ptr<Controller> ProjectCtl::getController()
 bool ProjectCtl::workSubjectExists(std::filesystem::path fpth)
 {
     // todo: fpth value checks
-    for (unsigned int i = 0; i < work_subj_list_store->get_n_items(); i++)
+    for (int i = 0; i != work_subj_list_store->get_n_items(); i++)
     {
         auto x    = work_subj_list_store->get_item(i);
         auto x_fp = x->work_subj->getFullPath();
@@ -216,10 +220,43 @@ void ProjectCtl::on_destroy_sig()
     work_subj_list_store->remove_all();
     editors_list_store->remove_all();
     std::cout << "ProjectCtl sig destroy" << std::endl;
-    controller->cleanupGlobalProjCtl();
+    controller->cleanupProjCtl(this);
+}
+
+bool ProjectCtl::isGlobalProject()
+{
+    return controller->isGlobalProjCtl(this);
+}
+
+std::tuple<std::string, int> ProjectCtl::getProjectName()
+{
+    return controller->getNameProject(this);
 }
 
 std::tuple<std::filesystem::path, int> ProjectCtl::getProjectPath()
 {
     return controller->getPathProject(this);
+}
+
+void ProjectCtl::updateTitle()
+{
+    std::string new_title;
+
+    std::string proj_name("(global)");
+    if (!isGlobalProject())
+    {
+        int err                  = 0;
+        std::tie(proj_name, err) = getProjectName();
+        if (err != 0)
+        {
+            proj_name = "(can't determine project name)";
+        }
+    }
+
+    new_title = std::format(
+        "{} - ProjCtl - Code Editor",
+        proj_name
+    );
+
+    set_title(new_title);
 }

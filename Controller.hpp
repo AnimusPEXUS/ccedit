@@ -49,6 +49,16 @@ namespace codeeditor
         );
 
         std::tuple<
+            std::string,
+            int>
+            getNameProject(std::shared_ptr<ProjectCtl> p_ctl);
+
+        std::tuple<
+            std::string,
+            int>
+            getNameProject(ProjectCtl *p_ctl);
+
+        std::tuple<
             std::filesystem::path,
             int>
             getPathProject(std::string name);
@@ -74,6 +84,13 @@ namespace codeeditor
 
         void showGlobalProjCtl();
         void cleanupGlobalProjCtl();
+        bool isGlobalProjCtl(std::shared_ptr<ProjectCtl> p_ctl);
+        bool isGlobalProjCtl(ProjectCtl *p_ctl);
+
+        void showProjCtl(std::string name);
+        void cleanupProjCtl(std::string name);
+        void cleanupProjCtl(std::shared_ptr<ProjectCtl> p_ctl);
+        void cleanupProjCtl(ProjectCtl *p_ctl);
 
       private:
         Glib::RefPtr<Gtk::Application> app;
