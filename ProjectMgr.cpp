@@ -185,7 +185,6 @@ void ProjectMgr::table_name_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_it
     col->signal_proj_name_changed()->connect(
         [label, col]() -> void
         {
-            std::cout << "name lambda called" << std::endl;
             label->set_text(col->proj_name());
         }
     );
@@ -195,9 +194,6 @@ void ProjectMgr::table_name_cell_unbind(const Glib::RefPtr<Gtk::ListItem> &list_
 {
     auto col = std::dynamic_pointer_cast<ProjectTableRow>(list_item->get_item());
     if (!col)
-        return;
-    auto label = dynamic_cast<Gtk::Label *>(list_item->get_child());
-    if (!label)
         return;
     col->signal_proj_name_changed()->clear();
 }
@@ -214,7 +210,6 @@ void ProjectMgr::table_path_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_it
     col->signal_proj_path_changed()->connect(
         [label, col]() -> void
         {
-            std::cout << "path lambda called" << std::endl;
             label->set_text(col->proj_path().string());
         }
     );
@@ -225,16 +220,12 @@ void ProjectMgr::table_path_cell_unbind(const Glib::RefPtr<Gtk::ListItem> &list_
     auto col = std::dynamic_pointer_cast<ProjectTableRow>(list_item->get_item());
     if (!col)
         return;
-    auto label = dynamic_cast<Gtk::Label *>(list_item->get_child());
-    if (!label)
-        return;
-
     col->signal_proj_path_changed()->clear();
 }
 
 void ProjectMgr::on_add_click()
 {
-    // todo: mem leak?
+    // todo: mem leak? update: looks like fixed - check needed
     auto w = new ProjectMgrEditor(controller, "", "");
     w->set_transient_for(*this);
     w->set_destroy_with_parent(true);
@@ -267,15 +258,12 @@ void ProjectMgr::on_edit_click()
     {
         auto item = list->get_item(*i);
 
-        // todo: mem leak?
+        // todo: mem leak? update: looks like fixed - check needed
         auto w = new ProjectMgrEditor(
             controller,
             item->proj_name(),
             item->proj_path()
         );
-
-        // auto sp = std::shared_ptr<ProjectMgrEditor>(w);
-        // w->own_ptr = sp;
 
         w->set_transient_for(*this);
         w->set_destroy_with_parent(true);
