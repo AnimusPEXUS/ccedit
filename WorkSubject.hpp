@@ -57,7 +57,6 @@ namespace codeeditor
 
         Glib::RefPtr<Gtk::TextBuffer> txt_buff;
 
-        // todo: make it unique_ptr instead of shared?
         std::shared_ptr<sigc::signal<void()>> priv_signal_modified_changed;
 
         void emit_signal_modified_changed();

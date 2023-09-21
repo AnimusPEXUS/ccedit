@@ -1,3 +1,5 @@
+#include <format>
+
 #include "FileExplorer.hpp"
 
 using namespace wayround_i2p::codeeditor;
@@ -56,16 +58,20 @@ FileExplorer::FileExplorer(std::shared_ptr<ProjectCtl> proj_ctl) :
 
     set_child(main_box);
 
-    signal_destroy().connect(
-        sigc::mem_fun(*this, &FileExplorer::on_destroy_sig)
-    );
-
     temp_file_selector_btn.signal_clicked().connect(
         sigc::mem_fun(*this, &FileExplorer::on_temp_file_selector_btn)
     );
 
     temp_file_open_btn.signal_clicked().connect(
         sigc::mem_fun(*this, &FileExplorer::on_temp_file_open_btn)
+    );
+
+    proj_ctl->signal_updated_name()->connect(
+        sigc::mem_fun(*this, &FileExplorer::updateTitle)
+    );
+
+    signal_destroy().connect(
+        sigc::mem_fun(*this, &FileExplorer::on_destroy_sig)
     );
 }
 
@@ -76,8 +82,28 @@ FileExplorer::~FileExplorer()
 
 void FileExplorer::updateTitle()
 {
-    // todo: do something better
-    set_title("File Explorer - Code Editor");
+    std::string new_title("");
+
+    if (proj_ctl->isGlobalProject())
+    {
+        new_title = "global - File Explorer - Code Editor";
+    }
+    else
+    {
+        int         err = 0;
+        std::string name;
+        std::tie(name, err) = proj_ctl->getProjectName();
+        if (err != 0)
+        {
+            name = "can't determine project name";
+        }
+        new_title = std::format(
+            "{} - File Explorer - Code Editor",
+            name
+        );
+    }
+
+    set_title(new_title);
 }
 
 void FileExplorer::on_destroy_sig()

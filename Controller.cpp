@@ -185,6 +185,8 @@ int Controller::createProject(
     }
 
     auto x = ProjectTableRow::create();
+
+    // x->controller = own_ptr;
     x->proj_name(proj_name);
     x->proj_path(proj_path);
 
@@ -350,6 +352,7 @@ void Controller::showGlobalProjCtl()
         );
         global_proj_ctl->own_ptr = global_proj_ctl;
         app->add_window(*global_proj_ctl);
+        global_proj_ctl->projectControllerRegisteredInController();
     }
 
     global_proj_ctl->show();
@@ -393,10 +396,10 @@ void Controller::showProjCtl(std::string name)
                 x->proj_ctl      = new_ctl;
                 new_ctl->own_ptr = new_ctl;
                 app->add_window(*new_ctl);
+                x->proj_ctl->projectControllerRegisteredInController();
             }
 
             x->proj_ctl->show();
-            x->proj_ctl->updateTitle();
         }
     }
 }
@@ -412,11 +415,10 @@ void Controller::cleanupProjCtl(std::string name)
         auto x = project_list_store->get_item(i);
         if (x->proj_name() == name)
         {
-            if ((x->proj_ctl))
+            if (x->proj_ctl)
             {
                 auto z = x->proj_ctl;
                 x->proj_ctl.reset();
-                z->close();
                 z->own_ptr.reset();
             }
         }
@@ -443,15 +445,21 @@ void Controller::cleanupProjCtl(ProjectCtl *p_ctl)
     )
     {
         auto x = project_list_store->get_item(i);
-        if ((x->proj_ctl.get() == p_ctl))
+        if (x->proj_ctl && x->proj_ctl.get() == p_ctl)
         {
             auto z = x->proj_ctl;
             x->proj_ctl.reset();
-            z->close();
             z->own_ptr.reset();
         }
     }
 }
+
+/*
+void Controller::emitProjectListStoreItemsChanged()
+{
+    project_list_store->signal_items_changed().emit(0, 0, 0);
+}
+*/
 
 const std::string CODEEDIT_CFG = "codeedit.cfg";
 

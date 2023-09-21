@@ -32,9 +32,15 @@ WorkSubjectListView::WorkSubjectListView(
 
     set_child(main_box);
 
+    project_ctl->signal_updated_name()->connect(
+        sigc::mem_fun(*this, &WorkSubjectListView::updateTitle)
+    );
+
     signal_destroy().connect(
         sigc::mem_fun(*this, &WorkSubjectListView::on_destroy_sig)
     );
+
+    updateTitle();
 }
 
 WorkSubjectListView::~WorkSubjectListView()
@@ -96,6 +102,32 @@ void WorkSubjectListView::table_subject_cell_bind(const Glib::RefPtr<Gtk::ListIt
     if (!label)
         return;
     label->set_text("todo");
+}
+
+void WorkSubjectListView::updateTitle()
+{
+    std::string new_title("");
+
+    if (project_ctl->isGlobalProject())
+    {
+        new_title = "global - Subject List - Code Editor";
+    }
+    else
+    {
+        int         err = 0;
+        std::string name;
+        std::tie(name, err) = project_ctl->getProjectName();
+        if (err != 0)
+        {
+            name = "can't determine project name";
+        }
+        new_title = std::format(
+            "{} - Subject List - Code Editor",
+            name
+        );
+    }
+
+    set_title(new_title);
 }
 
 void WorkSubjectListView::on_destroy_sig()

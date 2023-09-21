@@ -27,6 +27,7 @@ namespace codeeditor
         std::filesystem::path proj_path();
         void                  proj_path(std::filesystem::path);
 
+        // std::shared_ptr<Controller> controller;
         std::shared_ptr<ProjectCtl> proj_ctl;
 
         static Glib::RefPtr<ProjectTableRow> create()
@@ -36,17 +37,18 @@ namespace codeeditor
             );
         }
 
+        std::shared_ptr<sigc::signal<void()>> signal_proj_name_changed();
+        std::shared_ptr<sigc::signal<void()>> signal_proj_path_changed();
+
       protected:
-        ProjectTableRow() :
-            Glib::ObjectBase(typeid(ProjectTableRow))
-        {
-        }
+        ProjectTableRow();
 
       private:
         std::string           priv_proj_name;
         std::filesystem::path priv_proj_path;
 
-        void send_title_update_notification();
+        std::shared_ptr<sigc::signal<void()>> priv_signal_proj_name_changed;
+        std::shared_ptr<sigc::signal<void()>> priv_signal_proj_path_changed;
     };
 
     class WorkSubjectTableRow : public Glib::Object

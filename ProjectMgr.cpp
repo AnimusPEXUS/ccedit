@@ -133,6 +133,11 @@ void ProjectMgr::add_columns()
             sigc::mem_fun(*this, &ProjectMgr::table_name_cell_bind)
         )
     );
+    factory->signal_unbind().connect(
+        sigc::bind(
+            sigc::mem_fun(*this, &ProjectMgr::table_name_cell_unbind)
+        )
+    );
 
     auto column = Gtk::ColumnViewColumn::create("Project", factory);
     column->set_fixed_width(200);
@@ -152,6 +157,12 @@ void ProjectMgr::add_columns()
             sigc::mem_fun(*this, &ProjectMgr::table_path_cell_bind)
         )
     );
+    factory->signal_unbind().connect(
+        sigc::bind(
+            sigc::mem_fun(*this, &ProjectMgr::table_path_cell_unbind)
+        )
+    );
+
     column = Gtk::ColumnViewColumn::create("Path", factory);
     column->set_expand(true);
     project_list_view.append_column(column);
@@ -171,6 +182,24 @@ void ProjectMgr::table_name_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_it
     if (!label)
         return;
     label->set_text(col->proj_name());
+    col->signal_proj_name_changed()->connect(
+        [label, col]() -> void
+        {
+            std::cout << "name lambda called" << std::endl;
+            label->set_text(col->proj_name());
+        }
+    );
+}
+
+void ProjectMgr::table_name_cell_unbind(const Glib::RefPtr<Gtk::ListItem> &list_item)
+{
+    auto col = std::dynamic_pointer_cast<ProjectTableRow>(list_item->get_item());
+    if (!col)
+        return;
+    auto label = dynamic_cast<Gtk::Label *>(list_item->get_child());
+    if (!label)
+        return;
+    col->signal_proj_name_changed()->clear();
 }
 
 void ProjectMgr::table_path_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_item)
@@ -182,6 +211,25 @@ void ProjectMgr::table_path_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_it
     if (!label)
         return;
     label->set_text(col->proj_path().string());
+    col->signal_proj_path_changed()->connect(
+        [label, col]() -> void
+        {
+            std::cout << "path lambda called" << std::endl;
+            label->set_text(col->proj_path().string());
+        }
+    );
+}
+
+void ProjectMgr::table_path_cell_unbind(const Glib::RefPtr<Gtk::ListItem> &list_item)
+{
+    auto col = std::dynamic_pointer_cast<ProjectTableRow>(list_item->get_item());
+    if (!col)
+        return;
+    auto label = dynamic_cast<Gtk::Label *>(list_item->get_child());
+    if (!label)
+        return;
+
+    col->signal_proj_path_changed()->clear();
 }
 
 void ProjectMgr::on_add_click()
@@ -225,6 +273,9 @@ void ProjectMgr::on_edit_click()
             item->proj_name(),
             item->proj_path()
         );
+
+        // auto sp = std::shared_ptr<ProjectMgrEditor>(w);
+        // w->own_ptr = sp;
 
         w->set_transient_for(*this);
         w->set_destroy_with_parent(true);

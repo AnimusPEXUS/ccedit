@@ -6,6 +6,7 @@
 #include <tuple>
 
 #include <gtkmm.h>
+#include <sigc++/sigc++.h>
 
 #include "CodeEditorAbstract.hpp"
 #include "Controller.hpp"
@@ -51,7 +52,15 @@ namespace codeeditor
         Glib::RefPtr<Gio::ListStore<WorkSubjectTableRow>> getWorkSubjectListStore();
         Glib::RefPtr<Gio::ListStore<CodeEditorTableRow>>  getCodeEditorListStore();
 
+        void projectControllerRegisteredInController();
+
+        void updatedName();
+        void updatedPath();
+
         void updateTitle();
+
+        std::shared_ptr<sigc::signal<void()>> signal_updated_name();
+        std::shared_ptr<sigc::signal<void()>> signal_updated_path();
 
       private:
         std::shared_ptr<Controller> controller;
@@ -71,6 +80,9 @@ namespace codeeditor
 
         void on_hide_sig();
         void on_destroy_sig();
+
+        std::shared_ptr<sigc::signal<void()>> priv_signal_updated_name;
+        std::shared_ptr<sigc::signal<void()>> priv_signal_updated_path;
     };
 
 } // namespace codeeditor

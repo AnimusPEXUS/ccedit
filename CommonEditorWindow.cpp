@@ -49,15 +49,19 @@ CommonEditorWindow::CommonEditorWindow(
     make_actions();
     make_hotkeys();
 
-    updateTitle();
-
     subject->signal_modified_changed()->connect(
+        sigc::mem_fun(*this, &CommonEditorWindow::updateTitle)
+    );
+
+    project_ctl->signal_updated_name()->connect(
         sigc::mem_fun(*this, &CommonEditorWindow::updateTitle)
     );
 
     signal_destroy().connect(
         sigc::mem_fun(*this, &CommonEditorWindow::on_destroy_sig)
     );
+
+    updateTitle();
 }
 
 CommonEditorWindow::~CommonEditorWindow()

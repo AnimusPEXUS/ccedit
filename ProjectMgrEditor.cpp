@@ -87,6 +87,10 @@ ProjectMgrEditor::ProjectMgrEditor(
     btn_browse.signal_clicked().connect(
         sigc::mem_fun(*this, &ProjectMgrEditor::on_browse_click)
     );
+
+    signal_destroy().connect(
+        sigc::mem_fun(*this, &ProjectMgrEditor::on_destroy_sig)
+    );
 }
 
 ProjectMgrEditor::~ProjectMgrEditor()
@@ -164,4 +168,9 @@ void ProjectMgrEditor::on_browse_click_finish(
     project_path.set_text(result->get_path());
 
     select_dir_dialog.reset();
+}
+
+void ProjectMgrEditor::on_destroy_sig()
+{
+    delete (this);
 }

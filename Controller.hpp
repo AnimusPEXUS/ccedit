@@ -92,6 +92,8 @@ namespace codeeditor
         void cleanupProjCtl(std::shared_ptr<ProjectCtl> p_ctl);
         void cleanupProjCtl(ProjectCtl *p_ctl);
 
+        // void emitProjectListStoreItemsChanged();
+
       private:
         Glib::RefPtr<Gtk::Application> app;
 

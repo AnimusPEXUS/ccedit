@@ -23,6 +23,8 @@ namespace codeeditor
         );
         ~ProjectMgrEditor();
 
+        // std::shared_ptr<ProjectMgrEditor> own_ptr;
+
       private:
         std::shared_ptr<Controller> controller;
 
@@ -51,6 +53,8 @@ namespace codeeditor
         void on_browse_click();
 
         void on_browse_click_finish(std::shared_ptr<Gio::AsyncResult> res);
+
+        void on_destroy_sig();
 
         Glib::RefPtr<Gtk::FileDialog> select_dir_dialog;
     };

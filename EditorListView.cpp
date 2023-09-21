@@ -32,9 +32,15 @@ EditorListView::EditorListView(
 
     set_child(main_box);
 
+    project_ctl->signal_updated_name()->connect(
+        sigc::mem_fun(*this, &EditorListView::updateTitle)
+    );
+
     signal_destroy().connect(
         sigc::mem_fun(*this, &EditorListView::on_destroy_sig)
     );
+
+    updateTitle();
 }
 
 EditorListView::~EditorListView()
@@ -96,6 +102,32 @@ void EditorListView::table_subject_cell_bind(const Glib::RefPtr<Gtk::ListItem> &
     if (!label)
         return;
     label->set_text("todo");
+}
+
+void EditorListView::updateTitle()
+{
+    std::string new_title("");
+
+    if (project_ctl->isGlobalProject())
+    {
+        new_title = "global - Editor List - Code Editor";
+    }
+    else
+    {
+        int         err = 0;
+        std::string name;
+        std::tie(name, err) = project_ctl->getProjectName();
+        if (err != 0)
+        {
+            name = "can't determine project name";
+        }
+        new_title = std::format(
+            "{} - Editor List - Code Editor",
+            name
+        );
+    }
+
+    set_title(new_title);
 }
 
 void EditorListView::on_destroy_sig()

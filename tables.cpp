@@ -5,6 +5,15 @@ namespace wayround_i2p
 {
 namespace codeeditor
 {
+
+    ProjectTableRow::ProjectTableRow() :
+        Glib::ObjectBase(typeid(ProjectTableRow))
+    {
+        priv_signal_proj_name_changed = std::shared_ptr<sigc::signal<void()>>(new sigc::signal<void()>());
+
+        priv_signal_proj_path_changed = std::shared_ptr<sigc::signal<void()>>(new sigc::signal<void()>());
+    }
+
     std::string ProjectTableRow::proj_name()
     {
         return priv_proj_name;
@@ -13,7 +22,12 @@ namespace codeeditor
     void ProjectTableRow::proj_name(std::string val)
     {
         priv_proj_name = val;
-        send_title_update_notification();
+        priv_signal_proj_name_changed->emit();
+
+        if (proj_ctl)
+        {
+            proj_ctl->updatedName();
+        }
     }
 
     std::filesystem::path ProjectTableRow::proj_path()
@@ -24,15 +38,23 @@ namespace codeeditor
     void ProjectTableRow::proj_path(std::filesystem::path val)
     {
         priv_proj_path = val;
-        send_title_update_notification();
-    }
+        priv_signal_proj_path_changed->emit();
 
-    void ProjectTableRow::send_title_update_notification()
-    {
         if (proj_ctl)
         {
-            proj_ctl->updateTitle();
+            proj_ctl->updatedPath();
         }
     }
+
+    std::shared_ptr<sigc::signal<void()>> ProjectTableRow::signal_proj_name_changed()
+    {
+        return priv_signal_proj_name_changed;
+    }
+
+    std::shared_ptr<sigc::signal<void()>> ProjectTableRow::signal_proj_path_changed()
+    {
+        return priv_signal_proj_path_changed;
+    }
+
 } // namespace codeeditor
 } // namespace wayround_i2p

@@ -1,6 +1,7 @@
 #ifndef WORK_SUBJECT_LIST_VIEW_HPP
 #define WORK_SUBJECT_LIST_VIEW_HPP
 
+#include <format>
 #include <memory>
 
 #include <gtkmm.h>
@@ -35,6 +36,8 @@ namespace codeeditor
             Gtk::Align                         halign
         );
         void table_subject_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_item);
+
+        void updateTitle();
 
         void on_destroy_sig();
     };

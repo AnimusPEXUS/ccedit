@@ -48,7 +48,10 @@ namespace codeeditor
             Gtk::Align                         halign
         );
         void table_name_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_item);
+        void table_name_cell_unbind(const Glib::RefPtr<Gtk::ListItem> &list_item);
+
         void table_path_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_item);
+        void table_path_cell_unbind(const Glib::RefPtr<Gtk::ListItem> &list_item);
 
         void on_add_click();
         void on_rm_click();

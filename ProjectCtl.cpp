@@ -33,7 +33,13 @@ ProjectCtl::ProjectCtl(std::shared_ptr<Controller> controller)
     main_box.append(show_new_worksubject_list_btn);
     main_box.append(show_new_editor_list_btn);
 
-    updateTitle();
+    priv_signal_updated_name = std::shared_ptr<sigc::signal<void()>>(
+        new sigc::signal<void()>()
+    );
+
+    priv_signal_updated_path = std::shared_ptr<sigc::signal<void()>>(
+        new sigc::signal<void()>()
+    );
 
     show_file_explorer_btn.signal_clicked().connect(
         sigc::mem_fun(*this, &ProjectCtl::on_show_file_explorer_btn)
@@ -54,6 +60,8 @@ ProjectCtl::ProjectCtl(std::shared_ptr<Controller> controller)
     signal_destroy().connect(
         sigc::mem_fun(*this, &ProjectCtl::on_destroy_sig)
     );
+
+    updateTitle();
 }
 
 ProjectCtl::~ProjectCtl()
@@ -217,9 +225,10 @@ void ProjectCtl::on_hide_sig()
 
 void ProjectCtl::on_destroy_sig()
 {
-    work_subj_list_store->remove_all();
-    editors_list_store->remove_all();
+    // todo: add unsaved data check and warning
     std::cout << "ProjectCtl sig destroy" << std::endl;
+    // work_subj_list_store->remove_all();
+    // editors_list_store->remove_all();
     controller->cleanupProjCtl(this);
 }
 
@@ -236,6 +245,24 @@ std::tuple<std::string, int> ProjectCtl::getProjectName()
 std::tuple<std::filesystem::path, int> ProjectCtl::getProjectPath()
 {
     return controller->getPathProject(this);
+}
+
+void ProjectCtl::projectControllerRegisteredInController()
+{
+    updateTitle();
+    updatedName();
+    updatedPath();
+}
+
+void ProjectCtl::updatedName()
+{
+    updateTitle();
+    priv_signal_updated_name->emit();
+}
+
+void ProjectCtl::updatedPath()
+{
+    priv_signal_updated_path->emit();
 }
 
 void ProjectCtl::updateTitle()
@@ -259,4 +286,14 @@ void ProjectCtl::updateTitle()
     );
 
     set_title(new_title);
+}
+
+std::shared_ptr<sigc::signal<void()>> ProjectCtl::signal_updated_name()
+{
+    return priv_signal_updated_name;
+}
+
+std::shared_ptr<sigc::signal<void()>> ProjectCtl::signal_updated_path()
+{
+    return priv_signal_updated_path;
 }
