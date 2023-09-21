@@ -19,15 +19,15 @@ namespace codeeditor
         ProjectMgrEditor(
             std::shared_ptr<Controller> controller,
             std::string                 proj_name,
-            std::string                 proj_path
+            std::filesystem::path       proj_path
         );
         ~ProjectMgrEditor();
 
       private:
         std::shared_ptr<Controller> controller;
 
-        std::string proj_name_orig;
-        std::string proj_path_orig;
+        std::string           proj_name_orig;
+        std::filesystem::path proj_path_orig;
 
         Gtk::Box main_box;
 

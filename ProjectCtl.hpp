@@ -17,9 +17,10 @@ namespace wayround_i2p
 {
 namespace codeeditor
 {
+    class CodeEditorTableRow;
     class Controller;
-
     class FileExplorer;
+    class WorkSubjectTableRow;
 
     class ProjectCtl : public Gtk::Window
     {

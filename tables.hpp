@@ -1,11 +1,12 @@
 #ifndef TABLES_HPP
 #define TABLES_HPP
 
+#include <filesystem>
 #include <memory>
 
 #include <gtkmm.h>
 
-// #include "ProjectCtl.hpp"
+#include "ProjectCtl.hpp"
 // #include "WorkSubject.hpp"
 
 namespace wayround_i2p
@@ -20,8 +21,12 @@ namespace codeeditor
     class ProjectTableRow : public Glib::Object
     {
       public:
-        std::string                 proj_name;
-        std::filesystem::path       proj_path;
+        std::string proj_name();
+        void        proj_name(std::string);
+
+        std::filesystem::path proj_path();
+        void                  proj_path(std::filesystem::path);
+
         std::shared_ptr<ProjectCtl> proj_ctl;
 
         static Glib::RefPtr<ProjectTableRow> create()
@@ -36,6 +41,12 @@ namespace codeeditor
             Glib::ObjectBase(typeid(ProjectTableRow))
         {
         }
+
+      private:
+        std::string           priv_proj_name;
+        std::filesystem::path priv_proj_path;
+
+        void send_title_update_notification();
     };
 
     class WorkSubjectTableRow : public Glib::Object

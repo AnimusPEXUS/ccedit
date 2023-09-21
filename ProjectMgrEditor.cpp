@@ -11,7 +11,7 @@ using namespace wayround_i2p::codeeditor;
 ProjectMgrEditor::ProjectMgrEditor(
     std::shared_ptr<Controller> controller,
     std::string                 proj_name,
-    std::string                 proj_path
+    std::filesystem::path       proj_path
 )
 {
 
@@ -63,7 +63,7 @@ ProjectMgrEditor::ProjectMgrEditor(
     btn_browse.set_label("browse..");
 
     project_name.set_text(proj_name);
-    project_path.set_text(proj_path);
+    project_path.set_text(proj_path.string());
 
     project_name.set_hexpand(true);
     project_path.set_hexpand(true);

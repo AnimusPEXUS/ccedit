@@ -35,11 +35,12 @@ add_executable(
 	ProjectCtl.cpp
 	ProjectMgr.cpp
 	ProjectMgrEditor.cpp
+	tables.cpp
+	utils.cpp
 	WorkSubject.cpp
 	WorkSubjectListView.cpp
-	utils.cpp
-	builtin_mods/ccpp/mod_ccpp.cpp
 	builtin_mods/ccpp/CodeEditorCCPP.cpp
+	builtin_mods/ccpp/mod_ccpp.cpp
     )
 
 target_link_libraries(

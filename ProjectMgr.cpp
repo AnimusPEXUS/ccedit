@@ -170,7 +170,7 @@ void ProjectMgr::table_name_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_it
     auto label = dynamic_cast<Gtk::Label *>(list_item->get_child());
     if (!label)
         return;
-    label->set_text(col->proj_name);
+    label->set_text(col->proj_name());
 }
 
 void ProjectMgr::table_path_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_item)
@@ -181,7 +181,7 @@ void ProjectMgr::table_path_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_it
     auto label = dynamic_cast<Gtk::Label *>(list_item->get_child());
     if (!label)
         return;
-    label->set_text(col->proj_path.string());
+    label->set_text(col->proj_path().string());
 }
 
 void ProjectMgr::on_add_click()
@@ -222,8 +222,8 @@ void ProjectMgr::on_edit_click()
         // todo: mem leak?
         auto w = new ProjectMgrEditor(
             controller,
-            item->proj_name,
-            item->proj_path
+            item->proj_name(),
+            item->proj_path()
         );
 
         w->set_transient_for(*this);
@@ -242,7 +242,7 @@ void ProjectMgr::on_open_click()
     while (i != x->end())
     {
         auto item = list->get_item(*i);
-        controller->showProjCtl(item->proj_name);
+        controller->showProjCtl(item->proj_name());
         ++i;
     }
 }

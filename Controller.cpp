@@ -83,7 +83,7 @@ int Controller::findProjectIndex(std::string proj_name)
         i++
     )
     {
-        if (project_list_store->get_item(i)->proj_name == proj_name)
+        if (project_list_store->get_item(i)->proj_name() == proj_name)
         {
             return i;
         }
@@ -115,11 +115,11 @@ int Controller::saveConfig()
                 {
                     std::pair(
                         "name",
-                        project_list_store->get_item(i)->proj_name
+                        project_list_store->get_item(i)->proj_name()
                     ),
                     std::pair(
                         "path",
-                        project_list_store->get_item(i)->proj_path.string()
+                        project_list_store->get_item(i)->proj_path().string()
                     ),
                 }
             )
@@ -184,9 +184,9 @@ int Controller::createProject(
         return 0;
     }
 
-    auto x       = ProjectTableRow::create();
-    x->proj_name = proj_name;
-    x->proj_path = proj_path;
+    auto x = ProjectTableRow::create();
+    x->proj_name(proj_name);
+    x->proj_path(proj_path);
 
     project_list_store->append(x);
 
@@ -225,8 +225,8 @@ int Controller::editProject(
         return 1;
     }
 
-    x->proj_name = new_name;
-    x->proj_path = new_path;
+    x->proj_name(new_name);
+    x->proj_path(new_path);
 
     saveConfig();
 
@@ -255,7 +255,7 @@ std::tuple<
         auto x = project_list_store->get_item(i);
         if (x->proj_ctl.get() == p_ctl)
         {
-            return std::tuple(x->proj_name, 0);
+            return std::tuple(x->proj_name(), 0);
         }
     }
 
@@ -276,7 +276,7 @@ std::tuple<std::filesystem::path, int> Controller::getPathProject(std::string na
         return std::tuple("", 2);
     }
 
-    return std::tuple(x->proj_path, 0);
+    return std::tuple(x->proj_path(), 0);
 }
 
 std::tuple<
@@ -312,7 +312,7 @@ std::tuple<
         auto x = project_list_store->get_item(i);
         if (x->proj_ctl.get() == p_ctl)
         {
-            return std::tuple(x->proj_path, 0);
+            return std::tuple(x->proj_path(), 0);
         }
     }
 
@@ -383,7 +383,7 @@ void Controller::showProjCtl(std::string name)
     )
     {
         auto x = project_list_store->get_item(i);
-        if (x->proj_name == name)
+        if (x->proj_name() == name)
         {
             if (!(x->proj_ctl))
             {
@@ -410,7 +410,7 @@ void Controller::cleanupProjCtl(std::string name)
     )
     {
         auto x = project_list_store->get_item(i);
-        if (x->proj_name == name)
+        if (x->proj_name() == name)
         {
             if ((x->proj_ctl))
             {
