@@ -76,7 +76,6 @@ Glib::RefPtr<Gtk::Application>
 
 int Controller::findProjectIndex(std::string proj_name)
 {
-    // todo: know how to use std::remove_const
     for (
         int i = 0;
         i != project_list_store->get_n_items();
@@ -89,6 +88,27 @@ int Controller::findProjectIndex(std::string proj_name)
         }
     }
     return -1;
+}
+
+int Controller::findProjectIndex(ProjectCtl *p_ctl)
+{
+    for (
+        int i = 0;
+        i != project_list_store->get_n_items();
+        i++
+    )
+    {
+        if (project_list_store->get_item(i)->proj_ctl.get() == p_ctl)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int Controller::findProjectIndex(std::shared_ptr<ProjectCtl> p_ctl)
+{
+    return findProjectIndex(p_ctl.get());
 }
 
 int Controller::saveConfig()
@@ -159,6 +179,8 @@ int Controller::loadConfig()
 
     auto projects = root["projects"].as_array();
 
+    // todo: ensure project_list_store is empty
+
     for (std::size_t i = 0; i != projects.size(); i++)
     {
         auto x = projects[i].as_object();
@@ -178,10 +200,10 @@ int Controller::createProject(
     bool                  save_to_config
 )
 {
-    auto index = findProjectIndex(proj_name);
-    if (index != -1)
+    auto p_ind = findProjectIndex(proj_name);
+    if (p_ind != -1)
     {
-        return 0;
+        return 1;
     }
 
     auto x = ProjectTableRow::create();
@@ -206,13 +228,13 @@ int Controller::editProject(
     std::filesystem::path new_path
 )
 {
-    auto index = findProjectIndex(name);
-    if (index == -1)
+    auto p_ind = findProjectIndex(name);
+    if (p_ind == -1)
     {
         return 0;
     }
 
-    if (name != new_name)
+    if (new_name != "" && new_name != name)
     {
         auto index_2 = findProjectIndex(new_name);
         if (index_2 != -1)
@@ -221,13 +243,16 @@ int Controller::editProject(
         }
     }
 
-    auto x = project_list_store->get_item(index);
+    auto x = project_list_store->get_item(p_ind);
     if (x == NULL)
     {
         return 1;
     }
 
-    x->proj_name(new_name);
+    if (new_name != "" && new_name != name)
+    {
+        x->proj_name(new_name);
+    }
     x->proj_path(new_path);
 
     saveConfig();
@@ -248,17 +273,12 @@ std::tuple<
     int>
     Controller::getNameProject(ProjectCtl *p_ctl)
 {
-    for (
-        int i = 0;
-        i != project_list_store->get_n_items();
-        i++
-    )
+    auto p_ind = findProjectIndex(p_ctl);
+    if (p_ind != -1)
     {
-        auto x = project_list_store->get_item(i);
-        if (x->proj_ctl.get() == p_ctl)
-        {
-            return std::tuple(x->proj_name(), 0);
-        }
+        auto x = project_list_store->get_item(p_ind);
+
+        return std::tuple(x->proj_name(), 0);
     }
 
     return std::tuple("", 1);
@@ -266,13 +286,13 @@ std::tuple<
 
 std::tuple<std::filesystem::path, int> Controller::getPathProject(std::string name)
 {
-    auto index = findProjectIndex(name);
-    if (index != -1)
+    auto p_ind = findProjectIndex(name);
+    if (p_ind != -1)
     {
         return std::tuple("", 1);
     }
 
-    auto x = project_list_store->get_item(index);
+    auto x = project_list_store->get_item(p_ind);
     if (x == NULL)
     {
         return std::tuple("", 2);
@@ -305,17 +325,12 @@ std::tuple<
         }
     }
 
-    for (
-        int i = 0;
-        i != project_list_store->get_n_items();
-        i++
-    )
+    auto p_ind = findProjectIndex(p_ctl);
+    if (p_ind != -1)
     {
-        auto x = project_list_store->get_item(i);
-        if (x->proj_ctl.get() == p_ctl)
-        {
-            return std::tuple(x->proj_path(), 0);
-        }
+        auto x = project_list_store->get_item(p_ind);
+
+        return std::tuple(x->proj_path(), 0);
     }
 
     return std::tuple(root, 1);
@@ -343,30 +358,6 @@ int Controller::addBuiltinMods()
     return 0;
 }
 
-void Controller::showGlobalProjCtl()
-{
-    if (!global_proj_ctl)
-    {
-        global_proj_ctl = std::shared_ptr<ProjectCtl>(
-            new ProjectCtl(own_ptr)
-        );
-        global_proj_ctl->own_ptr = global_proj_ctl;
-        app->add_window(*global_proj_ctl);
-        global_proj_ctl->projectControllerRegisteredInController();
-    }
-
-    global_proj_ctl->show();
-}
-
-void Controller::cleanupGlobalProjCtl()
-{
-    if (global_proj_ctl)
-    {
-        global_proj_ctl->own_ptr.reset();
-        global_proj_ctl.reset();
-    }
-}
-
 bool Controller::isGlobalProjCtl(std::shared_ptr<ProjectCtl> p_ctl)
 {
     return isGlobalProjCtl(p_ctl.get());
@@ -377,80 +368,145 @@ bool Controller::isGlobalProjCtl(ProjectCtl *p_ctl)
     return global_proj_ctl && p_ctl == global_proj_ctl.get();
 }
 
-void Controller::showProjCtl(std::string name)
+std::shared_ptr<ProjectCtl> Controller::createGlobalProjCtl()
 {
-    for (
-        int i = 0;
-        i != project_list_store->get_n_items();
-        i++
-    )
+    if (!global_proj_ctl)
     {
-        auto x = project_list_store->get_item(i);
-        if (x->proj_name() == name)
-        {
-            if (!(x->proj_ctl))
-            {
-                auto new_ctl = std::shared_ptr<ProjectCtl>(
-                    new ProjectCtl(own_ptr)
-                );
-                x->proj_ctl      = new_ctl;
-                new_ctl->own_ptr = new_ctl;
-                app->add_window(*new_ctl);
-                x->proj_ctl->projectControllerRegisteredInController();
-            }
+        global_proj_ctl = std::shared_ptr<ProjectCtl>(
+            new ProjectCtl(own_ptr)
+        );
+        global_proj_ctl->own_ptr = global_proj_ctl;
+        global_proj_ctl->projectControllerRegisteredInController();
+    }
 
-            x->proj_ctl->show();
-        }
+    return global_proj_ctl;
+}
+
+std::shared_ptr<ProjectCtl> Controller::getGlobalProjCtl()
+{
+    return global_proj_ctl;
+}
+
+void Controller::closeGlobalProjCtl()
+{
+    if (global_proj_ctl)
+    {
+        // closeGlobalProjCtlWin()();
+        global_proj_ctl->close();
+        global_proj_ctl->own_ptr.reset();
+        global_proj_ctl.reset();
     }
 }
 
-void Controller::cleanupProjCtl(std::string name)
+void Controller::showGlobalProjCtlWin()
 {
-    for (
-        int i = 0;
-        i != project_list_store->get_n_items();
-        i++
-    )
+    createGlobalProjCtl();
+    if (global_proj_ctl)
     {
-        auto x = project_list_store->get_item(i);
-        if (x->proj_name() == name)
-        {
-            if (x->proj_ctl)
-            {
-                auto z = x->proj_ctl;
-                x->proj_ctl.reset();
-                z->own_ptr.reset();
-            }
-        }
+        global_proj_ctl->showWindow();
     }
 }
 
-void Controller::cleanupProjCtl(std::shared_ptr<ProjectCtl> p_ctl)
+void Controller::closeGlobalProjCtlWin()
 {
-    return cleanupProjCtl(p_ctl.get());
+    if (global_proj_ctl)
+    {
+        global_proj_ctl->closeWindow();
+    }
 }
 
-void Controller::cleanupProjCtl(ProjectCtl *p_ctl)
+std::tuple<std::shared_ptr<ProjectCtl>, int> Controller::createProjCtl(std::string name)
+{
+    auto p_ind = findProjectIndex(name);
+    if (p_ind != -1)
+    {
+        auto x = project_list_store->get_item(p_ind);
+        if (!(x->proj_ctl))
+        {
+            auto new_ctl = std::shared_ptr<ProjectCtl>(
+                new ProjectCtl(own_ptr)
+            );
+            x->proj_ctl      = new_ctl;
+            new_ctl->own_ptr = new_ctl;
+            x->proj_ctl->projectControllerRegisteredInController();
+        }
+        return std::tuple(x->proj_ctl, 0);
+    }
+    return std::tuple(std::shared_ptr<ProjectCtl>(), 1);
+}
+
+std::tuple<std::shared_ptr<ProjectCtl>, int> Controller::getProjCtl(std::string name)
+{
+    auto p_ind = findProjectIndex(name);
+    if (p_ind != -1)
+    {
+        auto x = project_list_store->get_item(p_ind);
+        if (x->proj_name() == name)
+        {
+            return std::tuple(x->proj_ctl, 0);
+        }
+    }
+    return std::tuple(std::shared_ptr<ProjectCtl>(), 1);
+}
+
+int Controller::closeProjCtl(std::string name)
+{
+    auto p_ind = findProjectIndex(name);
+    if (p_ind != -1)
+    {
+        auto x = project_list_store->get_item(p_ind);
+
+        closeProjCtl(x->proj_ctl);
+        return 0;
+    }
+    return -1;
+}
+
+int Controller::showProjCtlWin(std::string name)
+{
+    createProjCtl(name);
+
+    auto p_ind = findProjectIndex(name);
+    if (p_ind != -1)
+    {
+        auto x = project_list_store->get_item(p_ind);
+        x->proj_ctl->showWindow();
+        return 0;
+    }
+    return -1;
+}
+
+void Controller::closeProjCtlWin(std::string name)
+{
+    auto p_ind = findProjectIndex(name);
+    if (p_ind != -1)
+    {
+        auto x = project_list_store->get_item(p_ind);
+        x->proj_ctl->closeWindow();
+    }
+}
+
+void Controller::closeProjCtl(std::shared_ptr<ProjectCtl> p_ctl)
+{
+    return closeProjCtl(p_ctl.get());
+}
+
+void Controller::closeProjCtl(ProjectCtl *p_ctl)
 {
     if (isGlobalProjCtl(p_ctl))
     {
-        cleanupGlobalProjCtl();
+        closeGlobalProjCtl();
         return;
     }
 
-    for (
-        int i = 0;
-        i != project_list_store->get_n_items();
-        i++
-    )
+    auto p_ind = findProjectIndex(p_ctl);
+    if (p_ind != -1)
     {
-        auto x = project_list_store->get_item(i);
-        if (x->proj_ctl && x->proj_ctl.get() == p_ctl)
-        {
-            auto z = x->proj_ctl;
-            x->proj_ctl.reset();
-            z->own_ptr.reset();
-        }
+        auto x = project_list_store->get_item(p_ind);
+
+        auto z = x->proj_ctl;
+        x->proj_ctl.reset();
+        z->own_ptr.reset();
     }
 }
 

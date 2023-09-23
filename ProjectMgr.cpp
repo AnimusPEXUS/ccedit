@@ -281,14 +281,15 @@ void ProjectMgr::on_open_click()
     while (i != x->end())
     {
         auto item = list->get_item(*i);
-        controller->showProjCtl(item->proj_name());
+        // todo: error check?
+        controller->showProjCtlWin(item->proj_name());
         ++i;
     }
 }
 
 void ProjectMgr::on_open_global_click()
 {
-    controller->showGlobalProjCtl();
+    controller->showGlobalProjCtlWin();
 }
 
 void ProjectMgr::on_save_cfg()

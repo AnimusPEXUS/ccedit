@@ -8,9 +8,9 @@
 #include <gtkmm.h>
 #include <sigc++/sigc++.h>
 
-#include "CodeEditorAbstract.hpp"
 #include "Controller.hpp"
 #include "FileExplorer.hpp"
+#include "ProjectCtlWin.hpp"
 #include "WorkSubject.hpp"
 #include "tables.hpp"
 
@@ -18,12 +18,12 @@ namespace wayround_i2p
 {
 namespace codeeditor
 {
-    class CodeEditorTableRow;
     class Controller;
     class FileExplorer;
     class WorkSubjectTableRow;
+    class CodeEditorTableRow;
 
-    class ProjectCtl : public Gtk::Window
+    class ProjectCtl
     {
       public:
         ProjectCtl(std::shared_ptr<Controller> controller);
@@ -57,7 +57,14 @@ namespace codeeditor
         void updatedName();
         void updatedPath();
 
-        void updateTitle();
+        void showWindow();
+        void closeWindow();
+
+        void showNewFileExplorer();
+        void showNewWorkSubjectList();
+        void showNewEditorList();
+
+        void close();
 
         std::shared_ptr<sigc::signal<void()>> signal_updated_name();
         std::shared_ptr<sigc::signal<void()>> signal_updated_path();
@@ -65,21 +72,10 @@ namespace codeeditor
       private:
         std::shared_ptr<Controller> controller;
 
+        std::shared_ptr<ProjectCtlWin> proj_ctl_win;
+
         Glib::RefPtr<Gio::ListStore<WorkSubjectTableRow>> work_subj_list_store;
         Glib::RefPtr<Gio::ListStore<CodeEditorTableRow>>  editors_list_store;
-
-        Gtk::Box main_box;
-
-        Gtk::Button show_file_explorer_btn;
-        Gtk::Button show_new_worksubject_list_btn;
-        Gtk::Button show_new_editor_list_btn;
-
-        void on_show_file_explorer_btn();
-        void on_show_new_worksubject_list_btn();
-        void on_show_new_editor_list_btn();
-
-        void on_hide_sig();
-        void on_destroy_sig();
 
         std::shared_ptr<sigc::signal<void()>> priv_signal_updated_name;
         std::shared_ptr<sigc::signal<void()>> priv_signal_updated_path;

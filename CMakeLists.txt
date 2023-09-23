@@ -33,6 +33,7 @@ add_executable(
 	main.cpp
 	modularity.cpp
 	ProjectCtl.cpp
+	ProjectCtlWin.cpp
 	ProjectMgr.cpp
 	ProjectMgrEditor.cpp
 	tables.cpp

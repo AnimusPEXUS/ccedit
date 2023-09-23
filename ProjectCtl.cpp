@@ -16,23 +16,6 @@ ProjectCtl::ProjectCtl(std::shared_ptr<Controller> controller)
     work_subj_list_store = Gio::ListStore<WorkSubjectTableRow>::create();
     editors_list_store   = Gio::ListStore<CodeEditorTableRow>::create();
 
-    show_file_explorer_btn.set_label("File Explorer");
-    show_new_worksubject_list_btn.set_label("Work Subject List");
-    show_new_editor_list_btn.set_label("Editor List");
-
-    set_child(main_box);
-
-    main_box.set_spacing(5);
-
-    main_box.set_margin_top(5);
-    main_box.set_margin_start(5);
-    main_box.set_margin_end(5);
-    main_box.set_margin_bottom(5);
-
-    main_box.append(show_file_explorer_btn);
-    main_box.append(show_new_worksubject_list_btn);
-    main_box.append(show_new_editor_list_btn);
-
     priv_signal_updated_name = std::shared_ptr<sigc::signal<void()>>(
         new sigc::signal<void()>()
     );
@@ -40,28 +23,6 @@ ProjectCtl::ProjectCtl(std::shared_ptr<Controller> controller)
     priv_signal_updated_path = std::shared_ptr<sigc::signal<void()>>(
         new sigc::signal<void()>()
     );
-
-    show_file_explorer_btn.signal_clicked().connect(
-        sigc::mem_fun(*this, &ProjectCtl::on_show_file_explorer_btn)
-    );
-
-    show_new_worksubject_list_btn.signal_clicked().connect(
-        sigc::mem_fun(*this, &ProjectCtl::on_show_new_worksubject_list_btn)
-    );
-
-    show_new_editor_list_btn.signal_clicked().connect(
-        sigc::mem_fun(*this, &ProjectCtl::on_show_new_editor_list_btn)
-    );
-
-    signal_hide().connect(
-        sigc::mem_fun(*this, &ProjectCtl::on_hide_sig)
-    );
-
-    signal_destroy().connect(
-        sigc::mem_fun(*this, &ProjectCtl::on_destroy_sig)
-    );
-
-    updateTitle();
 }
 
 ProjectCtl::~ProjectCtl()
@@ -197,39 +158,10 @@ Glib::RefPtr<Gio::ListStore<CodeEditorTableRow>> ProjectCtl::getCodeEditorListSt
     return editors_list_store;
 }
 
-void ProjectCtl::on_show_file_explorer_btn()
+void ProjectCtl::close()
 {
-    auto x = new FileExplorer(this->own_ptr);
-    x->show();
-    controller->getGtkApp()->add_window(*x);
-}
-
-void ProjectCtl::on_show_new_worksubject_list_btn()
-{
-    auto x = new WorkSubjectListView(this->own_ptr);
-    x->show();
-    controller->getGtkApp()->add_window(*x);
-}
-
-void ProjectCtl::on_show_new_editor_list_btn()
-{
-    auto x = new EditorListView(this->own_ptr);
-    x->show();
-    controller->getGtkApp()->add_window(*x);
-}
-
-void ProjectCtl::on_hide_sig()
-{
-    std::cout << "ProjectCtl sig hide" << std::endl;
-}
-
-void ProjectCtl::on_destroy_sig()
-{
-    // todo: add unsaved data check and warning
-    std::cout << "ProjectCtl sig destroy" << std::endl;
-    // work_subj_list_store->remove_all();
-    // editors_list_store->remove_all();
-    controller->cleanupProjCtl(this);
+    // todo: close and destroy all subwindows and work subjects
+    controller->closeProjCtl(this);
 }
 
 bool ProjectCtl::isGlobalProject()
@@ -249,14 +181,14 @@ std::tuple<std::filesystem::path, int> ProjectCtl::getProjectPath()
 
 void ProjectCtl::projectControllerRegisteredInController()
 {
-    updateTitle();
+    // updateTitle();
     updatedName();
     updatedPath();
 }
 
 void ProjectCtl::updatedName()
 {
-    updateTitle();
+    // updateTitle();
     priv_signal_updated_name->emit();
 }
 
@@ -265,27 +197,50 @@ void ProjectCtl::updatedPath()
     priv_signal_updated_path->emit();
 }
 
-void ProjectCtl::updateTitle()
+void ProjectCtl::showWindow()
 {
-    std::string new_title;
-
-    std::string proj_name("(global)");
-    if (!isGlobalProject())
+    if (!proj_ctl_win)
     {
-        int err                  = 0;
-        std::tie(proj_name, err) = getProjectName();
-        if (err != 0)
-        {
-            proj_name = "(can't determine project name)";
-        }
+        proj_ctl_win = std::shared_ptr<ProjectCtlWin>(
+            new ProjectCtlWin(own_ptr)
+        );
+        proj_ctl_win->own_ptr = proj_ctl_win;
     }
 
-    new_title = std::format(
-        "{} - ProjCtl - Code Editor",
-        proj_name
-    );
+    proj_ctl_win->show();
 
-    set_title(new_title);
+    return;
+}
+
+void ProjectCtl::closeWindow()
+{
+    if (proj_ctl_win)
+    {
+        proj_ctl_win->close();
+        proj_ctl_win->own_ptr.reset();
+        proj_ctl_win.reset();
+    }
+}
+
+void ProjectCtl::showNewFileExplorer()
+{
+    auto x = new FileExplorer(this->own_ptr);
+    x->show();
+    controller->getGtkApp()->add_window(*x);
+}
+
+void ProjectCtl::showNewWorkSubjectList()
+{
+    auto x = new WorkSubjectListView(this->own_ptr);
+    x->show();
+    controller->getGtkApp()->add_window(*x);
+}
+
+void ProjectCtl::showNewEditorList()
+{
+    auto x = new EditorListView(this->own_ptr);
+    x->show();
+    controller->getGtkApp()->add_window(*x);
 }
 
 std::shared_ptr<sigc::signal<void()>> ProjectCtl::signal_updated_name()

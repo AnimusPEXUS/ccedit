@@ -36,12 +36,19 @@ namespace codeeditor
         void showProjectMgr();
         void cleanupProjectMgr();
 
+        // function fails if
+        //   project with such name already exists
         int createProject(
             std::string           name,
             std::filesystem::path path,
             bool                  save_to_config
         );
 
+        // project name will not be changed if
+        //   (new_name == "" || new_name == name)
+        // can't be edited project which name not exists
+        // if trying to change name - function fails if
+        //   project with such name already exists
         int editProject(
             std::string           name,
             std::string           new_name,
@@ -82,15 +89,26 @@ namespace codeeditor
         Glib::RefPtr<Gio::ListStore<ProjectTableRow>> getProjectListStore();
         std::vector<CodeEditorMod *>                  getBuiltinMods();
 
-        void showGlobalProjCtl();
-        void cleanupGlobalProjCtl();
         bool isGlobalProjCtl(std::shared_ptr<ProjectCtl> p_ctl);
         bool isGlobalProjCtl(ProjectCtl *p_ctl);
 
-        void showProjCtl(std::string name);
-        void cleanupProjCtl(std::string name);
-        void cleanupProjCtl(std::shared_ptr<ProjectCtl> p_ctl);
-        void cleanupProjCtl(ProjectCtl *p_ctl);
+        std::shared_ptr<ProjectCtl> createGlobalProjCtl();
+        std::shared_ptr<ProjectCtl> getGlobalProjCtl();   // resulting pointer is empty if function failed
+        void                        closeGlobalProjCtl(); // this leads to closing global proj children windows
+
+        void showGlobalProjCtlWin();                      // this will call createGlobalProjCtl() if not created yet
+        void closeGlobalProjCtlWin();
+
+        std::tuple<std::shared_ptr<ProjectCtl>, int> createProjCtl(std::string name);
+        std::tuple<std::shared_ptr<ProjectCtl>, int> getProjCtl(std::string name); // resulting pointer is empty if function failed
+        int                                          closeProjCtl(std::string name);
+
+        int  showProjCtlWin(std::string name);                                     // error if not found
+        void closeProjCtlWin(std::string name);
+
+        // this also calls closeGlobalProjCtl if global ProjectCtl passed
+        void closeProjCtl(std::shared_ptr<ProjectCtl> p_ctl);
+        void closeProjCtl(ProjectCtl *p_ctl);
 
         // void emitProjectListStoreItemsChanged();
 
@@ -106,6 +124,8 @@ namespace codeeditor
         void on_app_startup();
 
         int findProjectIndex(std::string name);
+        int findProjectIndex(std::shared_ptr<ProjectCtl> p_ctl);
+        int findProjectIndex(ProjectCtl *p_ctl);
 
         std::tuple<std::filesystem::path, int> getConfigDir();
         std::tuple<std::filesystem::path, int> getConfigFullPath();
