@@ -9,7 +9,10 @@ extern "C"
 #include <experimental/scope>
 
 #include <format>
+// #include <regex>
 #include <thread>
+
+#include <boost/regex.hpp>
 
 #include "../../utils.hpp"
 #include "CodeEditorCCPP.hpp"
@@ -245,6 +248,65 @@ namespace codeeditor
         }
 
         return;
+    }
+
+    std::vector<std::tuple<unsigned int, std::string>>
+        CodeEditorCCPP::genOutlineContents()
+    {
+
+        std::vector<std::tuple<unsigned int, std::string>> ret;
+
+        auto text_TextBuffer = subject->getTextBuffer();
+        auto text            = subject->getText();
+
+        std::vector<std::tuple<boost::regex, boost::regex_constants::match_flag_type>> rexps = {
+            {boost::regex(
+                 R"%(^.*?(public|private|protected).*?\:)%",
+             boost::regex_constants::ECMAScript
+             ),
+             boost::regex_constants::match_not_dot_newline},
+
+            {boost::regex(
+                 R"%(^.*?(class|struct)(.|\n)*?[{;])%",
+             boost::regex_constants::ECMAScript
+             ),
+             boost::regex_constants::match_not_dot_newline},
+            {boost::regex(
+                 R"%(^\s*[a-zA-Z_0-9]+(<(.|\n)*?>)\((.|\n)*?\)(.|\n)*?[{;]?)%",
+             boost::regex_constants::ECMAScript
+             ),
+             boost::regex_constants::match_not_dot_newline},
+
+		// todo: next regex equires improvments
+            {boost::regex(
+                 R"%((\@\w+\s*)?)%"
+                 R"%(((public|protected|private|abstract|static|final|strictfp)\s+)*)%"
+                 R"%(\w+\s*(?!(new|catch|if|for|while)\s+)\(.*?\).*?[{;])%",
+             boost::regex_constants::ECMAScript
+             ),
+             boost::regex_constants::match_not_dot_newline}
+        };
+
+        auto match_end = boost::sregex_iterator();
+
+        std::cout << "for" << std::endl;
+        for (auto i = rexps.begin(); i != rexps.end(); i++)
+        {
+            std::cout << "iter" << std::endl;
+            auto match_begin = boost::sregex_iterator(text.begin(), text.end(), std::get<0>(*i), std::get<1>(*i));
+            for (auto j = match_begin; j != match_end; j++)
+            {
+                auto match     = *j;
+                auto pos       = match.position();
+                auto iter      = text_TextBuffer->get_iter_at_offset(pos);
+                auto iter_line = iter.get_line();
+                auto text      = match.str();
+
+                ret.push_back({iter_line, text});
+            }
+        }
+
+        return ret;
     }
 
 } // namespace codeeditor

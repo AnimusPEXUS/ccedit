@@ -32,6 +32,14 @@ namespace codeeditor
 
         void updateTitle();
 
+        void setOutlineContents(
+            std::vector<std::tuple<unsigned int, std::string>> val
+        );
+        void setOutlineCurrentLine(unsigned int val);
+
+        virtual std::vector<std::tuple<unsigned int, std::string>>
+            genOutlineContents();
+
       private:
         std::shared_ptr<ProjectCtl>  project_ctl;
         std::shared_ptr<WorkSubject> subject;
@@ -39,12 +47,18 @@ namespace codeeditor
 
         std::shared_ptr<CodeEditorAbstract> own_ptr;
 
-        Gtk::Box            main_box;
-        Gtk::Paned          paned;
-        Gtk::ScrolledWindow text_view_sw;
-        Gtk::TextView       text_view;
-        Gtk::ScrolledWindow outline_view_sw;
-        Gtk::ColumnView     outline_view;
+        Gtk::Box                                      main_box;
+        Gtk::Paned                                    paned;
+        Gtk::ScrolledWindow                           text_view_sw;
+        Gtk::TextView                                 text_view;
+        Gtk::Box                                      outline_box;
+        Gtk::ScrolledWindow                           outline_view_sw;
+        Gtk::ColumnView                               outline_view;
+        Gtk::Button                                   outline_view_refresh_btn;
+        Glib::RefPtr<Gtk::SingleSelection>            outline_view_selection;
+        Glib::RefPtr<Gio::ListStore<OutlineTableRow>> outline_list_store;
+
+        void setup_outline_columns();
 
         void make_menubar();
         void make_actions();
@@ -62,6 +76,8 @@ namespace codeeditor
         void action_buffer_reload();
         void action_buffer_save();
         void action_buffer_save_as();
+
+        void on_outline_refresh_btn();
 
         void on_destroy_sig();
 

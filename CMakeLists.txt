@@ -16,7 +16,7 @@ set(Boost_USE_RELEASE_LIBS       ON)
 set(Boost_USE_MULTITHREADED      ON)
 
 
-find_package(Boost REQUIRED COMPONENTS json)
+find_package(Boost REQUIRED COMPONENTS json regex)
 # find_package(Boost REQUIRED COMPONENTS process)
 
 #pkg_check_modules(gtkmm3 REQUIRED IMPORTED_TARGET gtkmm-3.0)

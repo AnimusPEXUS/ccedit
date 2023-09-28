@@ -8,18 +8,32 @@ CommonEditorWindow::CommonEditorWindow(
     std::shared_ptr<ProjectCtl>  project_ctl,
     std::shared_ptr<WorkSubject> subject
 ) :
-    main_box(Gtk::Orientation::VERTICAL, 5)
+    main_box(Gtk::Orientation::VERTICAL, 5),
+    outline_box(Gtk::Orientation::VERTICAL, 5)
 {
     this->project_ctl = project_ctl;
     this->subject     = subject;
 
+    outline_list_store = Gio::ListStore<OutlineTableRow>::create();
+
+    outline_view_selection = Gtk::SingleSelection::create(
+        outline_list_store
+    );
+
+    outline_view.set_model(outline_view_selection);
+
     set_child(main_box);
+
+    outline_view_refresh_btn.set_label("Refresh");
 
     main_box.append(menu_bar);
     main_box.append(paned);
 
     paned.set_start_child(text_view_sw);
-    paned.set_end_child(outline_view_sw);
+    paned.set_end_child(outline_box);
+
+    outline_box.append(outline_view_refresh_btn);
+    outline_box.append(outline_view_sw);
 
     text_view_sw.set_policy(
         Gtk::PolicyType::ALWAYS,
@@ -29,6 +43,9 @@ CommonEditorWindow::CommonEditorWindow(
         Gtk::PolicyType::ALWAYS,
         Gtk::PolicyType::ALWAYS
     );
+
+    outline_view_sw.set_vexpand(true);
+    outline_view_sw.set_valign(Gtk::Align::FILL);
 
     text_view_sw.set_overlay_scrolling(false);
     outline_view_sw.set_overlay_scrolling(false);
@@ -49,12 +66,18 @@ CommonEditorWindow::CommonEditorWindow(
     make_actions();
     make_hotkeys();
 
+    setup_outline_columns();
+
     subject->signal_modified_changed()->connect(
         sigc::mem_fun(*this, &CommonEditorWindow::updateTitle)
     );
 
     project_ctl->signal_updated_name()->connect(
         sigc::mem_fun(*this, &CommonEditorWindow::updateTitle)
+    );
+
+    outline_view_refresh_btn.signal_clicked().connect(
+        sigc::mem_fun(*this, &CommonEditorWindow::on_outline_refresh_btn)
     );
 
     signal_destroy().connect(
@@ -67,6 +90,89 @@ CommonEditorWindow::CommonEditorWindow(
 CommonEditorWindow::~CommonEditorWindow()
 {
     std::cout << "~CommonEditorWindow()" << std::endl;
+}
+
+void CommonEditorWindow::setup_outline_columns()
+{
+    auto factory = Gtk::SignalListItemFactory::create();
+    factory->signal_setup().connect(
+        sigc::bind(
+            [](
+                const Glib::RefPtr<Gtk::ListItem> &list_item
+            )
+            {
+                list_item->set_child(*Gtk::make_managed<Gtk::Label>(
+                    "",
+                    Gtk::Align::START
+                )
+                );
+            }
+        )
+    );
+    // sigc::mem_fun(*this, &CommonEditorWindow::table_cell_setup),
+    // Gtk::Align::START
+    factory->signal_bind().connect(
+        sigc::bind(
+            [](const Glib::RefPtr<Gtk::ListItem> &list_item)
+            {
+                auto col = std::dynamic_pointer_cast<OutlineTableRow>(
+                    list_item->get_item()
+                );
+                if (!col)
+                    return;
+                auto label = dynamic_cast<Gtk::Label *>(
+                    list_item->get_child()
+                );
+                if (!label)
+                    return;
+                label->set_text(std::format("{}", col->line));
+            }
+        )
+    );
+
+    auto column = Gtk::ColumnViewColumn::create("Line", factory);
+    column->set_fixed_width(50);
+    column->set_resizable(true);
+    outline_view.append_column(column);
+
+    // -------------
+    factory = Gtk::SignalListItemFactory::create();
+    factory->signal_setup().connect(
+        sigc::bind(
+            [](
+                const Glib::RefPtr<Gtk::ListItem> &list_item
+            )
+            {
+                list_item->set_child(*Gtk::make_managed<Gtk::Label>(
+                    "",
+                    Gtk::Align::START
+                )
+                );
+            }
+        )
+    );
+    factory->signal_bind().connect(
+        sigc::bind(
+            [](const Glib::RefPtr<Gtk::ListItem> &list_item)
+            {
+                auto col = std::dynamic_pointer_cast<OutlineTableRow>(
+                    list_item->get_item()
+                );
+                if (!col)
+                    return;
+                auto label = dynamic_cast<Gtk::Label *>(
+                    list_item->get_child()
+                );
+                if (!label)
+                    return;
+                label->set_text(col->text);
+            }
+        )
+    );
+
+    column = Gtk::ColumnViewColumn::create("Text", factory);
+    column->set_expand(true);
+    outline_view.append_column(column);
 }
 
 void CommonEditorWindow::make_menubar()
@@ -203,6 +309,52 @@ void CommonEditorWindow::updateTitle()
     set_title(new_title);
 }
 
+void CommonEditorWindow::setOutlineContents(
+    std::vector<std::tuple<unsigned int, std::string>> val
+)
+{
+    // todo: save and restore current view
+    outline_list_store->remove_all();
+
+    auto i = val.begin();
+    while (i != val.end())
+    {
+        auto x = OutlineTableRow::create();
+
+        std::tie(x->line, x->text) = *i;
+        outline_list_store->append(x);
+        ++i;
+    }
+
+    outline_list_store->sort(
+        sigc::slot<int(const Glib::RefPtr<const OutlineTableRow> &, const Glib::RefPtr<const OutlineTableRow> &)>(
+            [](const Glib::RefPtr<const OutlineTableRow> &p1,
+               const Glib::RefPtr<const OutlineTableRow> &p2)
+            {
+                if (p1->line == p2->line)
+                {
+                    return 0;
+                }
+                if (p1->line < p2->line)
+                {
+                    return -1;
+                }
+                if (p1->line > p2->line)
+                {
+                    return 1;
+                }
+                return 0;
+            }
+        )
+    );
+}
+
+std::vector<std::tuple<unsigned int, std::string>>
+    CommonEditorWindow::genOutlineContents()
+{
+    return std::vector<std::tuple<unsigned int, std::string>>();
+}
+
 void CommonEditorWindow::saveOwnPtr(std::shared_ptr<CodeEditorAbstract> val)
 {
     own_ptr = val;
@@ -235,6 +387,12 @@ void CommonEditorWindow::action_buffer_save()
 void CommonEditorWindow::action_buffer_save_as()
 {
     std::cout << "save as" << std::endl;
+}
+
+void CommonEditorWindow::on_outline_refresh_btn()
+{
+    auto oc = genOutlineContents();
+    setOutlineContents(oc);
 }
 
 void CommonEditorWindow::on_destroy_sig()

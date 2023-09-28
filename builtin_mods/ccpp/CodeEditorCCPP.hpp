@@ -15,6 +15,9 @@ namespace codeeditor
         CodeEditorCCPP(std::shared_ptr<ProjectCtl> project_ctl, std::shared_ptr<WorkSubject> subject);
         ~CodeEditorCCPP();
 
+        std::vector<std::tuple<unsigned int, std::string>>
+            genOutlineContents() override;
+
       private:
         std::shared_ptr<ProjectCtl>  project_ctl;
         std::shared_ptr<WorkSubject> subject;

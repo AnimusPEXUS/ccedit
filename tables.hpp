@@ -89,6 +89,26 @@ namespace codeeditor
         }
     };
 
+    class OutlineTableRow : public Glib::Object
+    {
+      public:
+        unsigned int line;
+        std::string  text;
+
+        static Glib::RefPtr<OutlineTableRow> create()
+        {
+            return Glib::make_refptr_for_instance<OutlineTableRow>(
+                new OutlineTableRow()
+            );
+        }
+
+      protected:
+        OutlineTableRow() :
+            Glib::ObjectBase(typeid(CodeEditorTableRow))
+        {
+        }
+    };
+
 } // namespace codeeditor
 } // namespace wayround_i2p
 
