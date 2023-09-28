@@ -78,6 +78,7 @@ namespace codeeditor
         void action_buffer_save_as();
 
         void on_outline_refresh_btn();
+        void on_outline_activate(guint val);
 
         void on_destroy_sig();
 

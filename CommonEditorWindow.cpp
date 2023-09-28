@@ -80,6 +80,10 @@ CommonEditorWindow::CommonEditorWindow(
         sigc::mem_fun(*this, &CommonEditorWindow::on_outline_refresh_btn)
     );
 
+    outline_view.signal_activate().connect(
+        sigc::mem_fun(*this, &CommonEditorWindow::on_outline_activate)
+    );
+
     signal_destroy().connect(
         sigc::mem_fun(*this, &CommonEditorWindow::on_destroy_sig)
     );
@@ -393,6 +397,18 @@ void CommonEditorWindow::on_outline_refresh_btn()
 {
     auto oc = genOutlineContents();
     setOutlineContents(oc);
+}
+
+void CommonEditorWindow::on_outline_activate(guint val)
+{
+    auto x = outline_list_store->get_item(val);
+    // std::cout << "x == " << x->line << std::endl;
+
+    auto tb = subject->getTextBuffer();
+
+    auto iter_at_line = tb->get_iter_at_line(x->line);
+    text_view.scroll_to(iter_at_line, 0.2);
+    tb->place_cursor(iter_at_line);
 }
 
 void CommonEditorWindow::on_destroy_sig()
