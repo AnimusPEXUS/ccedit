@@ -40,6 +40,8 @@ namespace codeeditor
         virtual std::vector<std::tuple<unsigned int, std::string>>
             genOutlineContents();
 
+        void setTextPreservingView(std::string txt);
+
       private:
         std::shared_ptr<ProjectCtl>  project_ctl;
         std::shared_ptr<WorkSubject> subject;

@@ -240,7 +240,7 @@ namespace codeeditor
             auto res = waitpid(pid, &exitstatus, 0);
             if (exitstatus == 0)
             {
-                subject->setText(str_to_read);
+                setTextPreservingView(str_to_read);
                 subject->modified(true);
             }
 
@@ -277,7 +277,8 @@ namespace codeeditor
              ),
              boost::regex_constants::match_not_dot_newline},
 
-		// todo: next regex equires improvments
+ // todo: next regex requires improvments
+  // todo: clang-format settings also requires improvments
             {boost::regex(
                  R"%((\@\w+\s*)?)%"
                  R"%(((public|protected|private|abstract|static|final|strictfp)\s+)*)%"

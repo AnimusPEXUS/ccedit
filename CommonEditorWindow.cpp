@@ -331,7 +331,11 @@ void CommonEditorWindow::setOutlineContents(
     }
 
     outline_list_store->sort(
-        sigc::slot<int(const Glib::RefPtr<const OutlineTableRow> &, const Glib::RefPtr<const OutlineTableRow> &)>(
+        sigc::slot<
+            int(
+                const Glib::RefPtr<const OutlineTableRow> &,
+                const Glib::RefPtr<const OutlineTableRow> &
+            )>(
             [](const Glib::RefPtr<const OutlineTableRow> &p1,
                const Glib::RefPtr<const OutlineTableRow> &p2)
             {
@@ -357,6 +361,33 @@ std::vector<std::tuple<unsigned int, std::string>>
     CommonEditorWindow::genOutlineContents()
 {
     return std::vector<std::tuple<unsigned int, std::string>>();
+}
+
+// todo: return errors?
+void CommonEditorWindow::setTextPreservingView(std::string txt)
+{
+    auto tb = subject->getTextBuffer();
+
+    auto cur_pos             = tb->get_insert();
+    auto cur_pos_iter        = tb->get_iter_at_mark(cur_pos);
+    auto cur_pos_iter_offset = cur_pos_iter.get_offset();
+    auto v_scrollbar         = text_view_sw.get_vscrollbar();
+    auto adj                 = v_scrollbar->get_adjustment()->get_value();
+
+    tb->set_text(txt);
+
+    auto context = Glib::MainContext::get_default();
+
+    context->signal_idle().connect_once(
+        [this, tb, cur_pos_iter_offset, adj]()
+        {
+            auto new_iter = tb->get_iter_at_offset(cur_pos_iter_offset);
+            tb->place_cursor(new_iter);
+
+            auto v_scrollbar = this->text_view_sw.get_vscrollbar();
+            v_scrollbar->get_adjustment()->set_value(adj);
+        }
+    );
 }
 
 void CommonEditorWindow::saveOwnPtr(std::shared_ptr<CodeEditorAbstract> val)
