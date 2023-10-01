@@ -51,6 +51,8 @@ namespace codeeditor
 
         Gtk::Box                                      main_box;
         Gtk::Paned                                    paned;
+        Gtk::Box                                      text_view_box;
+        Gtk::DrawingArea                              linum_area;
         Gtk::ScrolledWindow                           text_view_sw;
         Gtk::TextView                                 text_view;
         Gtk::Box                                      outline_box;
@@ -78,6 +80,14 @@ namespace codeeditor
         void action_buffer_reload();
         void action_buffer_save();
         void action_buffer_save_as();
+
+        void redraw_linum(
+            const Cairo::RefPtr<Cairo::Context> &cont,
+            int                                  width,
+            int                                  height
+        );
+
+        void force_redraw_linum();
 
         void on_outline_refresh_btn();
         void on_outline_activate(guint val);

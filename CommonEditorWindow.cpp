@@ -9,7 +9,8 @@ CommonEditorWindow::CommonEditorWindow(
     std::shared_ptr<WorkSubject> subject
 ) :
     main_box(Gtk::Orientation::VERTICAL, 5),
-    outline_box(Gtk::Orientation::VERTICAL, 5)
+    outline_box(Gtk::Orientation::VERTICAL, 5),
+    text_view_box(Gtk::Orientation::HORIZONTAL, 5)
 {
     this->project_ctl = project_ctl;
     this->subject     = subject;
@@ -29,7 +30,10 @@ CommonEditorWindow::CommonEditorWindow(
     main_box.append(menu_bar);
     main_box.append(paned);
 
-    paned.set_start_child(text_view_sw);
+    text_view_box.append(linum_area);
+    text_view_box.append(text_view_sw);
+
+    paned.set_start_child(text_view_box);
     paned.set_end_child(outline_box);
 
     outline_box.append(outline_view_refresh_btn);
@@ -43,6 +47,18 @@ CommonEditorWindow::CommonEditorWindow(
         Gtk::PolicyType::ALWAYS,
         Gtk::PolicyType::ALWAYS
     );
+
+    linum_area.set_content_width(50);
+
+    text_view_box.set_vexpand(true);
+    text_view_box.set_hexpand(true);
+    text_view_box.set_valign(Gtk::Align::FILL);
+    text_view_box.set_halign(Gtk::Align::FILL);
+
+    text_view_sw.set_vexpand(true);
+    text_view_sw.set_hexpand(true);
+    text_view_sw.set_valign(Gtk::Align::FILL);
+    text_view_sw.set_halign(Gtk::Align::FILL);
 
     outline_view_sw.set_vexpand(true);
     outline_view_sw.set_valign(Gtk::Align::FILL);
@@ -68,6 +84,10 @@ CommonEditorWindow::CommonEditorWindow(
 
     setup_outline_columns();
 
+    linum_area.set_draw_func(
+        sigc::mem_fun(*this, &CommonEditorWindow::redraw_linum)
+    );
+
     subject->signal_modified_changed()->connect(
         sigc::mem_fun(*this, &CommonEditorWindow::updateTitle)
     );
@@ -86,6 +106,14 @@ CommonEditorWindow::CommonEditorWindow(
 
     signal_destroy().connect(
         sigc::mem_fun(*this, &CommonEditorWindow::on_destroy_sig)
+    );
+
+    text_view_sw.get_vscrollbar()->get_adjustment()->signal_changed().connect(
+        sigc::mem_fun(*this, &CommonEditorWindow::force_redraw_linum)
+    );
+
+    text_view_sw.get_vscrollbar()->get_adjustment()->signal_value_changed().connect(
+        sigc::mem_fun(*this, &CommonEditorWindow::force_redraw_linum)
     );
 
     updateTitle();
@@ -388,6 +416,42 @@ void CommonEditorWindow::setTextPreservingView(std::string txt)
             v_scrollbar->get_adjustment()->set_value(adj);
         }
     );
+}
+
+void CommonEditorWindow::redraw_linum(
+    const Cairo::RefPtr<Cairo::Context> &cont,
+    int                                  width,
+    int                                  height
+)
+{
+    Gdk::Rectangle r;
+    text_view.get_visible_rect(r);
+
+    auto modifier = r.get_y();
+    auto size     = r.get_height();
+
+    unsigned int new_line     = 0;
+    unsigned int current_line = 0;
+
+    auto text_buff = text_view.get_buffer();
+
+    for (unsigned int i = 0; i != size; i++)
+    {
+        Gtk::TextIter new_iter;
+        text_view.get_iter_at_location(new_iter, 0, i + modifier);
+        new_line = new_iter.get_line();
+        if (new_line != current_line)
+        {
+            cont->move_to(0, i);
+            cont->show_text(std::format("{}", new_line));
+            current_line = new_line;
+        }
+    }
+}
+
+void CommonEditorWindow::force_redraw_linum()
+{
+    linum_area.queue_draw();
 }
 
 void CommonEditorWindow::saveOwnPtr(std::shared_ptr<CodeEditorAbstract> val)
