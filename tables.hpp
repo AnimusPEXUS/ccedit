@@ -109,6 +109,25 @@ namespace codeeditor
         }
     };
 
+    class FileExplorerDirTreeRow : public Glib::Object
+    {
+      public:
+        std::string filename;
+
+        static Glib::RefPtr<FileExplorerDirTreeRow> create()
+        {
+            return Glib::make_refptr_for_instance<FileExplorerDirTreeRow>(
+                new FileExplorerDirTreeRow()
+            );
+        }
+
+      protected:
+        FileExplorerDirTreeRow() :
+            Glib::ObjectBase(typeid(FileExplorerDirTreeRow))
+        {
+        }
+    };
+
 } // namespace codeeditor
 } // namespace wayround_i2p
 

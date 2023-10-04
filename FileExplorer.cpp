@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <format>
 
 #include "FileExplorer.hpp"
@@ -30,6 +31,8 @@ FileExplorer::FileExplorer(std::shared_ptr<ProjectCtl> proj_ctl) :
     path_box.append(refresh_btn);
     path_entry.set_margin_start(5);
     path_box.append(path_entry);
+
+    setupDirTreeView();
 
     lists_box.set_start_child(dir_tree_sw);
     lists_box.set_end_child(file_list_sw);
@@ -66,6 +69,10 @@ FileExplorer::FileExplorer(std::shared_ptr<ProjectCtl> proj_ctl) :
         sigc::mem_fun(*this, &FileExplorer::on_temp_file_open_btn)
     );
 
+    refresh_btn.signal_clicked().connect(
+        sigc::mem_fun(*this, &FileExplorer::on_refresh_btn)
+    );
+
     proj_ctl->signal_updated_name()->connect(
         sigc::mem_fun(*this, &FileExplorer::updateTitle)
     );
@@ -78,6 +85,53 @@ FileExplorer::FileExplorer(std::shared_ptr<ProjectCtl> proj_ctl) :
 FileExplorer::~FileExplorer()
 {
     std::cout << "~FileExplorer()" << std::endl;
+}
+
+void FileExplorer::setupDirTreeView()
+{
+    auto factory = Gtk::SignalListItemFactory::create();
+    factory->signal_setup().connect(
+        sigc::bind(
+            [](
+                const Glib::RefPtr<Gtk::ListItem> &list_item
+            )
+            {
+                list_item->set_child(*Gtk::make_managed<Gtk::Label>(
+                    "",
+                    Gtk::Align::START
+                )
+                );
+            }
+        )
+    );
+
+    factory->signal_bind().connect(
+        sigc::bind(
+            [](const Glib::RefPtr<Gtk::ListItem> &list_item)
+            {
+                auto col = std::dynamic_pointer_cast<FileExplorerDirTreeRow>(
+                    list_item->get_item()
+                );
+                if (!col)
+                {
+                    return;
+                }
+
+                auto label = dynamic_cast<Gtk::Label *>(
+                    list_item->get_child()
+                );
+                if (!label)
+                {
+                    return;
+                }
+
+                std::string new_text = col->filename;
+                label->set_text(new_text);
+            }
+        )
+    );
+
+    dir_tree_view.set_factory(factory);
 }
 
 void FileExplorer::updateTitle()
@@ -174,3 +228,76 @@ void FileExplorer::on_temp_file_open_btn()
     proj_ctl->workSubjectEnsureExistance(x);
     proj_ctl->workSubjectNewEditor(x);
 }
+
+void FileExplorer::on_refresh_btn()
+{
+    auto [list_store, err] = dirTreeGenRootListStore("/");
+    if (err != 0)
+    {
+        // todo: display error?
+        return;
+    }
+
+    auto dir_tree_view_selection = Gtk::SingleSelection::create();
+    dir_tree_view_selection->set_model(list_store);
+    dir_tree_view.set_model(dir_tree_view_selection);
+}
+
+std::tuple<std::filesystem::path, int> FileExplorer::getProjectPath()
+{
+    return proj_ctl->getProjectPath();
+}
+
+std::tuple<
+    Glib::RefPtr<Gio::ListModel>,
+    int>
+    FileExplorer::dirTreeGenRootListStore(std::filesystem::path subpath)
+{
+    // todo: check subpath sanyty. force to be relative?
+
+    subpath = subpath.relative_path();
+
+    auto err_ret = Gio::ListStore<FileExplorerDirTreeRow>::create();
+
+    auto [proj_path, err] = getProjectPath();
+    if (err != 0)
+    {
+        return std::tuple<Glib::RefPtr<Gio::ListModel>, int>(err_ret, err);
+    }
+
+    auto                  liststore    = Gio::ListStore<FileExplorerDirTreeRow>::create();
+    std::filesystem::path path_to_list = proj_path / subpath;
+
+    std::cout << "      proj_path: " << proj_path.string() << std::endl;
+    std::cout << "   path_to_list: " << path_to_list.string() << std::endl;
+
+    auto                                dir_itr = std::filesystem::directory_iterator(path_to_list);
+    std::filesystem::directory_iterator end_itr;
+
+    auto ret = Gio::ListStore<FileExplorerDirTreeRow>::create();
+
+    while (true)
+    {
+        if (dir_itr == end_itr)
+        {
+            break;
+        }
+        auto entry = *dir_itr;
+
+        if (entry.is_directory())
+        {
+            auto new_item      = FileExplorerDirTreeRow::create();
+            new_item->filename = entry.path().filename();
+            ret->append(new_item);
+        }
+        // std::cout << "  path: " << entry.path().string() << std::endl;
+        dir_itr++;
+    }
+
+    return std::tuple<Glib::RefPtr<Gio::ListModel>, int>(ret, 0);
+}
+
+/*int FileExplorer::dirTreeNavigateSubpath(std::filesystem::path subpath)
+{
+
+}*/
