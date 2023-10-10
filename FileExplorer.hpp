@@ -43,16 +43,27 @@ namespace codeeditor
         // Glib::RefPtr<Gtk::SingleSelection> dir_tree_view_selection;
 
         Gtk::ScrolledWindow file_list_sw;
-        Gtk::ListView       file_list_view;
+        Gtk::FlowBox        file_list_view;
 
         Gtk::Box    temp_file_selector_box;
         Gtk::Button temp_file_selector_btn;
         Gtk::Label  selected_file_lbl;
         Gtk::Button temp_file_open_btn;
 
-        void on_project_rename();
+        void setupDirTreeView();
 
         void updateTitle();
+
+        std::tuple<std::filesystem::path, int> getProjectPath();
+
+        int navigateToRoot();
+
+        int fileListNavigateTo(std::filesystem::path subpath);
+
+        std::tuple<Glib::RefPtr<Gio::ListModel>, int>
+            dirTreeGenDirListStore(std::filesystem::path subpath);
+
+        void on_project_rename();
 
         void on_destroy_sig();
 
@@ -65,13 +76,7 @@ namespace codeeditor
 
         Glib::RefPtr<Gtk::FileDialog> select_file_dialog;
 
-        std::tuple<std::filesystem::path, int> getProjectPath();
-        std::filesystem::path                  opened_subdir;
-
-        std::tuple<Glib::RefPtr<Gio::ListModel>, int>
-            dirTreeGenRootListStore(std::filesystem::path subpath);
-
-        void setupDirTreeView();
+        std::filesystem::path opened_subdir;
     };
 } // namespace codeeditor
 } // namespace wayround_i2p

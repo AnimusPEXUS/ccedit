@@ -5,6 +5,7 @@
 #include <vector>
 
 #include <gtkmm.h>
+// #include <gtkmm/icontheme.h>
 
 #include "ProjectListItem.hpp"
 #include "ProjectMgr.hpp"
@@ -109,6 +110,8 @@ namespace codeeditor
         // this also calls closeGlobalProjCtl if global ProjectCtl passed
         void closeProjCtl(std::shared_ptr<ProjectCtl> p_ctl);
         void closeProjCtl(ProjectCtl *p_ctl);
+
+        // Glib::RefPtr<Gtk::IconTheme> icon_theme;
 
         // void emitProjectListStoreItemsChanged();
 
