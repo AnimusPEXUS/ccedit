@@ -71,6 +71,7 @@ namespace codeeditor
         void on_temp_file_open_btn();
 
         void on_dir_tree_view_activate(guint);
+        void on_file_list_view_activate(guint);
 
         void on_refresh_btn();
 

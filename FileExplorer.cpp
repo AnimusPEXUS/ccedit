@@ -86,6 +86,10 @@ FileExplorer::FileExplorer(std::shared_ptr<ProjectCtl> proj_ctl) :
         sigc::mem_fun(*this, &FileExplorer::on_dir_tree_view_activate)
     );
 
+    file_list_view.signal_activate().connect(
+        sigc::mem_fun(*this, &FileExplorer::on_file_list_view_activate)
+    );
+
     signal_destroy().connect(
         sigc::mem_fun(*this, &FileExplorer::on_destroy_sig)
     );
@@ -306,6 +310,42 @@ void FileExplorer::on_dir_tree_view_activate(guint pos)
     // todo: add correctness check
     auto pth_rel = std::filesystem::relative(pth, base);
     fileListNavigateTo(pth_rel);
+}
+
+void FileExplorer::on_file_list_view_activate(guint pos)
+{
+    int  err = 0;
+    auto sel = std::dynamic_pointer_cast<Gtk::MultiSelection>(file_list_view.get_model());
+    if (!sel)
+    {
+        std::cout << "!sel" << __FILE__ << " : " << __LINE__ << std::endl;
+        return;
+    }
+
+    auto model = std::dynamic_pointer_cast<Gio::ListStore<FileExplorerFileListRow>>(sel->get_model());
+    if (!model)
+    {
+        std::cout << "!model" << __FILE__ << " : " << __LINE__ << std::endl;
+        std::cout << typeid(sel->get_model()).name() << std::endl;
+        return;
+    }
+
+    auto item = std::dynamic_pointer_cast<FileExplorerFileListRow>(model->get_item(pos));
+    if (!item)
+    {
+
+        std::cout << "!item: " << __FILE__ << " : " << __LINE__ << std::endl;
+        std::cout << typeid(model->get_item(pos)).name() << std::endl;
+        return;
+    }
+
+    // std::cout << item->pth << std::endl;
+
+    auto pth = item->pth;
+
+    // todo: add correctness checks
+
+    selected_file_lbl.set_text(pth.string());
 }
 
 void FileExplorer::on_destroy_sig()
