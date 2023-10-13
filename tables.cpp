@@ -56,23 +56,5 @@ namespace codeeditor
         return priv_signal_proj_path_changed;
     }
 
-    FileExplorerFileListItem::FileExplorerFileListItem(std::string val) :
-        Gtk::Box(Gtk::Orientation::HORIZONTAL, 5)
-    {
-        append(img);
-        append(lbl);
-        filename(val);
-    }
-
-    std::string FileExplorerFileListItem::filename()
-    {
-        return lbl.get_text();
-    }
-
-    void FileExplorerFileListItem::filename(std::string val)
-    {
-        lbl.set_text(val);
-    }
-
 } // namespace codeeditor
 } // namespace wayround_i2p

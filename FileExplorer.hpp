@@ -40,10 +40,9 @@ namespace codeeditor
 
         Gtk::ScrolledWindow dir_tree_sw;
         Gtk::ListView       dir_tree_view;
-        // Glib::RefPtr<Gtk::SingleSelection> dir_tree_view_selection;
 
         Gtk::ScrolledWindow file_list_sw;
-        Gtk::FlowBox        file_list_view;
+        Gtk::GridView       file_list_view;
 
         Gtk::Box    temp_file_selector_box;
         Gtk::Button temp_file_selector_btn;
@@ -51,6 +50,7 @@ namespace codeeditor
         Gtk::Button temp_file_open_btn;
 
         void setupDirTreeView();
+        void setupFileListView();
 
         void updateTitle();
 
@@ -70,9 +70,9 @@ namespace codeeditor
         void on_temp_file_selector_btn();
         void on_temp_file_open_btn();
 
-        void on_refresh_btn();
+        void on_dir_tree_view_activate(guint);
 
-        void on_temp_file_selector_btn_finish(std::shared_ptr<Gio::AsyncResult> res);
+        void on_refresh_btn();
 
         Glib::RefPtr<Gtk::FileDialog> select_file_dialog;
 

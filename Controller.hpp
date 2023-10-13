@@ -111,7 +111,7 @@ namespace codeeditor
         void closeProjCtl(std::shared_ptr<ProjectCtl> p_ctl);
         void closeProjCtl(ProjectCtl *p_ctl);
 
-        // Glib::RefPtr<Gtk::IconTheme> icon_theme;
+        Glib::RefPtr<Gtk::IconTheme> icon_theme;
 
         // void emitProjectListStoreItemsChanged();
 

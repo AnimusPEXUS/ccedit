@@ -136,17 +136,31 @@ namespace codeeditor
         }
     };
 
-    class FileExplorerFileListItem : public Gtk::Box
+    class FileExplorerFileListRow : public Gtk::Box
     {
       public:
-        std::string filename();
-        void        filename(std::string val);
+        // std::string filename;
 
-        FileExplorerFileListItem(std::string val);
+        // todo: I have to store here full path,
+        //       because Gtk::TreeListModel's SlotCreateModel
+        //       doesn't gives way to traceback expanded row parents
+        //       and build path by single filename().
+        //       I don't like this, but I don't have other choice.
 
-      private:
-        Gtk::Image img;
-        Gtk::Label lbl;
+        std::filesystem::path pth;
+
+        static Glib::RefPtr<FileExplorerFileListRow> create()
+        {
+            return Glib::make_refptr_for_instance<FileExplorerFileListRow>(
+                new FileExplorerFileListRow()
+            );
+        }
+
+      protected:
+        FileExplorerFileListRow() :
+            Glib::ObjectBase(typeid(FileExplorerFileListRow))
+        {
+        }
     };
 
 } // namespace codeeditor

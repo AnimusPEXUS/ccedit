@@ -37,7 +37,7 @@ int Controller::run(int argc, char *argv[])
 
     addBuiltinMods();
 
-    // icon_theme = Gtk::IconTheme::create();
+    icon_theme = Gtk::IconTheme::create();
 
     app->signal_startup()
         .connect(
