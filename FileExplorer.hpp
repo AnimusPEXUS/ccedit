@@ -44,11 +44,6 @@ namespace codeeditor
         Gtk::ScrolledWindow file_list_sw;
         Gtk::GridView       file_list_view;
 
-        Gtk::Box    temp_file_selector_box;
-        Gtk::Button temp_file_selector_btn;
-        Gtk::Label  selected_file_lbl;
-        Gtk::Button temp_file_open_btn;
-
         void setupDirTreeView();
         void setupFileListView();
 
@@ -58,6 +53,7 @@ namespace codeeditor
 
         int navigateToRoot();
 
+        int dirTreeNavigateTo(std::filesystem::path subpath);
         int fileListNavigateTo(std::filesystem::path subpath);
 
         std::tuple<Glib::RefPtr<Gio::ListModel>, int>

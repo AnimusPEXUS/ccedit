@@ -18,9 +18,6 @@ FileExplorer::FileExplorer(std::shared_ptr<ProjectCtl> proj_ctl) :
 
     main_box.set_margin(5);
 
-    selected_file_lbl.set_text("<filename>");
-    selected_file_lbl.set_hexpand(true);
-
     path_box.set_orientation(Gtk::Orientation::HORIZONTAL);
     // path_box.set_spacing(5);
 
@@ -41,6 +38,7 @@ FileExplorer::FileExplorer(std::shared_ptr<ProjectCtl> proj_ctl) :
 
     lists_box.set_start_child(dir_tree_sw);
     lists_box.set_end_child(file_list_sw);
+    lists_box.set_resize_start_child(false);
 
     lists_box.set_wide_handle(true);
 
@@ -53,26 +51,10 @@ FileExplorer::FileExplorer(std::shared_ptr<ProjectCtl> proj_ctl) :
     dir_tree_sw.set_child(dir_tree_view);
     file_list_sw.set_child(file_list_view);
 
-    temp_file_selector_btn.set_label("Browse..");
-    temp_file_open_btn.set_label("Open");
-
-    temp_file_selector_box.append(temp_file_selector_btn);
-    temp_file_selector_box.append(selected_file_lbl);
-    temp_file_selector_box.append(temp_file_open_btn);
-
     main_box.append(path_box);
     main_box.append(lists_box);
-    main_box.append(temp_file_selector_box);
 
     set_child(main_box);
-
-    temp_file_selector_btn.signal_clicked().connect(
-        sigc::mem_fun(*this, &FileExplorer::on_temp_file_selector_btn)
-    );
-
-    temp_file_open_btn.signal_clicked().connect(
-        sigc::mem_fun(*this, &FileExplorer::on_temp_file_open_btn)
-    );
 
     refresh_btn.signal_clicked().connect(
         sigc::mem_fun(*this, &FileExplorer::on_refresh_btn)
@@ -345,7 +327,16 @@ void FileExplorer::on_file_list_view_activate(guint pos)
 
     // todo: add correctness checks
 
-    selected_file_lbl.set_text(pth.string());
+    auto f = Gio::File::create_for_path(pth.string());
+    if (f->query_info()->get_file_type() == Gio::FileType::DIRECTORY)
+    {
+        dirTreeNavigateTo(pth);
+    }
+    else
+    {
+        proj_ctl->workSubjectEnsureExistance(pth);
+        proj_ctl->workSubjectNewEditor(pth);
+    }
 }
 
 void FileExplorer::on_destroy_sig()
@@ -353,52 +344,6 @@ void FileExplorer::on_destroy_sig()
     std::cout << "FileExplorer sig destroy" << std::endl;
     delete this;
     std::cout << "FileExplorer sig destroy exit" << std::endl;
-}
-
-void FileExplorer::on_temp_file_selector_btn()
-{
-    select_file_dialog = Gtk::FileDialog::create();
-
-    auto lbl_txt = selected_file_lbl.get_text();
-
-    if (lbl_txt.length() != 0)
-    {
-        auto lbl_gio_file = Gio::File::create_for_path(lbl_txt);
-
-        std::cout << "applying file to dialog: " << lbl_gio_file->get_path() << std::endl;
-
-        select_file_dialog->set_initial_file(lbl_gio_file);
-    }
-
-    select_file_dialog->set_title("select a file to edit");
-    select_file_dialog->open(
-        *this,
-        [this](std::shared_ptr<Gio::AsyncResult> res)
-        {
-            if (res == NULL)
-            {
-                return;
-            }
-
-            auto result = select_file_dialog->open_finish(res);
-
-            if (result == NULL)
-            {
-                return;
-            }
-
-            selected_file_lbl.set_text(result->get_path());
-
-            select_file_dialog.reset();
-        }
-    );
-}
-
-void FileExplorer::on_temp_file_open_btn()
-{
-    std::filesystem::path x(selected_file_lbl.get_text());
-    proj_ctl->workSubjectEnsureExistance(x);
-    proj_ctl->workSubjectNewEditor(x);
 }
 
 void FileExplorer::on_refresh_btn()
@@ -497,6 +442,17 @@ std::tuple<std::filesystem::path, int> FileExplorer::getProjectPath()
     return proj_ctl->getProjectPath();
 }
 
+int FileExplorer::dirTreeNavigateTo(std::filesystem::path subpath)
+{
+    subpath = subpath.relative_path();
+
+    auto [proj_path, err] = getProjectPath();
+    if (err != 0)
+    {
+        return err;
+    }
+}
+
 int FileExplorer::fileListNavigateTo(std::filesystem::path subpath)
 {
     subpath = subpath.relative_path();
@@ -522,7 +478,8 @@ int FileExplorer::fileListNavigateTo(std::filesystem::path subpath)
 
     auto ret = Gio::ListStore<FileExplorerFileListRow>::create();
 
-    std::vector<Glib::RefPtr<FileExplorerFileListRow>> items;
+    std::vector<Glib::RefPtr<FileExplorerFileListRow>> dir_items;
+    std::vector<Glib::RefPtr<FileExplorerFileListRow>> file_items;
 
     for (;;)
     {
@@ -533,17 +490,22 @@ int FileExplorer::fileListNavigateTo(std::filesystem::path subpath)
         }
         auto name = fi->get_name();
         auto type = fi->get_file_type();
-        if (type != Gio::FileType::DIRECTORY)
+
+        auto new_item = FileExplorerFileListRow::create();
+        new_item->pth = path_to_list / name;
+        if (type == Gio::FileType::DIRECTORY)
         {
-            auto new_item = FileExplorerFileListRow::create();
-            new_item->pth = path_to_list / name;
-            items.push_back(new_item);
+            dir_items.push_back(new_item);
+        }
+        else
+        {
+            file_items.push_back(new_item);
         }
     }
 
     std::sort(
-        items.begin(),
-        items.end(),
+        dir_items.begin(),
+        dir_items.end(),
         [](
             const Glib::RefPtr<FileExplorerFileListRow> &a,
             const Glib::RefPtr<FileExplorerFileListRow> &b
@@ -553,7 +515,24 @@ int FileExplorer::fileListNavigateTo(std::filesystem::path subpath)
         }
     );
 
-    for (auto i : items)
+    std::sort(
+        file_items.begin(),
+        file_items.end(),
+        [](
+            const Glib::RefPtr<FileExplorerFileListRow> &a,
+            const Glib::RefPtr<FileExplorerFileListRow> &b
+        )
+        {
+            return a->pth.filename() < b->pth.filename();
+        }
+    );
+
+    for (auto i : dir_items)
+    {
+        ret->append(i);
+    }
+
+    for (auto i : file_items)
     {
         ret->append(i);
     }
