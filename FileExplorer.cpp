@@ -6,8 +6,20 @@
 #include <experimental/scope>
 
 #include "FileExplorer.hpp"
+#include "utils.hpp"
 
 using namespace wayround_i2p::codeeditor;
+
+std::shared_ptr<FileExplorer> FileExplorer::create(
+    std::shared_ptr<ProjectCtl> proj_ctl
+)
+{
+    auto ret = std::shared_ptr<FileExplorer>(
+        new FileExplorer(proj_ctl)
+    );
+    ret->own_ptr = ret;
+    return ret;
+}
 
 FileExplorer::FileExplorer(std::shared_ptr<ProjectCtl> proj_ctl) :
     main_box(Gtk::Orientation::VERTICAL, 5)
@@ -23,12 +35,19 @@ FileExplorer::FileExplorer(std::shared_ptr<ProjectCtl> proj_ctl) :
 
     go_home_btn.set_label("home");
     exit_folder_btn.set_label("..");
+    refresh_btn.set_label("Reload Files");
+    filelauncher_dir_btn.set_label("Open this Dir");
+    make_file_or_directory_btn.set_label("mk Dir or File");
+    rename_file_or_directory_btn.set_label("Rename");
 
     path_box.set_spacing(5);
     path_box.append(go_home_btn);
     path_box.append(exit_folder_btn);
     path_box.append(refresh_btn);
+    path_box.append(make_file_or_directory_btn);
+    path_box.append(rename_file_or_directory_btn);
     path_box.append(path_entry);
+    path_box.append(filelauncher_dir_btn);
 
     setupDirTreeView();
     setupFileListView();
@@ -60,6 +79,10 @@ FileExplorer::FileExplorer(std::shared_ptr<ProjectCtl> proj_ctl) :
         sigc::mem_fun(*this, &FileExplorer::on_refresh_btn)
     );
 
+    filelauncher_dir_btn.signal_clicked().connect(
+        sigc::mem_fun(*this, &FileExplorer::on_filelauncher_dir_btn)
+    );
+
     proj_ctl->signal_updated_name()->connect(
         sigc::mem_fun(*this, &FileExplorer::updateTitle)
     );
@@ -70,6 +93,10 @@ FileExplorer::FileExplorer(std::shared_ptr<ProjectCtl> proj_ctl) :
 
     file_list_view.signal_activate().connect(
         sigc::mem_fun(*this, &FileExplorer::on_file_list_view_activate)
+    );
+
+    make_file_or_directory_btn.signal_clicked().connect(
+        sigc::mem_fun(*this, &FileExplorer::on_make_file_or_directory_btn)
     );
 
     signal_destroy().connect(
@@ -252,6 +279,90 @@ void FileExplorer::updateTitle()
     set_title(new_title);
 }
 
+int FileExplorer::touchFileOrMkDirRelToProject(
+    std::filesystem::path subpath,
+    bool                  file
+)
+{
+    return touchFileOrMkDir(subpath, file, false);
+}
+
+int FileExplorer::touchFileOrMkDirRelToCurrent(
+    std::filesystem::path subpath,
+    bool                  file
+)
+{
+    return touchFileOrMkDir(subpath, file, true);
+}
+
+int FileExplorer::touchFileOrMkDir(
+    std::filesystem::path subpath,
+    bool                  file,
+    bool                  rel_to_current
+)
+{
+    int err = 0;
+
+    subpath = subpath.relative_path();
+
+    err = check_relpath_is_relative_and_sane(subpath);
+    if (err != 0)
+    {
+        return err;
+    }
+
+    std::filesystem::path proj_path;
+
+    std::tie(proj_path, err) = getProjectPath();
+    if (err != 0)
+    {
+        return err;
+    }
+
+    std::filesystem::path base_path = proj_path;
+
+    if (rel_to_current)
+    {
+        base_path /= opened_subdir;
+    }
+
+    auto full_path = base_path / subpath;
+
+    full_path = full_path.lexically_normal();
+
+    {
+        auto tmp_rel_path = std::filesystem::relative(full_path, proj_path);
+        err               = check_relpath_is_relative_and_sane(tmp_rel_path);
+        if (err != 0)
+        {
+            return 4;
+        }
+    }
+
+    if (file)
+    {
+        auto f = fopen(full_path.string().c_str(), "w");
+        if (f == nullptr)
+        {
+            return 2;
+        }
+        fclose(f);
+    }
+    else
+    {
+        try
+        {
+            create_directories(full_path);
+        }
+        catch (std::exception &e)
+        {
+            return 3;
+        }
+    }
+
+    return 0;
+}
+
 void FileExplorer::on_dir_tree_view_activate(guint pos)
 {
     int  err = 0;
@@ -339,13 +450,6 @@ void FileExplorer::on_file_list_view_activate(guint pos)
     }
 }
 
-void FileExplorer::on_destroy_sig()
-{
-    std::cout << "FileExplorer sig destroy" << std::endl;
-    delete this;
-    std::cout << "FileExplorer sig destroy exit" << std::endl;
-}
-
 void FileExplorer::on_refresh_btn()
 {
     auto err = navigateToRoot();
@@ -354,6 +458,39 @@ void FileExplorer::on_refresh_btn()
         // todo: display error?
         return;
     }
+}
+
+void FileExplorer::on_filelauncher_dir_btn()
+{
+    auto [proj_path, err] = getProjectPath();
+    if (err != 0)
+    {
+        return;
+    }
+
+    auto lun = Gtk::FileLauncher::create(
+        Gio::File::create_for_path((proj_path / opened_subdir).string())
+    );
+    lun->launch(
+        [&lun](Glib::RefPtr<Gio::AsyncResult> &res)
+        {
+            std::cout << "launch launched" << std::endl;
+        }
+    );
+}
+
+void FileExplorer::on_make_file_or_directory_btn()
+{
+    auto x = FileExplorerMakeFileDir::create(own_ptr);
+    x->show();
+    proj_ctl->getController()->getGtkApp()->add_window(*x);
+}
+
+void FileExplorer::on_destroy_sig()
+{
+    std::cout << "FileExplorer sig destroy" << std::endl;
+    own_ptr.reset();
+    std::cout << "FileExplorer sig destroy exit" << std::endl;
 }
 
 std::filesystem::path calcSubpathByDirTreeRow(Glib::RefPtr<Gtk::TreeListRow> row)
@@ -451,10 +588,22 @@ int FileExplorer::dirTreeNavigateTo(std::filesystem::path subpath)
     {
         return err;
     }
+
+    // todo: todo
+
+    return 0;
+}
+
+int FileExplorer::fileListRefresh()
+{
+    return fileListNavigateTo(opened_subdir);
 }
 
 int FileExplorer::fileListNavigateTo(std::filesystem::path subpath)
 {
+
+    // todo: subpath sanity checks erquired here, there and everythere
+
     subpath = subpath.relative_path();
 
     auto [proj_path, err] = getProjectPath();
@@ -541,6 +690,8 @@ int FileExplorer::fileListNavigateTo(std::filesystem::path subpath)
     sel->set_model(ret);
     file_list_view.set_model(sel);
 
+    opened_subdir = subpath;
+
     return 0;
 }
 
@@ -609,4 +760,108 @@ std::tuple<Glib::RefPtr<Gio::ListModel>, int>
     }
 
     return std::tuple<Glib::RefPtr<Gio::ListModel>, int>(ret, 0);
+}
+
+std::shared_ptr<FileExplorerMakeFileDir> FileExplorerMakeFileDir::create(std::shared_ptr<FileExplorer> expl)
+{
+    auto ret = std::shared_ptr<FileExplorerMakeFileDir>(
+        new FileExplorerMakeFileDir(expl)
+    );
+    ret->own_ptr = ret;
+    return ret;
+}
+
+FileExplorerMakeFileDir::FileExplorerMakeFileDir(std::shared_ptr<FileExplorer> expl)
+{
+    this->expl = expl;
+
+    set_child(main_box);
+
+    main_box.set_margin(5);
+    main_box.set_spacing(5);
+
+    btn_box.set_spacing(5);
+
+    main_box.set_orientation(Gtk::Orientation::VERTICAL);
+    btn_box.set_orientation(Gtk::Orientation::HORIZONTAL);
+
+    main_grid.set_column_homogeneous(false);
+    main_grid.set_vexpand(true);
+
+    name_ent.set_hexpand(true);
+    name_ent.set_valign(Gtk::Align::CENTER);
+
+    main_box.append(main_grid);
+    main_box.append(btn_box);
+
+    main_grid.attach(placement_lbl, 0, 0);
+    main_grid.attach(placement_lbl2, 1, 0);
+
+    main_grid.attach(type_name_lbl, 0, 1);
+    main_grid.attach(name_ent, 1, 1);
+
+    btn_box.append(mk_dir_btn);
+    btn_box.append(mk_file_btn);
+    btn_box.append(cancel_btn);
+
+    placement_lbl.set_text("create file or dir inside");
+    type_name_lbl.set_text("select new name");
+
+    mk_dir_btn.set_label("Make Dir");
+    mk_file_btn.set_label("Make File");
+    cancel_btn.set_label("Cancel");
+
+    mk_dir_btn.signal_clicked().connect(
+        sigc::mem_fun(*this, &FileExplorerMakeFileDir::on_mk_dir_btn)
+    );
+
+    mk_file_btn.signal_clicked().connect(
+        sigc::mem_fun(*this, &FileExplorerMakeFileDir::on_mk_file_btn)
+    );
+
+    signal_destroy().connect(
+        sigc::mem_fun(
+            *this,
+            &FileExplorerMakeFileDir::on_destroy_sig
+        )
+    );
+}
+
+FileExplorerMakeFileDir::~FileExplorerMakeFileDir()
+{
+    std::cout << "~FileExplorerMakeFileDir()" << std::endl;
+}
+
+void FileExplorerMakeFileDir::on_destroy_sig()
+{
+    std::cout << "FileExplorerMakeFileDir sig destroy" << std::endl;
+    own_ptr.reset();
+    std::cout << "FileExplorerMakeFileDir sig destroy exit" << std::endl;
+}
+
+int FileExplorerMakeFileDir::common_func(bool file)
+{
+    // todo: maybe additional name_from_user cleanups needed
+    // (space strippings/trimmings?)
+    std::string           name_from_user = name_ent.get_text();
+    std::filesystem::path name_from_user_pth(name_from_user);
+    // todo: show messages if error?
+    return expl->touchFileOrMkDirRelToCurrent(
+        name_from_user_pth,
+        file
+    );
+}
+
+void FileExplorerMakeFileDir::on_mk_dir_btn()
+{
+    common_func(false);
+    expl->fileListRefresh();
+    close();
+}
+
+void FileExplorerMakeFileDir::on_mk_file_btn()
+{
+    common_func(true);
+    expl->fileListRefresh();
+    close();
 }

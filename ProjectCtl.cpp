@@ -224,7 +224,7 @@ void ProjectCtl::closeWindow()
 
 void ProjectCtl::showNewFileExplorer()
 {
-    auto x = new FileExplorer(this->own_ptr);
+    auto x = FileExplorer::create(own_ptr);
     x->show();
     controller->getGtkApp()->add_window(*x);
 }

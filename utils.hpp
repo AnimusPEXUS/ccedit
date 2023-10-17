@@ -36,6 +36,13 @@ namespace codeeditor
     );
 
     void mutexed_println(std::string s);
+
+    // this function makes sure, what this path is relative and it
+    // doesn't point to parrent dir:
+    // (lexically normalized pth does not starts with '..' or '.')
+    // result: 0 is ok. not 0 - not ok
+    int check_relpath_is_relative_and_sane(std::filesystem::path pth);
+
 } // namespace codeeditor
 } // namespace wayround_i2p
 

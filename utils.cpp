@@ -171,5 +171,24 @@ namespace codeeditor
         mut.unlock();
     }
 
+    int check_relpath_is_relative_and_sane(std::filesystem::path pth)
+    {
+        // todo: task tracker should support 'recurring todo's
+        // recurring todo: make sure path sanity functions are used everywhere where needed
+
+        if (!pth.is_relative())
+        {
+            return 2;
+        }
+
+        pth      = pth.lexically_normal();
+        auto val = *(pth.begin());
+        if (val == "." || val == "..")
+        {
+            return 1;
+        }
+        return 0;
+    }
+
 } // namespace codeeditor
 } // namespace wayround_i2p
