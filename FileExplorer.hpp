@@ -60,13 +60,17 @@ namespace codeeditor
 
         Gtk::Box path_box;
 
-        Gtk::Button go_home_btn;
-        Gtk::Button exit_folder_btn;
-        Gtk::Button make_file_or_directory_btn;
-        Gtk::Button rename_file_or_directory_btn;
-        Gtk::Button refresh_btn;
-        Gtk::Entry  path_entry;
-        Gtk::Button filelauncher_dir_btn;
+        Gtk::Button    reset_view_btn;
+        Gtk::Button    go_root_btn;
+        Gtk::Button    refresh_btn;
+        Gtk::Separator sep1;
+        Gtk::Button    filelauncher_dir_btn;
+        Gtk::Separator sep2;
+        Gtk::Button    make_file_or_directory_btn;
+        Gtk::Button    rename_file_or_directory_btn;
+        Gtk::Button    remove_file_or_directory_btn;
+        Gtk::Separator sep3;
+        Gtk::Entry     path_entry;
 
         Gtk::Paned lists_box;
 
@@ -94,12 +98,11 @@ namespace codeeditor
 
         void on_project_rename();
 
-        void on_temp_file_selector_btn();
-        void on_temp_file_open_btn();
-
         void on_dir_tree_view_activate(guint);
         void on_file_list_view_activate(guint);
 
+        void on_reset_view_btn();
+        void on_go_root_btn();
         void on_refresh_btn();
 
         void on_filelauncher_dir_btn();

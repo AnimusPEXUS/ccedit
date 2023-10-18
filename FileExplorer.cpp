@@ -33,21 +33,28 @@ FileExplorer::FileExplorer(std::shared_ptr<ProjectCtl> proj_ctl) :
     path_box.set_orientation(Gtk::Orientation::HORIZONTAL);
     // path_box.set_spacing(5);
 
-    go_home_btn.set_label("home");
-    exit_folder_btn.set_label("..");
-    refresh_btn.set_label("Reload Files");
+    reset_view_btn.set_label("Reset View");
+    go_root_btn.set_label("Nav to Root");
+    refresh_btn.set_label("Refresh");
+
     filelauncher_dir_btn.set_label("Open this Dir");
-    make_file_or_directory_btn.set_label("mk Dir or File");
-    rename_file_or_directory_btn.set_label("Rename");
+
+    make_file_or_directory_btn.set_label("mkdir/touch");
+    rename_file_or_directory_btn.set_label("mv");
+    remove_file_or_directory_btn.set_label("rm");
 
     path_box.set_spacing(5);
-    path_box.append(go_home_btn);
-    path_box.append(exit_folder_btn);
+    path_box.append(reset_view_btn);
+    path_box.append(go_root_btn);
     path_box.append(refresh_btn);
+    path_box.append(sep1);
+    path_box.append(filelauncher_dir_btn);
+    path_box.append(sep2);
     path_box.append(make_file_or_directory_btn);
     path_box.append(rename_file_or_directory_btn);
+    path_box.append(remove_file_or_directory_btn);
+    path_box.append(sep3);
     path_box.append(path_entry);
-    path_box.append(filelauncher_dir_btn);
 
     setupDirTreeView();
     setupFileListView();
@@ -74,6 +81,14 @@ FileExplorer::FileExplorer(std::shared_ptr<ProjectCtl> proj_ctl) :
     main_box.append(lists_box);
 
     set_child(main_box);
+
+    reset_view_btn.signal_clicked().connect(
+        sigc::mem_fun(*this, &FileExplorer::on_reset_view_btn)
+    );
+
+    go_root_btn.signal_clicked().connect(
+        sigc::mem_fun(*this, &FileExplorer::on_go_root_btn)
+    );
 
     refresh_btn.signal_clicked().connect(
         sigc::mem_fun(*this, &FileExplorer::on_refresh_btn)
@@ -450,9 +465,30 @@ void FileExplorer::on_file_list_view_activate(guint pos)
     }
 }
 
-void FileExplorer::on_refresh_btn()
+void FileExplorer::on_reset_view_btn()
 {
     auto err = navigateToRoot();
+    if (err != 0)
+    {
+        // todo: display error?
+        return;
+    }
+}
+
+void FileExplorer::on_go_root_btn()
+{
+    auto err = fileListNavigateTo("/");
+    if (err != 0)
+    {
+        // todo: display error?
+        return;
+    }
+}
+
+void FileExplorer::on_refresh_btn()
+{
+    // todo: refresh dir tree
+    auto err = fileListNavigateTo(opened_subdir);
     if (err != 0)
     {
         // todo: display error?
