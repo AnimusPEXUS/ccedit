@@ -65,6 +65,7 @@ namespace codeeditor
         Gtk::Button    refresh_btn;
         Gtk::Separator sep1;
         Gtk::Button    filelauncher_dir_btn;
+        Gtk::Button    find_file_btn;
         Gtk::Separator sep2;
         Gtk::Button    make_file_or_directory_btn;
         Gtk::Button    rename_file_or_directory_btn;
@@ -106,6 +107,7 @@ namespace codeeditor
         void on_refresh_btn();
 
         void on_filelauncher_dir_btn();
+        void on_find_file_btn();
 
         void on_make_file_or_directory_btn();
         void on_rename_file_or_directory_btn();

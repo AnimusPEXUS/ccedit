@@ -8,7 +8,7 @@ CommonEditorWindow::CommonEditorWindow(
     std::shared_ptr<ProjectCtl>  project_ctl,
     std::shared_ptr<WorkSubject> subject
 ) :
-    main_box(Gtk::Orientation::VERTICAL, 5),
+    main_box(Gtk::Orientation::VERTICAL, 0),
     outline_box(Gtk::Orientation::VERTICAL, 5),
     text_view_box(Gtk::Orientation::HORIZONTAL, 5)
 {

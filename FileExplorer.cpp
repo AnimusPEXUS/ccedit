@@ -6,6 +6,7 @@
 #include <experimental/scope>
 
 #include "FileExplorer.hpp"
+#include "FindFile.hpp"
 #include "utils.hpp"
 
 using namespace wayround_i2p::codeeditor;
@@ -37,9 +38,10 @@ FileExplorer::FileExplorer(std::shared_ptr<ProjectCtl> proj_ctl) :
     go_root_btn.set_label("Nav to Root");
     refresh_btn.set_label("Refresh");
 
-    filelauncher_dir_btn.set_label("Open this Dir");
+    filelauncher_dir_btn.set_label("Open this Dir..");
+    find_file_btn.set_label("Find File..");
 
-    make_file_or_directory_btn.set_label("mkdir/touch");
+    make_file_or_directory_btn.set_label("mkdir/touch..");
     rename_file_or_directory_btn.set_label("mv");
     remove_file_or_directory_btn.set_label("rm");
 
@@ -49,6 +51,7 @@ FileExplorer::FileExplorer(std::shared_ptr<ProjectCtl> proj_ctl) :
     path_box.append(refresh_btn);
     path_box.append(sep1);
     path_box.append(filelauncher_dir_btn);
+    path_box.append(find_file_btn);
     path_box.append(sep2);
     path_box.append(make_file_or_directory_btn);
     path_box.append(rename_file_or_directory_btn);
@@ -96,6 +99,10 @@ FileExplorer::FileExplorer(std::shared_ptr<ProjectCtl> proj_ctl) :
 
     filelauncher_dir_btn.signal_clicked().connect(
         sigc::mem_fun(*this, &FileExplorer::on_filelauncher_dir_btn)
+    );
+
+    find_file_btn.signal_clicked().connect(
+        sigc::mem_fun(*this, &FileExplorer::on_find_file_btn)
     );
 
     proj_ctl->signal_updated_name()->connect(
@@ -513,6 +520,13 @@ void FileExplorer::on_filelauncher_dir_btn()
             std::cout << "launch launched" << std::endl;
         }
     );
+}
+
+void FileExplorer::on_find_file_btn()
+{
+    auto x = FindFile::create(proj_ctl);
+    x->show();
+    proj_ctl->getController()->getGtkApp()->add_window(*x);
 }
 
 void FileExplorer::on_make_file_or_directory_btn()

@@ -5,8 +5,6 @@ project(codeedit)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-
-
 find_package(PkgConfig REQUIRED)
 
 
@@ -17,11 +15,8 @@ set(Boost_USE_MULTITHREADED      ON)
 
 
 find_package(Boost REQUIRED COMPONENTS json regex)
-# find_package(Boost REQUIRED COMPONENTS process)
 
-#pkg_check_modules(gtkmm3 REQUIRED IMPORTED_TARGET gtkmm-3.0)
 pkg_check_modules(gtkmm4 REQUIRED IMPORTED_TARGET gtkmm-4.0)
-#pkg_check_modules(gtksourceviewmm REQUIRED IMPORTED_TARGET gtksourceviewmm-3.0)
 pkg_check_modules(sigc REQUIRED IMPORTED_TARGET sigc++-3.0)
 
 add_executable(
@@ -30,6 +25,8 @@ add_executable(
 	Controller.cpp
 	EditorListView.cpp
 	FileExplorer.cpp
+	FindFile.cpp
+	FindText.cpp
 	main.cpp
 	modularity.cpp
 	ProjectCtl.cpp
