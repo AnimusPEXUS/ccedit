@@ -27,6 +27,7 @@ FileExplorer::FileExplorer(std::shared_ptr<ProjectCtl> proj_ctl) :
 {
     this->proj_ctl = proj_ctl;
 
+    maximize();
     updateTitle();
 
     main_box.set_margin(5);
@@ -135,7 +136,7 @@ void FileExplorer::setupDirTreeView()
 {
     auto factory = Gtk::SignalListItemFactory::create();
     factory->signal_setup().connect(
-        sigc::bind(
+        sigc::bind( // todo: sigc::bind needed?
             [](
                 const Glib::RefPtr<Gtk::ListItem> &list_item
             )
@@ -154,7 +155,7 @@ void FileExplorer::setupDirTreeView()
     );
 
     factory->signal_bind().connect(
-        sigc::bind(
+        sigc::bind( // todo: sigc::bind needed?
             [this](const Glib::RefPtr<Gtk::ListItem> &list_item)
             {
                 auto list_item_item = list_item->get_item();

@@ -23,6 +23,8 @@ CommonEditorWindow::CommonEditorWindow(
 
     outline_view.set_model(outline_view_selection);
 
+    maximize();
+
     set_child(main_box);
 
     outline_view_refresh_btn.set_label("Refresh");
@@ -90,6 +92,14 @@ CommonEditorWindow::CommonEditorWindow(
 
     subject->signal_modified_changed()->connect(
         sigc::mem_fun(*this, &CommonEditorWindow::updateTitle)
+    );
+
+    subject->signal_editors_save_state()->connect(
+        sigc::mem_fun(*this, &CommonEditorWindow::saveState)
+    );
+
+    subject->signal_editors_restore_state()->connect(
+        sigc::mem_fun(*this, &CommonEditorWindow::restoreState)
     );
 
     project_ctl->signal_updated_name()->connect(
@@ -341,6 +351,39 @@ void CommonEditorWindow::updateTitle()
     set_title(new_title);
 }
 
+void CommonEditorWindow::saveState()
+{
+    auto tb = subject->getTextBuffer();
+
+    auto cur_pos             = tb->get_insert();
+    auto cur_pos_iter        = tb->get_iter_at_mark(cur_pos);
+    auto cur_pos_iter_offset = cur_pos_iter.get_offset();
+    auto v_scrollbar         = text_view_sw.get_vscrollbar();
+    auto adj                 = v_scrollbar->get_adjustment()->get_value();
+
+    saved_editor_state.cur_pos_iter_offset = cur_pos_iter_offset;
+    saved_editor_state.scroll_adj          = adj;
+}
+
+void CommonEditorWindow::restoreState()
+{
+
+    auto context = Glib::MainContext::get_default();
+
+    context->signal_idle().connect_once(
+        [this]()
+        {
+            auto tb = subject->getTextBuffer();
+
+            auto new_iter = tb->get_iter_at_offset(saved_editor_state.cur_pos_iter_offset);
+            tb->place_cursor(new_iter);
+
+            auto v_scrollbar = this->text_view_sw.get_vscrollbar();
+            v_scrollbar->get_adjustment()->set_value(saved_editor_state.scroll_adj);
+        }
+    );
+}
+
 void CommonEditorWindow::setOutlineContents(
     std::vector<std::tuple<unsigned int, std::string>> val
 )
@@ -389,33 +432,6 @@ std::vector<std::tuple<unsigned int, std::string>>
     CommonEditorWindow::genOutlineContents()
 {
     return std::vector<std::tuple<unsigned int, std::string>>();
-}
-
-// todo: return errors?
-void CommonEditorWindow::setTextPreservingView(std::string txt)
-{
-    auto tb = subject->getTextBuffer();
-
-    auto cur_pos             = tb->get_insert();
-    auto cur_pos_iter        = tb->get_iter_at_mark(cur_pos);
-    auto cur_pos_iter_offset = cur_pos_iter.get_offset();
-    auto v_scrollbar         = text_view_sw.get_vscrollbar();
-    auto adj                 = v_scrollbar->get_adjustment()->get_value();
-
-    tb->set_text(txt);
-
-    auto context = Glib::MainContext::get_default();
-
-    context->signal_idle().connect_once(
-        [this, tb, cur_pos_iter_offset, adj]()
-        {
-            auto new_iter = tb->get_iter_at_offset(cur_pos_iter_offset);
-            tb->place_cursor(new_iter);
-
-            auto v_scrollbar = this->text_view_sw.get_vscrollbar();
-            v_scrollbar->get_adjustment()->set_value(adj);
-        }
-    );
 }
 
 void CommonEditorWindow::redraw_linum(

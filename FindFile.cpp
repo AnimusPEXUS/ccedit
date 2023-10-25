@@ -17,32 +17,34 @@ namespace codeeditor
     {
         this->p_ctl = p_ctl;
 
+        maximize();
+
         set_child(main_box);
 
         main_box.set_orientation(Gtk::Orientation::VERTICAL);
         main_box.set_spacing(5);
         main_box.set_margin(5);
 
-        results_sw.set_vexpand(true);
+        results_pan.set_vexpand(true);
 
         editors_frame.set_child(editors_grid);
         settings_frame.set_child(settings_grid);
         button_frame.set_child(button_box);
 
-        results_sw.set_has_frame(true);
-
         main_box.append(editors_frame);
         main_box.append(settings_frame);
         main_box.append(button_frame);
-        main_box.append(results_sw);
+        main_box.append(results_pan);
 
         editors_grid.set_row_spacing(5);
         editors_grid.set_column_spacing(5);
         editors_grid.set_margin(5);
+        editors_grid.set_row_homogeneous(true);
 
         settings_grid.set_row_spacing(5);
         settings_grid.set_column_spacing(5);
         settings_grid.set_margin(5);
+        settings_grid.set_row_homogeneous(true);
 
         button_box.set_margin(5);
 
@@ -110,9 +112,196 @@ namespace codeeditor
 
         button_box.append(start_btn);
         button_box.append(stop_btn);
+
+        results_pan.set_start_child(result_files_sw);
+        results_pan.set_end_child(result_lines_sw);
+
+        result_files_sw.set_child(result_files);
+        result_lines_sw.set_child(result_lines);
+
+        setup_result_filelist();
+        setup_result_linelist();
+
+        start_btn.signal_clicked().connect(
+            sigc::mem_fun(*this, &FindFile::on_start_btn)
+        );
+
+        signal_destroy().connect(
+            sigc::mem_fun(*this, &FindFile::on_destroy_sig)
+        );
+    }
+
+    void FindFile::setup_result_filelist()
+    {
+        auto factory = Gtk::SignalListItemFactory::create();
+        factory->signal_setup().connect(
+            [](const Glib::RefPtr<Gtk::ListItem> &list_item)
+            {
+                auto w = Gtk::make_managed<FindFileResultTreeItemWidget>(list_item);
+                list_item->set_child(*w);
+            }
+        );
+        factory->signal_bind().connect(
+            [](const Glib::RefPtr<Gtk::ListItem> &list_item)
+            {
+                auto list_item_child = list_item->get_child();
+
+                auto tic = dynamic_cast<FindFileResultTreeItemWidget *>(
+                    list_item_child
+                );
+                if (!tic)
+                {
+                    return;
+                }
+                tic->bind(list_item);
+            }
+        );
+        result_files.set_factory(factory);
+    }
+
+    void FindFile::setup_result_linelist()
+    {
     }
 
     FindFile::~FindFile()
+    {
+        std::cout << "~FindFile()" << std::endl;
+    }
+
+    void FindFile::start_search_thread()
+    {
+        if (search_working)
+        {
+            return;
+        }
+        search_stop_flag = false;
+    }
+
+    void FindFile::stop_search_thread()
+    {
+        search_stop_flag = true;
+    }
+
+    void FindFile::search_thread()
+    {
+    }
+
+    void FindFile::on_start_btn()
+    {
+        std::cout << "on_start_btn()" << std::endl;
+        auto stor = Gio::ListStore<FindFileResultTreeItem>::create();
+        auto sel  = Gtk::SingleSelection::create();
+        sel->set_model(stor);
+        result_files.set_model(sel);
+
+        auto x = FindFileResultTreeItem::create("filename.hpp");
+
+        stor->append(x);
+    }
+
+    void FindFile::on_destroy_sig()
+    {
+        own_ptr.reset();
+    }
+
+    FindFileResultTreeItemP FindFileResultTreeItem::create(
+        std::filesystem::path subpath
+    )
+    {
+        auto ret = Glib::make_refptr_for_instance<FindFileResultTreeItem>(
+            new FindFileResultTreeItem(
+                subpath
+            )
+        );
+        // ret->own_ptr = ret;
+        return ret;
+    }
+
+    FindFileResultTreeItem::FindFileResultTreeItem(
+        std::filesystem::path subpath
+    ) :
+        Glib::ObjectBase(typeid(FindFileResultTreeItem)),
+        subpath(subpath)
+    {
+        items = Gio::ListStore<FindFileResultTreeItemItem>::create();
+    }
+
+    FindFileResultTreeItem::~FindFileResultTreeItem()
+    {
+    }
+
+    Glib::RefPtr<Gio::ListStore<FindFileResultTreeItemItem>>
+        FindFileResultTreeItem::get_list_store()
+    {
+        return items;
+    }
+
+    FindFileResultTreeItemItemP FindFileResultTreeItemItem::create(
+        FindFileResultTreeItemP tree_item,
+        unsigned int            line,
+        std::string             text
+    )
+    {
+        auto ret = Glib::make_refptr_for_instance<FindFileResultTreeItemItem>(
+            new FindFileResultTreeItemItem(
+                tree_item,
+                line,
+                text
+            )
+        );
+        // ret->own_ptr = ret;
+        return ret;
+    }
+
+    FindFileResultTreeItemItem::FindFileResultTreeItemItem(
+        FindFileResultTreeItemP tree_item,
+        unsigned int            line,
+        std::string             text
+    ) :
+        Glib::ObjectBase(typeid(FindFileResultTreeItemItem)),
+        line(line),
+        text(text)
+
+    {
+        this->tree_item = tree_item;
+    }
+
+    FindFileResultTreeItemItem::~FindFileResultTreeItemItem()
+    {
+    }
+
+    FindFileResultTreeItemWidget::FindFileResultTreeItemWidget(
+        const Glib::RefPtr<Gtk::ListItem> &list_item
+    )
+    {
+        set_orientation(Gtk::Orientation::HORIZONTAL);
+        set_spacing(5);
+
+        append(subpath);
+        append(found_count);
+    }
+
+    FindFileResultTreeItemWidget::~FindFileResultTreeItemWidget()
+    {
+    }
+
+    void FindFileResultTreeItemWidget::bind(
+        const Glib::RefPtr<Gtk::ListItem> &list_item
+    )
+    {
+        auto list_item_item = list_item->get_item();
+
+        auto ti = std::dynamic_pointer_cast<FindFileResultTreeItem>(list_item_item);
+        if (!ti)
+        {
+            return;
+        }
+        subpath.set_text(ti->subpath.string());
+    }
+
+    void FindFileResultTreeItemWidget::unbind(
+        const Glib::RefPtr<Gtk::ListItem> &list_item
+    )
     {
     }
 

@@ -14,7 +14,7 @@ namespace wayround_i2p
 namespace codeeditor
 {
 
-    enum FindFileQueryType : unsigned char
+    enum FindFileContentsSearchMethod : unsigned char
     {
         PLAIN,
         REGEXP_BASIX,
@@ -26,34 +26,36 @@ namespace codeeditor
 
     struct FindFileQuery
     {
-        bool                              use_filemask           = false;
-        std::string                       filemask               = "*";
-        bool                              filename_casesensitive = false;
-        std::weak_ptr<CodeEditorAbstract> target_editor;
-        bool                              recurcive     = true;
-        bool                              use_subpath   = false;
-        std::filesystem::path             subpath       = "/";
-        bool                              use_max_depth = false;
-        unsigned short                    max_depth     = 1;
-        bool                              grep          = false;
-        std::string                       query         = "";
-        FindFileQueryType                 query_type    = PLAIN;
-        bool                              use_edit      = false;
-        std::string                       edit          = "";
+        bool                         use_filemask_glob      = false;
+        std::string                  filemask               = "*";
+        bool                         filename_cs            = false;
+        bool                         use_glob_on_path_part  = true;
+        bool                         recurcive              = true;
+        std::filesystem::path        subpath                = "/";
+        bool                         use_max_depth          = false;
+        unsigned short               max_depth              = 1;
+        bool                         search_contents        = false;
+        std::string                  contents               = "";
+        FindFileContentsSearchMethod contents_search_method = PLAIN;
+        bool                         contents_search_cs     = false;
     };
 
     class FindFile : public Gtk::Window
     {
       public:
-        static std::shared_ptr<FindFile> create(std::shared_ptr<ProjectCtl> p_ctl);
+        static std::shared_ptr<FindFile> create(
+            std::shared_ptr<ProjectCtl> p_ctl
+        );
 
         ~FindFile();
 
-        void                                setTargetEditor(std::shared_ptr<CodeEditorAbstract> editor);
+        void setTargetEditor(
+            std::shared_ptr<CodeEditorAbstract> editor
+        );
         void                                unsetTargetEditor();
         std::shared_ptr<CodeEditorAbstract> getTargetEditor();
 
-        void setQuery(std::shared_ptr<FindFileQuery> q);
+        void setQuery(std::shared_ptr<const FindFileQuery> q);
         void start();
         void stop();
 
@@ -61,8 +63,9 @@ namespace codeeditor
         FindFile(std::shared_ptr<ProjectCtl> p_ctl);
 
       private:
-        std::shared_ptr<ProjectCtl> p_ctl;
-        std::shared_ptr<FindFile>   own_ptr;
+        std::shared_ptr<ProjectCtl>       p_ctl;
+        std::shared_ptr<FindFile>         own_ptr;
+        std::weak_ptr<CodeEditorAbstract> target_editor;
 
         Gtk::Box main_box;
 
@@ -105,8 +108,118 @@ namespace codeeditor
         Gtk::Button start_btn;
         Gtk::Button stop_btn;
 
-        Gtk::ScrolledWindow results_sw;
-        Gtk::ColumnView     results;
+        Gtk::Paned results_pan;
+
+        Gtk::ScrolledWindow result_files_sw;
+        Gtk::ListView       result_files;
+
+        Gtk::ScrolledWindow result_lines_sw;
+        Gtk::ListView       result_lines;
+
+        void setup_result_filelist();
+        void setup_result_linelist();
+
+        std::shared_ptr<const FindFileQuery> query;
+        bool                                 search_stop_flag = false;
+        bool                                 search_working   = false;
+        void                                 start_search_thread();
+        void                                 stop_search_thread();
+        void                                 search_thread();
+
+        void on_start_btn();
+        void on_destroy_sig();
+    };
+
+    class FindFileResultTreeItem;
+    class FindFileResultTreeItemItem;
+
+    using FindFileResultTreeItemP     = Glib::RefPtr<FindFileResultTreeItem>;
+    using FindFileResultTreeItemItemP = Glib::RefPtr<FindFileResultTreeItemItem>;
+
+    // todo: this class requires rename
+    class FindFileResultTreeItem : public Glib::Object
+    {
+      public:
+        static Glib::RefPtr<FindFileResultTreeItem> create(
+            std::filesystem::path subpath
+        );
+
+        ~FindFileResultTreeItem();
+
+        const std::filesystem::path subpath;
+
+      protected:
+        FindFileResultTreeItem(
+            std::filesystem::path subpath
+        );
+
+      private:
+        Glib::RefPtr<Gio::ListStore<FindFileResultTreeItemItem>> items;
+
+      public: // methods
+        FindFileResultTreeItemItemP create_item(
+            FindFileResultTreeItemP tree_item,
+            unsigned int            line,
+            std::string             text
+        );
+
+        Glib::RefPtr<Gio::ListStore<FindFileResultTreeItemItem>>
+            get_list_store();
+    };
+
+    // todo: this class requires rename
+    class FindFileResultTreeItemItem : public Glib::Object
+    {
+      public:
+        static FindFileResultTreeItemItemP create(
+            FindFileResultTreeItemP tree_item,
+            unsigned int            line,
+            std::string             text
+        );
+
+        ~FindFileResultTreeItemItem();
+
+        const unsigned int line;
+        const std::string  text;
+
+      protected:
+        FindFileResultTreeItemItem(
+            FindFileResultTreeItemP tree_item,
+            unsigned int            line,
+            std::string             text
+        );
+
+      private:
+        FindFileResultTreeItemP tree_item;
+
+      public: // methods
+    };
+
+    class FindFileResultTreeItemWidget : public Gtk::Box
+    {
+      public:
+        FindFileResultTreeItemWidget(
+            const Glib::RefPtr<Gtk::ListItem> &list_item
+        );
+        ~FindFileResultTreeItemWidget();
+
+        void bind(const Glib::RefPtr<Gtk::ListItem> &list_item);
+        void unbind(const Glib::RefPtr<Gtk::ListItem> &list_item);
+
+      private:
+        Gtk::Label subpath;
+        Gtk::Label found_count;
+    };
+
+    class FindFileResultTreeItemItemWidget : public Gtk::Box
+    {
+      public:
+        FindFileResultTreeItemItemWidget();
+        ~FindFileResultTreeItemItemWidget();
+
+      private:
+        Gtk::Label line;
+        Gtk::Label text;
     };
 
 } // namespace codeeditor

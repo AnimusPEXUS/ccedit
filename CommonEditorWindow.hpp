@@ -15,6 +15,12 @@ namespace wayround_i2p
 namespace codeeditor
 {
 
+    struct CommonEditorWindowStateStorage
+    {
+        unsigned int cur_pos_iter_offset = 0;
+        double       scroll_adj          = 0;
+    };
+
     class CommonEditorWindow : public CodeEditorAbstract,
                                public Gtk::ApplicationWindow
     {
@@ -39,8 +45,6 @@ namespace codeeditor
 
         virtual std::vector<std::tuple<unsigned int, std::string>>
             genOutlineContents();
-
-        void setTextPreservingView(std::string txt);
 
       private:
         std::shared_ptr<ProjectCtl>  project_ctl;
@@ -80,6 +84,10 @@ namespace codeeditor
         void action_buffer_reload();
         void action_buffer_save();
         void action_buffer_save_as();
+
+        CommonEditorWindowStateStorage saved_editor_state;
+        void                           saveState();
+        void                           restoreState();
 
         void redraw_linum(
             const Cairo::RefPtr<Cairo::Context> &cont,

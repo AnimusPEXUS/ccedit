@@ -6,6 +6,7 @@ using namespace wayround_i2p::codeeditor;
 
 int main(int argc, char *argv[])
 {
+
     auto app = Gtk::Application::create("i2p.wayround.codeeditor");
 
     int ret = 0;
