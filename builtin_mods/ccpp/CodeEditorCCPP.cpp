@@ -240,7 +240,7 @@ namespace codeeditor
             auto res = waitpid(pid, &exitstatus, 0);
             if (exitstatus == 0)
             {
-		subject->setText(str_to_read);
+                subject->setText(str_to_read);
                 subject->modified(true);
             }
 
