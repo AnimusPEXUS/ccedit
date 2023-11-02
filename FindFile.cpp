@@ -1,5 +1,12 @@
 
+#include <algorithm>
+#include <experimental/scope>
+#include <queue>
+
+#include <fnmatch.h>
+
 #include "FindFile.hpp"
+#include "utils.hpp"
 
 namespace wayround_i2p
 {
@@ -168,13 +175,28 @@ namespace codeeditor
         std::cout << "~FindFile()" << std::endl;
     }
 
-    void FindFile::start_search_thread()
+    std::tuple<std::filesystem::path, int> FindFile::getProjectPath()
+    {
+        return p_ctl->getProjectPath();
+    }
+
+    void FindFile::on_start_btn()
+    {
+        std::cout << "on_start_btn()" << std::endl;
+        start_search_thread();
+    }
+
+    int FindFile::start_search_thread()
     {
         if (search_working)
         {
-            return;
+            return 1;
         }
         search_stop_flag = false;
+
+        // todo: thread
+        search_thread();
+        return 0;
     }
 
     void FindFile::stop_search_thread()
@@ -184,19 +206,183 @@ namespace codeeditor
 
     void FindFile::search_thread()
     {
-    }
+        int err = 0;
 
-    void FindFile::on_start_btn()
-    {
-        std::cout << "on_start_btn()" << std::endl;
-        auto stor = Gio::ListStore<FindFileResultTreeItem>::create();
-        auto sel  = Gtk::SingleSelection::create();
-        sel->set_model(stor);
+        auto matched_files = Gio::ListStore<FindFileResultTreeItem>::create();
+        auto sel           = Gtk::SingleSelection::create();
+        sel->set_model(matched_files);
         result_files.set_model(sel);
 
-        auto x = FindFileResultTreeItem::create("filename.hpp");
+        std::filesystem::path proj_path;
 
-        stor->append(x);
+        std::tie(proj_path, err) = getProjectPath();
+        if (err != 0)
+        {
+            // todo: report
+            return;
+        }
+
+        std::queue<std::filesystem::path> dir_subpaths_to_search_q;
+        std::queue<std::filesystem::path> files_to_grep_q;
+
+        dir_subpaths_to_search_q.push("/");
+
+        while (!dir_subpaths_to_search_q.empty())
+        {
+            auto              work_path = dir_subpaths_to_search_q.front();
+            typeof(work_path) work_path_full;
+
+            work_path      = work_path.relative_path().lexically_normal();
+            work_path_full = proj_path / work_path;
+
+            auto dir        = Gio::File::create_for_path(work_path_full);
+            auto dir_exists = dir->query_exists();
+            if (!dir_exists)
+            {
+                // todo: report
+                continue;
+            }
+
+            auto dir_type = dir->query_file_type();
+            if (dir_type != Gio::FileType::DIRECTORY)
+            {
+                // todo: report
+                continue;
+            }
+
+            auto enumerator = dir->enumerate_children();
+            std::cout << "auto enumerator = dir->enumerate_children();" << std::endl;
+
+            auto sg02 = std::experimental::fundamentals_v3::scope_exit(
+                [&enumerator]()
+                {
+                    enumerator->close();
+                }
+            );
+
+            std::vector<std::filesystem::path> matched_filenames;
+
+            for (;;)
+            {
+                auto fi = enumerator->next_file();
+                if (fi == nullptr)
+                {
+                    break;
+                }
+                auto name = fi->get_name();
+                auto type = fi->get_file_type();
+
+                auto work_path_full_name     = work_path_full / name;
+                auto work_path_full_name_rel = std::filesystem::relative(
+                    work_path_full_name,
+                    work_path_full
+                );
+
+                if (type == Gio::FileType::DIRECTORY)
+                {
+                    dir_subpaths_to_search_q.push(work_path_full_name_rel);
+                }
+                else
+                {
+                    if (fnmatch(
+                            "*",
+                            (work_time_query.use_fnmatch_on_path_part ? work_path_full_name_rel.c_str() : name.c_str()),
+                            0
+                        )
+                        == 0)
+                    {
+                        matched_filenames.push_back(work_path_full_name_rel);
+                    }
+                }
+            }
+
+            for (auto i = matched_filenames.begin();
+                 i != matched_filenames.end();
+                 i++)
+            {
+                auto x = FindFileResultTreeItem::create(*i);
+                if (work_time_query.search_contents)
+                {
+                    if (search_thread_search_contents(x) != 0)
+                    {
+                        // todo: report error
+                        continue;
+                    }
+                    if (x->get_list_store()->get_n_items() == 0)
+                    {
+                        continue;
+                    }
+                }
+
+                // Glib::RefPtr<FindFileResultTreeItem>
+
+                matched_files->append(x);
+            }
+        }
+    }
+
+    int FindFile::search_thread_search_contents(
+        FindFileResultTreeItemP item
+    )
+    {
+        int err = 0;
+
+        std::filesystem::path proj_path;
+
+        std::tie(proj_path, err) = getProjectPath();
+        if (err != 0)
+        {
+            // todo: report
+            return 1;
+        }
+
+        std::string cont_txt;
+
+        auto item_subpath = item->subpath;
+
+        std::tie(cont_txt, err) = loadStringFromFile(
+            proj_path
+            / item_subpath
+        );
+        if (err != 0)
+        {
+            // todo: report
+            return 1;
+        }
+
+        auto cont_txt_ls = LineStarts(cont_txt);
+
+        switch (work_time_query.contents_search_method)
+        {
+        default:
+            return 1;
+            break;
+        case PLAIN:
+        {
+            std::string testing_text(cont_txt);
+            std::string subj(work_time_query.contents);
+
+            auto i = testing_text.begin();
+
+            for (;;)
+            {
+                i = std::search(i + 1, testing_text.end(), subj.begin(), subj.end());
+
+                if (i == testing_text.end())
+                {
+                    break;
+                }
+                item->create_item(
+                    cont_txt_ls.getLineByOffset(
+                        std::distance(testing_text.begin(), i)
+                    ),
+                    "???"
+                );
+            }
+            break;
+        }
+        }
+        return 0;
     }
 
     void FindFile::on_destroy_sig()
@@ -213,7 +399,7 @@ namespace codeeditor
                 subpath
             )
         );
-        // ret->own_ptr = ret;
+        ret->own_ptr = ret;
         return ret;
     }
 
@@ -230,8 +416,21 @@ namespace codeeditor
     {
     }
 
-    Glib::RefPtr<Gio::ListStore<FindFileResultTreeItemItem>>
-        FindFileResultTreeItem::get_list_store()
+    FindFileResultTreeItemItemP FindFileResultTreeItem::create_item(
+        unsigned int line,
+        std::string  text
+    )
+    {
+        auto x = FindFileResultTreeItemItem::create(
+            own_ptr,
+            line,
+            text
+        );
+        items->append(x);
+        return x;
+    }
+
+    Glib::RefPtr<Gio::ListStore<FindFileResultTreeItemItem>> FindFileResultTreeItem::get_list_store()
     {
         return items;
     }

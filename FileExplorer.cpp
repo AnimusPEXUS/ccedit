@@ -667,6 +667,8 @@ int FileExplorer::fileListNavigateTo(std::filesystem::path subpath)
 
     auto dir = Gio::File::create_for_path(path_to_list.string());
 
+    // todo: check dir is directory
+
     auto enumerator = dir->enumerate_children();
 
     auto sg02 = std::experimental::fundamentals_v3::scope_exit(
@@ -741,6 +743,7 @@ int FileExplorer::fileListNavigateTo(std::filesystem::path subpath)
     sel->set_model(ret);
     file_list_view.set_model(sel);
 
+    // todo: rename 'opened_subdir' variable to something better
     opened_subdir = subpath;
 
     return 0;
@@ -813,7 +816,9 @@ std::tuple<Glib::RefPtr<Gio::ListModel>, int>
     return std::tuple<Glib::RefPtr<Gio::ListModel>, int>(ret, 0);
 }
 
-std::shared_ptr<FileExplorerMakeFileDir> FileExplorerMakeFileDir::create(std::shared_ptr<FileExplorer> expl)
+std::shared_ptr<FileExplorerMakeFileDir> FileExplorerMakeFileDir::create(
+    std::shared_ptr<FileExplorer> expl
+)
 {
     auto ret = std::shared_ptr<FileExplorerMakeFileDir>(
         new FileExplorerMakeFileDir(expl)
@@ -822,7 +827,9 @@ std::shared_ptr<FileExplorerMakeFileDir> FileExplorerMakeFileDir::create(std::sh
     return ret;
 }
 
-FileExplorerMakeFileDir::FileExplorerMakeFileDir(std::shared_ptr<FileExplorer> expl)
+FileExplorerMakeFileDir::FileExplorerMakeFileDir(
+    std::shared_ptr<FileExplorer> expl
+)
 {
     this->expl = expl;
 

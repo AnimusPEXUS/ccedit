@@ -2,8 +2,10 @@
 #define UTILS_HPP
 
 #include <filesystem>
+#include <regex>
 #include <string>
 #include <tuple>
+#include <vector>
 
 namespace wayround_i2p
 {
@@ -34,6 +36,18 @@ namespace codeeditor
         std::filesystem::path pth,
         bool                  allow_nonexist
     );
+
+    class LineStarts
+    {
+      public:
+        LineStarts(std::string text);
+        ~LineStarts() = default;
+
+        unsigned int getLineByOffset(unsigned int offset);
+
+      private:
+        std::vector<unsigned int> starts;
+    };
 
     void mutexed_println(std::string s);
 

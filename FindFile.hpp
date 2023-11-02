@@ -17,7 +17,7 @@ namespace codeeditor
     enum FindFileContentsSearchMethod : unsigned char
     {
         PLAIN,
-        REGEXP_BASIX,
+        REGEXP_BASIC,
         REGEXP_EXTENDED,
         REGEXP_SED,
         REGEXP_PERL,
@@ -26,19 +26,26 @@ namespace codeeditor
 
     struct FindFileQuery
     {
-        bool                         use_filemask_glob      = false;
-        std::string                  filemask               = "*";
-        bool                         filename_cs            = false;
-        bool                         use_glob_on_path_part  = true;
-        bool                         recurcive              = true;
-        std::filesystem::path        subpath                = "/";
-        bool                         use_max_depth          = false;
-        unsigned short               max_depth              = 1;
-        bool                         search_contents        = false;
-        std::string                  contents               = "";
-        FindFileContentsSearchMethod contents_search_method = PLAIN;
-        bool                         contents_search_cs     = false;
+        std::string                  fnmatch_pattern                       = "*";
+        bool                         fnmatch_cs                            = false;
+        bool                         use_fnmatch_on_path_part              = true;
+        bool                         recurcive                             = true;
+        std::filesystem::path        subpath                               = "/";
+        bool                         use_max_depth                         = false;
+        unsigned short               max_depth                             = 1;
+        bool                         search_contents                       = false;
+        std::string                  contents                              = "";
+        FindFileContentsSearchMethod contents_search_method                = PLAIN;
+        bool                         contents_search_cs                    = false;
+        bool                         one_content_match_is_enough           = false;
+        bool                         dont_show_files_with_0_contents_match = true;
     };
+
+    class FindFileResultTreeItem;
+    class FindFileResultTreeItemItem;
+
+    using FindFileResultTreeItemP     = Glib::RefPtr<FindFileResultTreeItem>;
+    using FindFileResultTreeItemItemP = Glib::RefPtr<FindFileResultTreeItemItem>;
 
     class FindFile : public Gtk::Window
     {
@@ -119,22 +126,21 @@ namespace codeeditor
         void setup_result_filelist();
         void setup_result_linelist();
 
-        std::shared_ptr<const FindFileQuery> query;
-        bool                                 search_stop_flag = false;
-        bool                                 search_working   = false;
-        void                                 start_search_thread();
-        void                                 stop_search_thread();
-        void                                 search_thread();
+        std::tuple<std::filesystem::path, int> getProjectPath();
+
+        FindFileQuery work_time_query;
+        bool          search_stop_flag = false;
+        bool          search_working   = false;
+        int           start_search_thread();
+        void          stop_search_thread();
+        void          search_thread();
+        int           search_thread_search_contents(
+                      FindFileResultTreeItemP item
+                  );
 
         void on_start_btn();
         void on_destroy_sig();
     };
-
-    class FindFileResultTreeItem;
-    class FindFileResultTreeItemItem;
-
-    using FindFileResultTreeItemP     = Glib::RefPtr<FindFileResultTreeItem>;
-    using FindFileResultTreeItemItemP = Glib::RefPtr<FindFileResultTreeItemItem>;
 
     // todo: this class requires rename
     class FindFileResultTreeItem : public Glib::Object
@@ -154,13 +160,13 @@ namespace codeeditor
         );
 
       private:
+        FindFileResultTreeItemP                                  own_ptr;
         Glib::RefPtr<Gio::ListStore<FindFileResultTreeItemItem>> items;
 
       public: // methods
         FindFileResultTreeItemItemP create_item(
-            FindFileResultTreeItemP tree_item,
-            unsigned int            line,
-            std::string             text
+            unsigned int line,
+            std::string  text
         );
 
         Glib::RefPtr<Gio::ListStore<FindFileResultTreeItemItem>>

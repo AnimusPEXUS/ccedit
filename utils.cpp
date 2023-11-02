@@ -190,5 +190,46 @@ namespace codeeditor
         return 0;
     }
 
+    LineStarts::LineStarts(std::string text)
+    {
+        auto match_end = std::sregex_iterator();
+        auto nl_rex    = std::regex(R"x(\n)x");
+        auto it        = std::sregex_iterator(text.begin(), text.end(), nl_rex);
+
+        starts.push_back(0);
+
+        for (;;)
+        {
+            if (it == match_end)
+            {
+                break;
+            }
+
+            starts.push_back((*it).position());
+        }
+    }
+
+    unsigned int LineStarts::getLineByOffset(unsigned int offset)
+    {
+        auto         i    = starts.begin();
+        unsigned int cv   = 0;
+        unsigned int nv   = 0;
+        unsigned int line = 0;
+        for (;;)
+        {
+            nv = *i;
+            if (nv >= offset)
+            {
+                return line;
+            }
+            else
+            {
+                cv = nv;
+                i++;
+                line++;
+            }
+        }
+    }
+
 } // namespace codeeditor
 } // namespace wayround_i2p
