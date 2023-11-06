@@ -1,7 +1,10 @@
 
 #include <algorithm>
 #include <experimental/scope>
+#include <format>
+#include <future>
 #include <queue>
+#include <thread>
 
 #include <fnmatch.h>
 
@@ -32,14 +35,14 @@ namespace codeeditor
         main_box.set_spacing(5);
         main_box.set_margin(5);
 
-        results_pan.set_vexpand(true);
-
         editors_frame.set_child(editors_grid);
-        settings_frame.set_child(settings_grid);
+        files_settings_frame.set_child(files_settings_box);
+        contents_settings_frame.set_child(contents_settings_box);
         button_frame.set_child(button_box);
 
         main_box.append(editors_frame);
-        main_box.append(settings_frame);
+        main_box.append(files_settings_frame);
+        main_box.append(contents_settings_frame);
         main_box.append(button_frame);
         main_box.append(results_pan);
 
@@ -47,11 +50,6 @@ namespace codeeditor
         editors_grid.set_column_spacing(5);
         editors_grid.set_margin(5);
         editors_grid.set_row_homogeneous(true);
-
-        settings_grid.set_row_spacing(5);
-        settings_grid.set_column_spacing(5);
-        settings_grid.set_margin(5);
-        settings_grid.set_row_homogeneous(true);
 
         button_box.set_margin(5);
 
@@ -67,49 +65,54 @@ namespace codeeditor
         subpath_w.set_hexpand(true);
         query_w.set_hexpand(true);
 
-        editors_grid.attach(filemask_cb, 0, 0);
-        editors_grid.attach(filemask_l, 1, 0);
-        editors_grid.attach(filemask_w, 2, 0);
+        editors_grid.attach(filemask_l, 0, 0);
+        editors_grid.attach(filemask_w, 1, 0);
 
-        editors_grid.attach(subpath_l, 0, 1, 2, 1);
-        editors_grid.attach(subpath_w, 2, 1);
+        editors_grid.attach(subpath_l, 0, 1);
+        editors_grid.attach(subpath_w, 1, 1);
 
-        editors_grid.attach(grep_cb, 0, 2);
-        editors_grid.attach(grep_l, 1, 2);
-        editors_grid.attach(query_w, 2, 2);
+        editors_grid.attach(grep_l, 0, 2);
+        editors_grid.attach(query_w, 1, 2);
 
-        recurcive_l.set_text("Recurcive");
-        max_depth_l.set_text("Max Depth");
-        filename_casesensitive_l.set_text("File Mask Case Sensetive");
-        query_casesensitive_l.set_text("Contents Grep Case Sensetive");
+        use_fnmatch_on_path_part_cb.set_label("File Path Checked By Mask Too");
+        use_fnmatch_on_path_part_cb.set_tooltip_text("File Mask Checks not only filename, but entire path, starting from project root");
+        recurcive_cb.set_label("Recurcive");
+        delve_hidden_cb.set_label("Delve into Hidden Dirs");
+        delve_hidden_cb.set_tooltip_text("dirs, which names starting with dot");
+        max_depth_cb.set_label("Max Depth");
+        fnmatch_cs_cb.set_label("File Mask Case Sensitive");
+        query_casesensitive_cb.set_label("Contents Grep Case Sensitive");
+        search_contents_cb.set_label("Search File Contents");
+        one_content_match_is_enough_cb.set_label("1 Content Match is Enough");
+        one_content_match_is_enough_cb.set_tooltip_text("stop grepping current file and proceed to next");
+        dont_show_files_with_0_contents_match_cb.set_label("Don't Display Files with 0 content matches");
+
         query_type_l.set_text("Contents Grep Mode");
 
-        recurcive_l.set_halign(Gtk::Align::START);
-        max_depth_l.set_halign(Gtk::Align::START);
-        filename_casesensitive_l.set_halign(Gtk::Align::START);
-        query_casesensitive_l.set_halign(Gtk::Align::START);
+        max_depth_sb.set_range(0, 1024);
+        max_depth_sb.set_increments(1, 1);
 
-        settings_grid.attach(recurcive_cb, 0, 0);
-        settings_grid.attach(recurcive_l, 1, 0, 2, 1);
+        max_depth_box.set_spacing(5);
+        max_depth_box.set_orientation(Gtk::Orientation::HORIZONTAL);
+        max_depth_box.append(max_depth_cb);
+        max_depth_box.append(max_depth_sb);
 
-        settings_grid.attach(max_depth_cb, 0, 1);
-        settings_grid.attach(max_depth_l, 1, 1);
-        settings_grid.attach(max_depth_w, 2, 1);
+        files_settings_box.append(use_fnmatch_on_path_part_cb);
+        files_settings_box.append(recurcive_cb);
+        files_settings_box.append(delve_hidden_cb);
+        files_settings_box.append(max_depth_box);
+        files_settings_box.append(fnmatch_cs_cb);
 
-        settings_grid.attach(filename_casesensitive_cb, 0, 2);
-        settings_grid.attach(filename_casesensitive_l, 1, 2, 2, 1);
+        query_type_box.set_spacing(5);
+        query_type_box.set_orientation(Gtk::Orientation::HORIZONTAL);
+        query_type_box.append(query_type_l);
+        query_type_box.append(query_type_lb);
 
-        settings_grid.attach(query_casesensitive_cb, 0, 3);
-        settings_grid.attach(query_casesensitive_l, 1, 3, 2, 1);
-
-        settings_grid.attach(query_type_l, 1, 4);
-        settings_grid.attach(query_type_w, 2, 4, 1, 1);
-
-        recurcive_l.set_hexpand(true);
-        max_depth_w.set_hexpand(true);
-        filename_casesensitive_l.set_hexpand(true);
-        query_casesensitive_l.set_hexpand(true);
-        query_type_w.set_hexpand(true);
+        contents_settings_box.append(search_contents_cb);
+        contents_settings_box.append(query_casesensitive_cb);
+        contents_settings_box.append(query_type_box);
+        contents_settings_box.append(one_content_match_is_enough_cb);
+        contents_settings_box.append(dont_show_files_with_0_contents_match_cb);
 
         button_box.set_orientation(Gtk::Orientation::HORIZONTAL);
         button_box.set_spacing(5);
@@ -120,6 +123,8 @@ namespace codeeditor
         button_box.append(start_btn);
         button_box.append(stop_btn);
 
+        results_pan.set_vexpand(true);
+
         results_pan.set_start_child(result_files_sw);
         results_pan.set_end_child(result_lines_sw);
 
@@ -128,6 +133,12 @@ namespace codeeditor
 
         setup_result_filelist();
         setup_result_linelist();
+
+        setFindFileQuery(FindFileQuery());
+
+        result_files.signal_activate().connect(
+            sigc::mem_fun(*this, &FindFile::on_filelist_activate)
+        );
 
         start_btn.signal_clicked().connect(
             sigc::mem_fun(*this, &FindFile::on_start_btn)
@@ -144,7 +155,9 @@ namespace codeeditor
         factory->signal_setup().connect(
             [](const Glib::RefPtr<Gtk::ListItem> &list_item)
             {
-                auto w = Gtk::make_managed<FindFileResultTreeItemWidget>(list_item);
+                auto w = Gtk::make_managed<FindFileResultTreeItemWidget>(
+                    list_item
+                );
                 list_item->set_child(*w);
             }
         );
@@ -168,11 +181,103 @@ namespace codeeditor
 
     void FindFile::setup_result_linelist()
     {
+        auto factory = Gtk::SignalListItemFactory::create();
+        factory->signal_setup().connect(
+            [](const Glib::RefPtr<Gtk::ListItem> &list_item)
+            {
+                auto w = Gtk::make_managed<FindFileResultTreeItemItemWidget>(
+                    list_item
+                );
+                list_item->set_child(*w);
+            }
+        );
+        factory->signal_bind().connect(
+            [](const Glib::RefPtr<Gtk::ListItem> &list_item)
+            {
+                auto list_item_child = list_item->get_child();
+
+                auto tic = dynamic_cast<FindFileResultTreeItemItemWidget *>(
+                    list_item_child
+                );
+                if (!tic)
+                {
+                    return;
+                }
+                tic->bind(list_item);
+            }
+        );
+        result_lines.set_factory(factory);
     }
 
     FindFile::~FindFile()
     {
         std::cout << "~FindFile()" << std::endl;
+    }
+
+    FindFileQuery FindFile::getFindFileQuery()
+    {
+        FindFileQuery ret;
+        ret.fnmatch_pattern                       = filemask_w.get_text();
+        ret.fnmatch_cs                            = fnmatch_cs_cb.get_active();
+        ret.use_fnmatch_on_path_part              = use_fnmatch_on_path_part_cb.get_active();
+        ret.recurcive                             = recurcive_cb.get_active();
+        ret.delve_into_hidden_dirs                = delve_hidden_cb.get_active();
+        ret.subpath                               = subpath_w.get_text();
+        ret.use_max_depth                         = max_depth_cb.get_active();
+        ret.max_depth                             = max_depth_sb.get_value_as_int();
+        ret.search_contents                       = search_contents_cb.get_active();
+        ret.contents                              = query_w.get_text();
+        ret.contents_search_method                = PLAIN; // todo: todo
+        ret.contents_search_cs                    = query_casesensitive_cb.get_active();
+        ret.one_content_match_is_enough           = one_content_match_is_enough_cb.get_active();
+        ret.dont_show_files_with_0_contents_match = dont_show_files_with_0_contents_match_cb.get_active();
+        return ret;
+    }
+
+    int FindFile::setFindFileQuery(FindFileQuery q)
+    {
+        filemask_w.set_text(q.fnmatch_pattern);
+        fnmatch_cs_cb.set_active(q.fnmatch_cs);
+        use_fnmatch_on_path_part_cb.set_active(q.use_fnmatch_on_path_part);
+        recurcive_cb.set_active(q.recurcive);
+        delve_hidden_cb.set_active(q.delve_into_hidden_dirs);
+        subpath_w.set_text(q.subpath.string());
+        max_depth_cb.set_active(q.use_max_depth);
+        max_depth_sb.set_value(q.max_depth);
+        search_contents_cb.set_active(q.search_contents);
+        query_w.set_text(q.contents);
+        // ret.contents_search_method                = PLAIN; // todo: todo
+        query_casesensitive_cb.set_active(q.contents_search_cs);
+        one_content_match_is_enough_cb.set_active(q.one_content_match_is_enough);
+        dont_show_files_with_0_contents_match_cb.set_active(q.dont_show_files_with_0_contents_match);
+        return 0;
+    }
+
+    void FindFile::on_filelist_activate(gint)
+    {
+        // todo: add casting result checks
+
+        std::cout << "FindFile::on_filelist_activate" << std::endl;
+
+        auto files_sel_model = std::dynamic_pointer_cast<Gtk::SingleSelection>(
+            result_files.get_model()
+        );
+
+        auto item = std::dynamic_pointer_cast<FindFileResultTreeItem>(files_sel_model->get_selected_item());
+
+        /*
+            auto files_model = std::dynamic_pointer_cast<Gio::ListStore<FindFileResultTreeItem>>(
+                files_sel_model->get_model()
+            );
+        */
+
+        // auto item = files_model->get_item(position);
+
+        auto list_store = item->get_list_store();
+
+        auto lines_sel = Gtk::SingleSelection::create(list_store);
+
+        result_lines.set_model(lines_sel);
     }
 
     std::tuple<std::filesystem::path, int> FindFile::getProjectPath()
@@ -194,8 +299,12 @@ namespace codeeditor
         }
         search_stop_flag = false;
 
+        work_time_query = getFindFileQuery();
+
         // todo: thread
-        search_thread();
+        std::cout << "std::thread(search_thread);" << std::endl;
+        std::thread thr1(&FindFile::search_thread, this);
+        thr1.detach();
         return 0;
     }
 
@@ -208,10 +317,32 @@ namespace codeeditor
     {
         int err = 0;
 
+        std::cout << "search_thread()" << std::endl;
+
         auto matched_files = Gio::ListStore<FindFileResultTreeItem>::create();
-        auto sel           = Gtk::SingleSelection::create();
-        sel->set_model(matched_files);
-        result_files.set_model(sel);
+        auto sel           = Gtk::SingleSelection::create(matched_files);
+
+        {
+
+            std::promise<void> m1;
+            auto               m1_fut = m1.get_future();
+
+            Glib::MainContext::get_default()->signal_idle().connect_once(
+                [this, &m1, &sel]()
+                {
+                    auto sg01 = std::experimental::fundamentals_v3::scope_exit(
+                        [&m1]()
+                        {
+                            m1.set_value();
+                        }
+                    );
+
+                    result_files.set_model(sel);
+                }
+            );
+
+            m1_fut.wait();
+        }
 
         std::filesystem::path proj_path;
 
@@ -225,15 +356,25 @@ namespace codeeditor
         std::queue<std::filesystem::path> dir_subpaths_to_search_q;
         std::queue<std::filesystem::path> files_to_grep_q;
 
-        dir_subpaths_to_search_q.push("/");
+        dir_subpaths_to_search_q.push(work_time_query.subpath);
 
         while (!dir_subpaths_to_search_q.empty())
         {
-            auto              work_path = dir_subpaths_to_search_q.front();
+
+            std::cout << "new iter" << std::endl;
+
+            auto work_path = dir_subpaths_to_search_q.front();
+            std::cout << "work_path 1: " << work_path << std::endl;
+            dir_subpaths_to_search_q.pop();
+
             typeof(work_path) work_path_full;
 
-            work_path      = work_path.relative_path().lexically_normal();
+            work_path = work_path.relative_path().lexically_normal();
+            std::cout << "work_path 2: " << work_path << std::endl;
+
             work_path_full = proj_path / work_path;
+            work_path_full = work_path_full.lexically_normal();
+            std::cout << "work_path_full: " << work_path_full << std::endl;
 
             auto dir        = Gio::File::create_for_path(work_path_full);
             auto dir_exists = dir->query_exists();
@@ -251,7 +392,7 @@ namespace codeeditor
             }
 
             auto enumerator = dir->enumerate_children();
-            std::cout << "auto enumerator = dir->enumerate_children();" << std::endl;
+            std::cout << "enumerating children at: " << work_path_full << std::endl;
 
             auto sg02 = std::experimental::fundamentals_v3::scope_exit(
                 [&enumerator]()
@@ -264,32 +405,61 @@ namespace codeeditor
 
             for (;;)
             {
+                std::cout << "dir files new iter" << std::endl;
+
                 auto fi = enumerator->next_file();
                 if (fi == nullptr)
                 {
                     break;
                 }
+
                 auto name = fi->get_name();
                 auto type = fi->get_file_type();
 
-                auto work_path_full_name     = work_path_full / name;
+                std::cout << "   name: " << name << std::endl;
+
+                auto work_path_full_name = work_path_full / name;
+                std::cout << "   work_path_full_name: " << work_path_full_name << std::endl;
+
                 auto work_path_full_name_rel = std::filesystem::relative(
                     work_path_full_name,
-                    work_path_full
+                    proj_path
                 );
+                std::cout << "   work_path_full_name_rel: " << work_path_full_name_rel << std::endl;
 
                 if (type == Gio::FileType::DIRECTORY)
                 {
-                    dir_subpaths_to_search_q.push(work_path_full_name_rel);
+                    if (work_time_query.recurcive)
+                    {
+                        if (work_time_query.use_max_depth)
+                        {
+                            if (std::distance(
+                                    work_path_full_name_rel.begin(),
+                                    work_path_full_name_rel.end()
+                                )
+                                > work_time_query.max_depth)
+                            {
+                                continue;
+                            }
+                        }
+                        if (!work_time_query.delve_into_hidden_dirs
+                            && name.starts_with("."))
+                        {
+                            continue;
+                        }
+                        dir_subpaths_to_search_q.push(work_path_full_name_rel);
+                    }
                 }
                 else
                 {
-                    if (fnmatch(
-                            "*",
+                    if (
+                        fnmatch(
+                            work_time_query.fnmatch_pattern.c_str(),
                             (work_time_query.use_fnmatch_on_path_part ? work_path_full_name_rel.c_str() : name.c_str()),
                             0
                         )
-                        == 0)
+                        == 0
+                    )
                     {
                         matched_filenames.push_back(work_path_full_name_rel);
                     }
@@ -308,15 +478,74 @@ namespace codeeditor
                         // todo: report error
                         continue;
                     }
-                    if (x->get_list_store()->get_n_items() == 0)
+                    if (work_time_query.dont_show_files_with_0_contents_match
+                        && (x->get_list_store()->get_n_items() == 0))
                     {
                         continue;
                     }
                 }
 
-                // Glib::RefPtr<FindFileResultTreeItem>
+                std::promise<void> m1;
+                auto               m1_fut = m1.get_future();
 
-                matched_files->append(x);
+                Glib::MainContext::get_default()->signal_idle().connect_once(
+                    [this, &m1, &matched_files, &x]()
+                    {
+                        auto sg01 = std::experimental::fundamentals_v3::scope_exit(
+                            [&m1]()
+                            {
+                                m1.set_value();
+                            }
+                        );
+
+                        matched_files->insert_sorted(
+                            x,
+                            [](
+                                const Glib::RefPtr<const FindFileResultTreeItem> &a,
+                                const Glib::RefPtr<const FindFileResultTreeItem> &b
+                            )
+                            {
+                                auto aa    = a->subpath.relative_path().lexically_normal().string();
+                                bool aa_sl = aa.contains("/");
+
+                                auto bb    = b->subpath.relative_path().lexically_normal().string();
+                                bool bb_sl = bb.contains("/");
+
+                                if (aa == bb)
+                                {
+                                    return 0;
+                                }
+
+                                if (aa_sl == bb_sl)
+                                {
+                                    if (aa < bb)
+                                    {
+                                        return -1;
+                                    }
+                                    if (aa > bb)
+                                    {
+                                        return 1;
+                                    }
+                                }
+                                else
+                                {
+                                    if (aa_sl == true && bb_sl == false)
+                                    {
+                                        return 1;
+                                    }
+                                    if (aa_sl == false && bb_sl == true)
+                                    {
+                                        return -1;
+                                    }
+                                }
+
+                                return 0;
+                            }
+                        );
+                    }
+                );
+
+                m1_fut.wait();
             }
         }
     }
@@ -338,12 +567,12 @@ namespace codeeditor
 
         std::string cont_txt;
 
-        auto item_subpath = item->subpath;
+        auto item_subpath   = item->subpath;
+        auto full_file_name = proj_path / item_subpath;
 
-        std::tie(cont_txt, err) = loadStringFromFile(
-            proj_path
-            / item_subpath
-        );
+        std::cout << "grepping file: " << full_file_name << std::endl;
+
+        std::tie(cont_txt, err) = loadStringFromFile(full_file_name);
         if (err != 0)
         {
             // todo: report
@@ -351,6 +580,7 @@ namespace codeeditor
         }
 
         auto cont_txt_ls = LineStarts(cont_txt);
+        // cont_txt_ls.printParsingResult(cont_txt);
 
         switch (work_time_query.contents_search_method)
         {
@@ -362,22 +592,58 @@ namespace codeeditor
             std::string testing_text(cont_txt);
             std::string subj(work_time_query.contents);
 
+            if (subj.length() == 0)
+            {
+                return 2;
+            }
+
             auto i = testing_text.begin();
 
             for (;;)
             {
-                i = std::search(i + 1, testing_text.end(), subj.begin(), subj.end());
+                i = std::search(
+                    i + 1, testing_text.end(), subj.begin(), subj.end()
+                );
 
                 if (i == testing_text.end())
                 {
                     break;
                 }
-                item->create_item(
-                    cont_txt_ls.getLineByOffset(
-                        std::distance(testing_text.begin(), i)
-                    ),
-                    "???"
+
+                std::promise<void> m1;
+                auto               m1_fut = m1.get_future();
+
+                Glib::MainContext::get_default()->signal_idle().connect_once(
+                    [this, &m1, &item, &cont_txt_ls, &testing_text, &i]()
+                    {
+                        auto sg01 = std::experimental::fundamentals_v3::scope_exit(
+                            [&m1]()
+                            {
+                                m1.set_value();
+                            }
+                        );
+
+                        auto line_no = cont_txt_ls.getLineByOffset(
+                            std::distance(testing_text.begin(), i)
+                        );
+                        auto line_info = cont_txt_ls.getLineInfo(line_no);
+
+                        if (std::get<2>(line_info) != 0)
+                        {
+                            return;
+                        }
+
+                        item->create_item(
+                            line_no,
+                            testing_text.substr(
+                                std::get<0>(line_info),
+                                std::get<1>(line_info) - std::get<0>(line_info)
+                            )
+                        );
+                    }
                 );
+
+                m1_fut.wait();
             }
             break;
         }
@@ -414,6 +680,7 @@ namespace codeeditor
 
     FindFileResultTreeItem::~FindFileResultTreeItem()
     {
+        std::cout << "~FindFileResultTreeItem()" << std::endl;
     }
 
     FindFileResultTreeItemItemP FindFileResultTreeItem::create_item(
@@ -430,7 +697,8 @@ namespace codeeditor
         return x;
     }
 
-    Glib::RefPtr<Gio::ListStore<FindFileResultTreeItemItem>> FindFileResultTreeItem::get_list_store()
+    Glib::RefPtr<Gio::ListStore<FindFileResultTreeItemItem>>
+        FindFileResultTreeItem::get_list_store()
     {
         return items;
     }
@@ -467,7 +735,10 @@ namespace codeeditor
 
     FindFileResultTreeItemItem::~FindFileResultTreeItemItem()
     {
+        std::cout << "~FindFileResultTreeItemItem()" << std::endl;
     }
+
+    // ---------------------
 
     FindFileResultTreeItemWidget::FindFileResultTreeItemWidget(
         const Glib::RefPtr<Gtk::ListItem> &list_item
@@ -490,7 +761,9 @@ namespace codeeditor
     {
         auto list_item_item = list_item->get_item();
 
-        auto ti = std::dynamic_pointer_cast<FindFileResultTreeItem>(list_item_item);
+        auto ti = std::dynamic_pointer_cast<FindFileResultTreeItem>(
+            list_item_item
+        );
         if (!ti)
         {
             return;
@@ -499,6 +772,47 @@ namespace codeeditor
     }
 
     void FindFileResultTreeItemWidget::unbind(
+        const Glib::RefPtr<Gtk::ListItem> &list_item
+    )
+    {
+    }
+
+    // ---------------------
+
+    FindFileResultTreeItemItemWidget::FindFileResultTreeItemItemWidget(
+        const Glib::RefPtr<Gtk::ListItem> &list_item
+    )
+    {
+        set_orientation(Gtk::Orientation::HORIZONTAL);
+        set_spacing(5);
+
+        append(line);
+        append(text);
+    }
+
+    FindFileResultTreeItemItemWidget::~FindFileResultTreeItemItemWidget()
+    {
+    }
+
+    void FindFileResultTreeItemItemWidget::bind(
+        const Glib::RefPtr<Gtk::ListItem> &list_item
+    )
+    {
+        auto list_item_item = list_item->get_item();
+
+        auto ti = std::dynamic_pointer_cast<FindFileResultTreeItemItem>(
+            list_item_item
+        );
+        if (!ti)
+        {
+            return;
+        }
+        // todo: something better is needed whan std::format
+        line.set_text(std::format("{}", ti->line));
+        text.set_text(ti->text);
+    }
+
+    void FindFileResultTreeItemItemWidget::unbind(
         const Glib::RefPtr<Gtk::ListItem> &list_item
     )
     {

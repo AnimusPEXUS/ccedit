@@ -43,10 +43,22 @@ namespace codeeditor
         LineStarts(std::string text);
         ~LineStarts() = default;
 
+        // note: first line index is 1, not 0
         unsigned int getLineByOffset(unsigned int offset);
+
+        // note: first line index is 1, not 0. 0 for index is invalid value
+        std::tuple<
+            unsigned int, // first char index
+            unsigned int, // last char index
+            int           // 0 if no error
+            >
+            getLineInfo(unsigned int index);
+
+        void printParsingResult(std::string text);
 
       private:
         std::vector<unsigned int> starts;
+        unsigned int              text_size = 0;
     };
 
     void mutexed_println(std::string s);

@@ -196,6 +196,8 @@ namespace codeeditor
         auto nl_rex    = std::regex(R"x(\n)x");
         auto it        = std::sregex_iterator(text.begin(), text.end(), nl_rex);
 
+        text_size = text.length();
+
         starts.push_back(0);
 
         for (;;)
@@ -205,16 +207,41 @@ namespace codeeditor
                 break;
             }
 
-            starts.push_back((*it).position());
+            auto z = *it;
+
+            starts.push_back(z.position() + z.length());
+            it++;
+        }
+    }
+
+    void LineStarts::printParsingResult(std::string text)
+    {
+        std::cout << "LineStarts : parsing result :" << std::endl;
+        {
+            for (int i = 0; i != starts.size(); i++)
+            {
+		auto j = i + 1;
+                auto info = getLineInfo(j);
+                auto r0   = std::get<0>(info);
+                auto r1   = std::get<1>(info);
+                std::cout << format("{} ({}, {}): `{}`", j, r0, r1, text.substr(r0, r1 - r0));
+            }
         }
     }
 
     unsigned int LineStarts::getLineByOffset(unsigned int offset)
     {
+
+        if (offset > text_size)
+        {
+            return starts.size();
+        }
+
         auto         i    = starts.begin();
         unsigned int cv   = 0;
         unsigned int nv   = 0;
-        unsigned int line = 0;
+        unsigned int line = 1;
+
         for (;;)
         {
             nv = *i;
@@ -229,6 +256,52 @@ namespace codeeditor
                 line++;
             }
         }
+    }
+
+    std::tuple<
+        unsigned int,
+        unsigned int,
+        int>
+        LineStarts::getLineInfo(unsigned int index)
+    {
+        unsigned int start = 0;
+        unsigned int end   = 0;
+        int          err   = 0;
+
+        if (index == 0)
+        {
+            err = 3;
+            goto return_res;
+        }
+
+        index -= 1; // because line 1 saved at index 0
+
+        if (index > starts.size() - 1)
+        {
+            err = 1;
+            goto return_res;
+        }
+
+        if (index == 0)
+        {
+            start = 0;
+        }
+        else
+        {
+            start = starts[index];
+        }
+
+        if (index == starts.size() - 1)
+        {
+            end = text_size;
+        }
+        else
+        {
+            end = starts[index + 1];
+        }
+
+    return_res:
+        return std::tuple(start, end, err);
     }
 
 } // namespace codeeditor

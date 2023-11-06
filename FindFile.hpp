@@ -17,11 +17,11 @@ namespace codeeditor
     enum FindFileContentsSearchMethod : unsigned char
     {
         PLAIN,
-        REGEXP_BASIC,
-        REGEXP_EXTENDED,
-        REGEXP_SED,
-        REGEXP_PERL,
-        REGEXP_ECMA
+        STD_RE_BASIC,
+        STD_RE_EXTENDED,
+        STD_RE_SED,
+        STD_RE_PERL,
+        STD_RE_ECMA
     };
 
     struct FindFileQuery
@@ -30,6 +30,7 @@ namespace codeeditor
         bool                         fnmatch_cs                            = false;
         bool                         use_fnmatch_on_path_part              = true;
         bool                         recurcive                             = true;
+        bool                         delve_into_hidden_dirs                = false;
         std::filesystem::path        subpath                               = "/";
         bool                         use_max_depth                         = false;
         unsigned short               max_depth                             = 1;
@@ -62,9 +63,11 @@ namespace codeeditor
         void                                unsetTargetEditor();
         std::shared_ptr<CodeEditorAbstract> getTargetEditor();
 
-        void setQuery(std::shared_ptr<const FindFileQuery> q);
         void start();
         void stop();
+
+        FindFileQuery getFindFileQuery();
+        int           setFindFileQuery(FindFileQuery q);
 
       protected:
         FindFile(std::shared_ptr<ProjectCtl> p_ctl);
@@ -74,40 +77,58 @@ namespace codeeditor
         std::shared_ptr<FindFile>         own_ptr;
         std::weak_ptr<CodeEditorAbstract> target_editor;
 
+        // -----------
+
         Gtk::Box main_box;
+
+        // -----------
 
         Gtk::Frame editors_frame;
         Gtk::Grid  editors_grid;
 
-        Gtk::CheckButton filemask_cb;
-        Gtk::Label       filemask_l;
-        Gtk::Entry       filemask_w;
+        // -----------
+
+        Gtk::Label filemask_l;
+        Gtk::Entry filemask_w;
 
         Gtk::Label subpath_l;
         Gtk::Entry subpath_w;
 
-        Gtk::CheckButton grep_cb;
-        Gtk::Label       grep_l;
-        Gtk::Entry       query_w;
+        Gtk::Label grep_l;
+        Gtk::Entry query_w;
 
-        Gtk::Frame settings_frame;
-        Gtk::Grid  settings_grid;
+        // -----------
 
+        Gtk::Frame   files_settings_frame;
+        Gtk::FlowBox files_settings_box;
+
+        Gtk::Frame   contents_settings_frame;
+        Gtk::FlowBox contents_settings_box;
+
+        // -----------
+
+        Gtk::CheckButton use_fnmatch_on_path_part_cb;
         Gtk::CheckButton recurcive_cb;
-        Gtk::Label       recurcive_l;
+        Gtk::CheckButton delve_hidden_cb;
 
+        Gtk::Box         max_depth_box;
         Gtk::CheckButton max_depth_cb;
-        Gtk::Label       max_depth_l;
-        Gtk::SpinButton  max_depth_w;
+        Gtk::SpinButton  max_depth_sb;
 
-        Gtk::CheckButton filename_casesensitive_cb;
-        Gtk::Label       filename_casesensitive_l;
+        Gtk::CheckButton fnmatch_cs_cb;
 
+        // -----------
+
+        Gtk::CheckButton search_contents_cb;
         Gtk::CheckButton query_casesensitive_cb;
-        Gtk::Label       query_casesensitive_l;
+        Gtk::CheckButton one_content_match_is_enough_cb;
+        Gtk::CheckButton dont_show_files_with_0_contents_match_cb;
 
+        Gtk::Box     query_type_box;
         Gtk::Label   query_type_l;
-        Gtk::ListBox query_type_w;
+        Gtk::ListBox query_type_lb;
+
+        // -----------
 
         Gtk::Frame button_frame;
         Gtk::Box   button_box;
@@ -134,9 +155,9 @@ namespace codeeditor
         int           start_search_thread();
         void          stop_search_thread();
         void          search_thread();
-        int           search_thread_search_contents(
-                      FindFileResultTreeItemP item
-                  );
+        int           search_thread_search_contents(FindFileResultTreeItemP item);
+
+        void on_filelist_activate(gint);
 
         void on_start_btn();
         void on_destroy_sig();
@@ -160,7 +181,8 @@ namespace codeeditor
         );
 
       private:
-        FindFileResultTreeItemP                                  own_ptr;
+        FindFileResultTreeItemP own_ptr;
+
         Glib::RefPtr<Gio::ListStore<FindFileResultTreeItemItem>> items;
 
       public: // methods
@@ -220,8 +242,13 @@ namespace codeeditor
     class FindFileResultTreeItemItemWidget : public Gtk::Box
     {
       public:
-        FindFileResultTreeItemItemWidget();
+        FindFileResultTreeItemItemWidget(
+            const Glib::RefPtr<Gtk::ListItem> &list_item
+        );
         ~FindFileResultTreeItemItemWidget();
+
+        void bind(const Glib::RefPtr<Gtk::ListItem> &list_item);
+        void unbind(const Glib::RefPtr<Gtk::ListItem> &list_item);
 
       private:
         Gtk::Label line;
