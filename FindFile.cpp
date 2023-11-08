@@ -131,6 +131,8 @@ namespace codeeditor
         result_files_sw.set_child(result_files);
         result_lines_sw.set_child(result_lines);
 
+        result_files.set_single_click_activate(true);
+
         setup_result_filelist();
         setup_result_linelist();
 
@@ -554,7 +556,8 @@ namespace codeeditor
         FindFileResultTreeItemP item
     )
     {
-        int err = 0;
+        int         err = 0;
+        std::string cont_txt;
 
         std::filesystem::path proj_path;
 
@@ -564,8 +567,6 @@ namespace codeeditor
             // todo: report
             return 1;
         }
-
-        std::string cont_txt;
 
         auto item_subpath   = item->subpath;
         auto full_file_name = proj_path / item_subpath;
@@ -584,69 +585,85 @@ namespace codeeditor
 
         switch (work_time_query.contents_search_method)
         {
-        default:
-            return 1;
-            break;
-        case PLAIN:
-        {
-            std::string testing_text(cont_txt);
-            std::string subj(work_time_query.contents);
-
-            if (subj.length() == 0)
+            default:
+                return 1;
+                break;
+            case PLAIN:
             {
-                return 2;
-            }
+                std::string subj(work_time_query.contents);
 
-            auto i = testing_text.begin();
-
-            for (;;)
-            {
-                i = std::search(
-                    i + 1, testing_text.end(), subj.begin(), subj.end()
-                );
-
-                if (i == testing_text.end())
+                if (subj.length() == 0)
                 {
-                    break;
+                    return 2;
                 }
 
-                std::promise<void> m1;
-                auto               m1_fut = m1.get_future();
+                auto i = cont_txt.begin();
 
-                Glib::MainContext::get_default()->signal_idle().connect_once(
-                    [this, &m1, &item, &cont_txt_ls, &testing_text, &i]()
+                for (;;)
+                {
+                    auto ri = std::search(
+                        i, cont_txt.end(), subj.begin(), subj.end()
+                    );
+
+                    if (ri == cont_txt.end())
                     {
-                        auto sg01 = std::experimental::fundamentals_v3::scope_exit(
-                            [&m1]()
-                            {
-                                m1.set_value();
-                            }
-                        );
-
-                        auto line_no = cont_txt_ls.getLineByOffset(
-                            std::distance(testing_text.begin(), i)
-                        );
-                        auto line_info = cont_txt_ls.getLineInfo(line_no);
-
-                        if (std::get<2>(line_info) != 0)
-                        {
-                            return;
-                        }
-
-                        item->create_item(
-                            line_no,
-                            testing_text.substr(
-                                std::get<0>(line_info),
-                                std::get<1>(line_info) - std::get<0>(line_info)
-                            )
-                        );
+                        break;
                     }
-                );
+                    std::cout << "search ok" << std::endl;
 
-                m1_fut.wait();
+                    std::promise<void> m1;
+                    auto               m1_fut = m1.get_future();
+
+                    Glib::MainContext::get_default()->signal_idle().connect_once(
+                        [this, &m1, &item, &cont_txt_ls, &cont_txt, &ri]()
+                        {
+                            auto sg01 = std::experimental::fundamentals_v3::scope_exit(
+                                [&m1]()
+                                {
+                                    m1.set_value();
+                                }
+                            );
+
+                            auto dist = std::distance(cont_txt.begin(), ri);
+
+                            auto line_no = cont_txt_ls.getLineByOffset(dist);
+
+                            auto line_info = cont_txt_ls.getLineInfo(line_no);
+
+                            auto r0  = std::get<0>(line_info);
+                            auto r1  = std::get<1>(line_info);
+                            auto err = std::get<2>(line_info);
+                            if (err != 0)
+                            {
+                                return;
+                            }
+
+                            auto substr = trim_right(cont_txt.substr(r0, r1 - r0));
+
+                            /*
+                                        std::cout
+                                            << std::format(
+                                                   "    (dist: {}, line: {}) r0: {}, r1: {}, r1-r0: {}, substr: {}",
+                                                   dist,
+                                                   line_no,
+                                                   r0,
+                                                   r1,
+                                                   r1 - r0,
+                                                   substr
+                                               )
+                                            << std::endl;
+                        */
+
+                            item->create_item(line_no, substr);
+                        }
+                    );
+
+                    m1_fut.wait();
+                    i = ri;
+                    i = std::next(i);
+                }
+                break;
             }
-            break;
-        }
         }
         return 0;
     }

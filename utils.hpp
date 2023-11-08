@@ -69,6 +69,9 @@ namespace codeeditor
     // result: 0 is ok. not 0 - not ok
     int check_relpath_is_relative_and_sane(std::filesystem::path pth);
 
+    // removes space characters from right side of the string
+    std::string trim_right(std::string);
+
 } // namespace codeeditor
 } // namespace wayround_i2p
 

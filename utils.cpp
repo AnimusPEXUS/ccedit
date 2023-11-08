@@ -174,7 +174,8 @@ namespace codeeditor
     int check_relpath_is_relative_and_sane(std::filesystem::path pth)
     {
         // todo: task tracker should support 'recurring todo's
-        // recurring todo: make sure path sanity functions are used everywhere where needed
+        // recurring todo: make sure path sanity functions are used
+        //                 everywhere where needed
 
         if (!pth.is_relative())
         {
@@ -220,11 +221,17 @@ namespace codeeditor
         {
             for (int i = 0; i != starts.size(); i++)
             {
-		auto j = i + 1;
+                auto j    = i + 1;
                 auto info = getLineInfo(j);
                 auto r0   = std::get<0>(info);
                 auto r1   = std::get<1>(info);
-                std::cout << format("{} ({}, {}): `{}`", j, r0, r1, text.substr(r0, r1 - r0));
+                std::cout << format(
+                    "{} ({}, {}): `{}`",
+                    j,
+                    r0,
+                    r1,
+                    trim_right(text.substr(r0, r1 - r0))
+                ) << std::endl;
             }
         }
     }
@@ -232,30 +239,19 @@ namespace codeeditor
     unsigned int LineStarts::getLineByOffset(unsigned int offset)
     {
 
-        if (offset > text_size)
+        for (int i = 0; i != starts.size(); i++)
         {
-            return starts.size();
-        }
-
-        auto         i    = starts.begin();
-        unsigned int cv   = 0;
-        unsigned int nv   = 0;
-        unsigned int line = 1;
-
-        for (;;)
-        {
-            nv = *i;
-            if (nv >= offset)
+            auto j    = i + 1;
+            auto info = getLineInfo(j);
+            auto r0   = std::get<0>(info);
+            auto r1   = std::get<1>(info);
+            if ((offset >= r0) && (offset < r1))
             {
-                return line;
-            }
-            else
-            {
-                cv = nv;
-                i++;
-                line++;
+                return j;
             }
         }
+
+        return starts.size();
     }
 
     std::tuple<
@@ -302,6 +298,38 @@ namespace codeeditor
 
     return_res:
         return std::tuple(start, end, err);
+    }
+
+    std::string trim_right(std::string s)
+    {
+        bool found = false;
+        for (;;)
+        {
+            found = false;
+            // todo: is this portable?
+            for (
+                std::string i :
+                std::vector<std::string>{
+                    "\t",
+                    "\n",
+                    "\r",
+                    " ",
+                    std::string("\0", 1)
+                }
+            )
+            {
+                while (s.ends_with(i))
+                {
+                    found = true;
+                    s     = s.substr(0, s.length() - i.length());
+                }
+            }
+            if (!found)
+            {
+                break;
+            }
+        }
+        return s;
     }
 
 } // namespace codeeditor
