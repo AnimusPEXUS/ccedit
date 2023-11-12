@@ -133,8 +133,9 @@ namespace codeeditor
         Gtk::Frame button_frame;
         Gtk::Box   button_box;
 
-        Gtk::Button start_btn;
-        Gtk::Button stop_btn;
+        Gtk::Button      start_btn;
+        Gtk::ProgressBar progress_bar;
+        Gtk::Button      stop_btn;
 
         Gtk::Paned results_pan;
 
@@ -156,6 +157,13 @@ namespace codeeditor
         void          stop_search_thread();
         void          search_thread();
         int           search_thread_search_contents(FindFileResultTreeItemP item);
+
+        void updateProgressbar(
+            unsigned int dirs_count,
+            unsigned int dirs_done,
+            unsigned int files_count,
+            unsigned int files_done
+        );
 
         void on_filelist_activate(gint);
 

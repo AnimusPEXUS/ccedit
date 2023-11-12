@@ -120,7 +120,11 @@ namespace codeeditor
         start_btn.set_label("Start");
         stop_btn.set_label("Stop");
 
+        progress_bar.set_hexpand(true);
+        progress_bar.set_show_text(true);
+
         button_box.append(start_btn);
+        button_box.append(progress_bar);
         button_box.append(stop_btn);
 
         results_pan.set_vexpand(true);
@@ -287,6 +291,47 @@ namespace codeeditor
         return p_ctl->getProjectPath();
     }
 
+    void FindFile::updateProgressbar(
+        unsigned int dirs_count,
+        unsigned int dirs_done,
+        unsigned int files_count,
+        unsigned int files_done
+    )
+    {
+        double fract = 0;
+
+        fract = 1. / (((double)dirs_count + (double)files_count) / ((double)dirs_done + (double)files_done));
+
+        std::string new_text = std::format(
+            "dirs: {} / {}, files: {} / {}, {:.03}%",
+            dirs_done,
+            dirs_count,
+            files_done,
+            files_count,
+            100.0 * fract
+        );
+
+        std::promise<void> m1;
+        auto               m1_fut = m1.get_future();
+
+        Glib::MainContext::get_default()->signal_idle().connect_once(
+            [this, &m1, &fract, &new_text]()
+            {
+                auto sg01 = std::experimental::fundamentals_v3::scope_exit(
+                    [&m1]()
+                    {
+                        m1.set_value();
+                    }
+                );
+
+                progress_bar.set_fraction(fract);
+                progress_bar.set_text(new_text);
+            }
+        );
+
+        m1_fut.wait();
+    }
+
     void FindFile::on_start_btn()
     {
         std::cout << "on_start_btn()" << std::endl;
@@ -324,27 +369,24 @@ namespace codeeditor
         auto matched_files = Gio::ListStore<FindFileResultTreeItem>::create();
         auto sel           = Gtk::SingleSelection::create(matched_files);
 
-        {
+        auto m1     = std::promise<void>();
+        auto m1_fut = m1.get_future();
 
-            std::promise<void> m1;
-            auto               m1_fut = m1.get_future();
+        Glib::MainContext::get_default()->signal_idle().connect_once(
+            [this, &m1, &sel]()
+            {
+                auto sg01 = std::experimental::fundamentals_v3::scope_exit(
+                    [&m1]()
+                    {
+                        m1.set_value();
+                    }
+                );
 
-            Glib::MainContext::get_default()->signal_idle().connect_once(
-                [this, &m1, &sel]()
-                {
-                    auto sg01 = std::experimental::fundamentals_v3::scope_exit(
-                        [&m1]()
-                        {
-                            m1.set_value();
-                        }
-                    );
+                result_files.set_model(sel);
+            }
+        );
 
-                    result_files.set_model(sel);
-                }
-            );
-
-            m1_fut.wait();
-        }
+        m1_fut.wait();
 
         std::filesystem::path proj_path;
 
@@ -355,10 +397,22 @@ namespace codeeditor
             return;
         }
 
+        unsigned int dirs_count  = 0;
+        unsigned int dirs_done   = 0;
+        unsigned int files_count = 0;
+        unsigned int files_done  = 0;
+
         std::queue<std::filesystem::path> dir_subpaths_to_search_q;
-        std::queue<std::filesystem::path> files_to_grep_q;
+        // std::queue<std::filesystem::path> files_to_grep_q;
 
         dir_subpaths_to_search_q.push(work_time_query.subpath);
+        dirs_count++;
+        updateProgressbar(
+            dirs_count,
+            dirs_done,
+            files_count,
+            files_done
+        );
 
         while (!dir_subpaths_to_search_q.empty())
         {
@@ -368,6 +422,23 @@ namespace codeeditor
             auto work_path = dir_subpaths_to_search_q.front();
             std::cout << "work_path 1: " << work_path << std::endl;
             dir_subpaths_to_search_q.pop();
+
+            auto sg01 = std::experimental::fundamentals_v3::scope_exit(
+                [this,
+                 &dirs_count,
+                 &dirs_done,
+                 &files_count,
+                 &files_done]()
+                {
+                    dirs_done++;
+                    updateProgressbar(
+                        dirs_count,
+                        dirs_done,
+                        files_count,
+                        files_done
+                    );
+                }
+            );
 
             typeof(work_path) work_path_full;
 
@@ -450,6 +521,14 @@ namespace codeeditor
                             continue;
                         }
                         dir_subpaths_to_search_q.push(work_path_full_name_rel);
+                        dirs_count++;
+
+                        updateProgressbar(
+                            dirs_count,
+                            dirs_done,
+                            files_count,
+                            files_done
+                        );
                     }
                 }
                 else
@@ -464,6 +543,14 @@ namespace codeeditor
                     )
                     {
                         matched_filenames.push_back(work_path_full_name_rel);
+                        files_count++;
+
+                        updateProgressbar(
+                            dirs_count,
+                            dirs_done,
+                            files_count,
+                            files_done
+                        );
                     }
                 }
             }
@@ -472,6 +559,23 @@ namespace codeeditor
                  i != matched_filenames.end();
                  i++)
             {
+                auto sg01 = std::experimental::fundamentals_v3::scope_exit(
+                    [this,
+                     &dirs_count,
+                     &dirs_done,
+                     &files_count,
+                     &files_done]()
+                    {
+                        files_done++;
+                        updateProgressbar(
+                            dirs_count,
+                            dirs_done,
+                            files_count,
+                            files_done
+                        );
+                    }
+                );
+
                 auto x = FindFileResultTreeItem::create(*i);
                 if (work_time_query.search_contents)
                 {
@@ -487,8 +591,8 @@ namespace codeeditor
                     }
                 }
 
-                std::promise<void> m1;
-                auto               m1_fut = m1.get_future();
+                m1     = std::promise<void>();
+                m1_fut = m1.get_future();
 
                 Glib::MainContext::get_default()->signal_idle().connect_once(
                     [this, &m1, &matched_files, &x]()
@@ -561,6 +665,9 @@ namespace codeeditor
 
         std::filesystem::path proj_path;
 
+        auto m1     = std::promise<void>();
+        auto m1_fut = m1.get_future();
+
         std::tie(proj_path, err) = getProjectPath();
         if (err != 0)
         {
@@ -611,8 +718,8 @@ namespace codeeditor
                     }
                     std::cout << "search ok" << std::endl;
 
-                    std::promise<void> m1;
-                    auto               m1_fut = m1.get_future();
+                    m1     = std::promise<void>();
+                    m1_fut = m1.get_future();
 
                     Glib::MainContext::get_default()->signal_idle().connect_once(
                         [this, &m1, &item, &cont_txt_ls, &cont_txt, &ri]()
@@ -639,20 +746,6 @@ namespace codeeditor
                             }
 
                             auto substr = trim_right(cont_txt.substr(r0, r1 - r0));
-
-                            /*
-                                        std::cout
-                                            << std::format(
-                                                   "    (dist: {}, line: {}) r0: {}, r1: {}, r1-r0: {}, substr: {}",
-                                                   dist,
-                                                   line_no,
-                                                   r0,
-                                                   r1,
-                                                   r1 - r0,
-                                                   substr
-                                               )
-                                            << std::endl;
-                        */
 
                             item->create_item(line_no, substr);
                         }
