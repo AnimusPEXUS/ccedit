@@ -27,7 +27,7 @@ namespace codeeditor
     {
         this->p_ctl = p_ctl;
 
-        maximize();
+        // maximize();
 
         set_child(main_box);
 
@@ -35,17 +35,13 @@ namespace codeeditor
         main_box.set_spacing(5);
         main_box.set_margin(5);
 
-        editors_frame.set_child(editors_grid);
-        files_settings_frame.set_child(files_settings_box);
-        contents_settings_frame.set_child(contents_settings_box);
-        button_frame.set_child(button_box);
-
         main_box.append(editors_frame);
         main_box.append(files_settings_frame);
-        main_box.append(contents_settings_frame);
+        main_box.append(search_contents_frame);
         main_box.append(button_frame);
         main_box.append(results_pan);
 
+        editors_frame.set_child(editors_grid);
         editors_grid.set_row_spacing(5);
         editors_grid.set_column_spacing(5);
         editors_grid.set_margin(5);
@@ -55,24 +51,18 @@ namespace codeeditor
 
         filemask_l.set_text("File Mask");
         subpath_l.set_text("Project's Subpath");
-        grep_l.set_text("Match File Contents");
 
         filemask_l.set_halign(Gtk::Align::START);
         subpath_l.set_halign(Gtk::Align::START);
-        grep_l.set_halign(Gtk::Align::START);
 
         filemask_w.set_hexpand(true);
         subpath_w.set_hexpand(true);
-        query_w.set_hexpand(true);
 
         editors_grid.attach(filemask_l, 0, 0);
         editors_grid.attach(filemask_w, 1, 0);
 
         editors_grid.attach(subpath_l, 0, 1);
         editors_grid.attach(subpath_w, 1, 1);
-
-        editors_grid.attach(grep_l, 0, 2);
-        editors_grid.attach(query_w, 1, 2);
 
         use_fnmatch_on_path_part_cb.set_label("File Path Checked By Mask Too");
         use_fnmatch_on_path_part_cb.set_tooltip_text("File Mask Checks not only filename, but entire path, starting from project root");
@@ -81,13 +71,8 @@ namespace codeeditor
         delve_hidden_cb.set_tooltip_text("dirs, which names starting with dot");
         max_depth_cb.set_label("Max Depth");
         fnmatch_cs_cb.set_label("File Mask Case Sensitive");
-        query_casesensitive_cb.set_label("Contents Grep Case Sensitive");
-        search_contents_cb.set_label("Search File Contents");
-        one_content_match_is_enough_cb.set_label("1 Content Match is Enough");
-        one_content_match_is_enough_cb.set_tooltip_text("stop grepping current file and proceed to next");
+        search_contents_cb.set_label("Use Content Matching");
         dont_show_files_with_0_contents_match_cb.set_label("Don't Display Files with 0 content matches");
-
-        query_type_l.set_text("Contents Grep Mode");
 
         max_depth_sb.set_range(0, 1024);
         max_depth_sb.set_increments(1, 1);
@@ -97,22 +82,31 @@ namespace codeeditor
         max_depth_box.append(max_depth_cb);
         max_depth_box.append(max_depth_sb);
 
+        files_settings_frame.set_child(files_settings_box);
+        files_settings_frame.set_label("File Search Settings");
+	files_settings_box.set_selection_mode(Gtk::SelectionMode::NONE);
         files_settings_box.append(use_fnmatch_on_path_part_cb);
         files_settings_box.append(recurcive_cb);
         files_settings_box.append(delve_hidden_cb);
         files_settings_box.append(max_depth_box);
         files_settings_box.append(fnmatch_cs_cb);
 
-        query_type_box.set_spacing(5);
-        query_type_box.set_orientation(Gtk::Orientation::HORIZONTAL);
-        query_type_box.append(query_type_l);
-        query_type_box.append(query_type_lb);
+        find_text_widget.set_margin(5);
 
-        contents_settings_box.append(search_contents_cb);
-        contents_settings_box.append(query_casesensitive_cb);
-        contents_settings_box.append(query_type_box);
-        contents_settings_box.append(one_content_match_is_enough_cb);
-        contents_settings_box.append(dont_show_files_with_0_contents_match_cb);
+        find_text_widget_frame.set_margin_start(5);
+        find_text_widget_frame.set_margin_end(5);
+
+        find_text_widget_frame.set_child(find_text_widget);
+        // find_text_widget_frame.set_label("More Settings");
+
+        search_contents_box.set_orientation(Gtk::Orientation::VERTICAL);
+        search_contents_box.set_spacing(5);
+
+        search_contents_frame.set_child(search_contents_box);
+        search_contents_frame.set_label("Contents Search Settings");
+        search_contents_box.append(search_contents_cb);
+        search_contents_box.append(find_text_widget_frame);
+        search_contents_box.append(dont_show_files_with_0_contents_match_cb);
 
         button_box.set_orientation(Gtk::Orientation::HORIZONTAL);
         button_box.set_spacing(5);
@@ -123,6 +117,7 @@ namespace codeeditor
         progress_bar.set_hexpand(true);
         progress_bar.set_show_text(true);
 
+        button_frame.set_child(button_box);
         button_box.append(start_btn);
         button_box.append(progress_bar);
         button_box.append(stop_btn);
@@ -148,6 +143,10 @@ namespace codeeditor
 
         start_btn.signal_clicked().connect(
             sigc::mem_fun(*this, &FindFile::on_start_btn)
+        );
+
+        stop_btn.signal_clicked().connect(
+            sigc::mem_fun(*this, &FindFile::on_stop_btn)
         );
 
         signal_destroy().connect(
@@ -231,12 +230,11 @@ namespace codeeditor
         ret.subpath                               = subpath_w.get_text();
         ret.use_max_depth                         = max_depth_cb.get_active();
         ret.max_depth                             = max_depth_sb.get_value_as_int();
-        ret.search_contents                       = search_contents_cb.get_active();
-        ret.contents                              = query_w.get_text();
-        ret.contents_search_method                = PLAIN; // todo: todo
-        ret.contents_search_cs                    = query_casesensitive_cb.get_active();
-        ret.one_content_match_is_enough           = one_content_match_is_enough_cb.get_active();
+        ret.contents_search_enabled               = search_contents_cb.get_active();
         ret.dont_show_files_with_0_contents_match = dont_show_files_with_0_contents_match_cb.get_active();
+
+        ret.find_text_settings = find_text_widget.getSettings();
+
         return ret;
     }
 
@@ -250,40 +248,14 @@ namespace codeeditor
         subpath_w.set_text(q.subpath.string());
         max_depth_cb.set_active(q.use_max_depth);
         max_depth_sb.set_value(q.max_depth);
-        search_contents_cb.set_active(q.search_contents);
-        query_w.set_text(q.contents);
-        // ret.contents_search_method                = PLAIN; // todo: todo
-        query_casesensitive_cb.set_active(q.contents_search_cs);
-        one_content_match_is_enough_cb.set_active(q.one_content_match_is_enough);
-        dont_show_files_with_0_contents_match_cb.set_active(q.dont_show_files_with_0_contents_match);
-        return 0;
-    }
-
-    void FindFile::on_filelist_activate(gint)
-    {
-        // todo: add casting result checks
-
-        std::cout << "FindFile::on_filelist_activate" << std::endl;
-
-        auto files_sel_model = std::dynamic_pointer_cast<Gtk::SingleSelection>(
-            result_files.get_model()
+        search_contents_cb.set_active(q.contents_search_enabled);
+        dont_show_files_with_0_contents_match_cb.set_active(
+            q.dont_show_files_with_0_contents_match
         );
 
-        auto item = std::dynamic_pointer_cast<FindFileResultTreeItem>(files_sel_model->get_selected_item());
+        find_text_widget.setSettings(q.find_text_settings);
 
-        /*
-            auto files_model = std::dynamic_pointer_cast<Gio::ListStore<FindFileResultTreeItem>>(
-                files_sel_model->get_model()
-            );
-        */
-
-        // auto item = files_model->get_item(position);
-
-        auto list_store = item->get_list_store();
-
-        auto lines_sel = Gtk::SingleSelection::create(list_store);
-
-        result_lines.set_model(lines_sel);
+        return 0;
     }
 
     std::tuple<std::filesystem::path, int> FindFile::getProjectPath()
@@ -302,13 +274,33 @@ namespace codeeditor
 
         fract = 1. / (((double)dirs_count + (double)files_count) / ((double)dirs_done + (double)files_done));
 
+        std::string status_text("");
+
+        if (search_working)
+        {
+            status_text = "searching";
+        }
+        else
+        {
+            status_text = "stopped";
+            if (search_stop_flag)
+            {
+                status_text += " - by cancel command";
+            }
+            else
+            {
+                status_text += " - finished";
+            }
+        }
+
         std::string new_text = std::format(
-            "dirs: {} / {}, files: {} / {}, {:.03}%",
+            "dirs: {} / {}, files: {} / {}, {:.03}% - {}",
             dirs_done,
             dirs_count,
             files_done,
             files_count,
-            100.0 * fract
+            100.0 * fract,
+            status_text
         );
 
         std::promise<void> m1;
@@ -332,10 +324,39 @@ namespace codeeditor
         m1_fut.wait();
     }
 
+    void FindFile::on_filelist_activate(gint)
+    {
+        // todo: add casting result checks
+
+        std::cout << "FindFile::on_filelist_activate" << std::endl;
+
+        auto files_sel_model = std::dynamic_pointer_cast<Gtk::SingleSelection>(
+            result_files.get_model()
+        );
+
+        auto item = std::dynamic_pointer_cast<FindFileResultTreeItem>(
+            files_sel_model->get_selected_item()
+        );
+
+        // auto item = files_model->get_item(position);
+
+        auto list_store = item->get_list_store();
+
+        auto lines_sel = Gtk::SingleSelection::create(list_store);
+
+        result_lines.set_model(lines_sel);
+    }
+
     void FindFile::on_start_btn()
     {
         std::cout << "on_start_btn()" << std::endl;
         start_search_thread();
+    }
+
+    void FindFile::on_stop_btn()
+    {
+        std::cout << "on_stop_btn()" << std::endl;
+        stop_search_thread();
     }
 
     int FindFile::start_search_thread()
@@ -363,6 +384,33 @@ namespace codeeditor
     void FindFile::search_thread()
     {
         int err = 0;
+        if (search_working)
+        {
+            return;
+        }
+        search_working = true;
+
+        unsigned int dirs_count  = 0;
+        unsigned int dirs_done   = 0;
+        unsigned int files_count = 0;
+        unsigned int files_done  = 0;
+
+        auto sg04 = std::experimental::fundamentals_v3::scope_exit(
+            [this,
+             &dirs_count,
+             &dirs_done,
+             &files_count,
+             &files_done]
+            {
+                search_working = false;
+                updateProgressbar(
+                    dirs_count,
+                    dirs_done,
+                    files_count,
+                    files_done
+                );
+            }
+        );
 
         std::cout << "search_thread()" << std::endl;
 
@@ -397,11 +445,6 @@ namespace codeeditor
             return;
         }
 
-        unsigned int dirs_count  = 0;
-        unsigned int dirs_done   = 0;
-        unsigned int files_count = 0;
-        unsigned int files_done  = 0;
-
         std::queue<std::filesystem::path> dir_subpaths_to_search_q;
         // std::queue<std::filesystem::path> files_to_grep_q;
 
@@ -416,8 +459,12 @@ namespace codeeditor
 
         while (!dir_subpaths_to_search_q.empty())
         {
-
             std::cout << "new iter" << std::endl;
+
+            if (search_stop_flag)
+            {
+                return;
+            }
 
             auto work_path = dir_subpaths_to_search_q.front();
             std::cout << "work_path 1: " << work_path << std::endl;
@@ -479,6 +526,11 @@ namespace codeeditor
             for (;;)
             {
                 std::cout << "dir files new iter" << std::endl;
+
+                if (search_stop_flag)
+                {
+                    return;
+                }
 
                 auto fi = enumerator->next_file();
                 if (fi == nullptr)
@@ -559,6 +611,12 @@ namespace codeeditor
                  i != matched_filenames.end();
                  i++)
             {
+
+                if (search_stop_flag)
+                {
+                    return;
+                }
+
                 auto sg01 = std::experimental::fundamentals_v3::scope_exit(
                     [this,
                      &dirs_count,
@@ -577,7 +635,7 @@ namespace codeeditor
                 );
 
                 auto x = FindFileResultTreeItem::create(*i);
-                if (work_time_query.search_contents)
+                if (work_time_query.contents_search_enabled)
                 {
                     if (search_thread_search_contents(x) != 0)
                     {
@@ -665,9 +723,6 @@ namespace codeeditor
 
         std::filesystem::path proj_path;
 
-        auto m1     = std::promise<void>();
-        auto m1_fut = m1.get_future();
-
         std::tie(proj_path, err) = getProjectPath();
         if (err != 0)
         {
@@ -687,77 +742,44 @@ namespace codeeditor
             return 1;
         }
 
-        auto cont_txt_ls = LineStarts(cont_txt);
-        // cont_txt_ls.printParsingResult(cont_txt);
+        auto cont_txt_ls = std::make_shared<LineStarts>(cont_txt);
 
-        switch (work_time_query.contents_search_method)
-        {
-            default:
-                return 1;
-                break;
-            case PLAIN:
+        // todo: error checking?
+        find_text_widget.search_in_text(
+            cont_txt,
+            cont_txt_ls,
+
+            [this]() -> bool
             {
-                std::string subj(work_time_query.contents);
+                return search_stop_flag;
+            },
+            [this, &item](unsigned int line, std::string line_text) -> int
+            {
+                auto m1     = std::promise<void>();
+                auto m1_fut = m1.get_future();
 
-                if (subj.length() == 0)
-                {
-                    return 2;
-                }
-
-                auto i = cont_txt.begin();
-
-                for (;;)
-                {
-                    auto ri = std::search(
-                        i, cont_txt.end(), subj.begin(), subj.end()
-                    );
-
-                    if (ri == cont_txt.end())
+                Glib::MainContext::get_default()->signal_idle().connect_once(
+                    [this, &m1, &item, &line, &line_text]()
                     {
-                        break;
-                    }
-                    std::cout << "search ok" << std::endl;
-
-                    m1     = std::promise<void>();
-                    m1_fut = m1.get_future();
-
-                    Glib::MainContext::get_default()->signal_idle().connect_once(
-                        [this, &m1, &item, &cont_txt_ls, &cont_txt, &ri]()
-                        {
-                            auto sg01 = std::experimental::fundamentals_v3::scope_exit(
-                                [&m1]()
-                                {
-                                    m1.set_value();
-                                }
-                            );
-
-                            auto dist = std::distance(cont_txt.begin(), ri);
-
-                            auto line_no = cont_txt_ls.getLineByOffset(dist);
-
-                            auto line_info = cont_txt_ls.getLineInfo(line_no);
-
-                            auto r0  = std::get<0>(line_info);
-                            auto r1  = std::get<1>(line_info);
-                            auto err = std::get<2>(line_info);
-                            if (err != 0)
+                        auto sg01 = std::experimental::fundamentals_v3::scope_exit(
+                            [&m1]()
                             {
-                                return;
+                                m1.set_value();
                             }
+                        );
 
-                            auto substr = trim_right(cont_txt.substr(r0, r1 - r0));
+                        auto s1 = trim_right(line_text);
 
-                            item->create_item(line_no, substr);
-                        }
-                    );
+                        item->create_item(line, s1);
+                    }
+                );
 
-                    m1_fut.wait();
-                    i = ri;
-                    i = std::next(i);
-                }
-                break;
+                m1_fut.wait();
+
+                return 0;
             }
-        }
+        );
+
         return 0;
     }
 

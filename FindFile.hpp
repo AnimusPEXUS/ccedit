@@ -7,6 +7,7 @@
 #include <gtkmm.h>
 
 #include "CodeEditorAbstract.hpp"
+#include "FindText.hpp"
 #include "ProjectCtl.hpp"
 
 namespace wayround_i2p
@@ -14,32 +15,22 @@ namespace wayround_i2p
 namespace codeeditor
 {
 
-    enum FindFileContentsSearchMethod : unsigned char
-    {
-        PLAIN,
-        STD_RE_BASIC,
-        STD_RE_EXTENDED,
-        STD_RE_SED,
-        STD_RE_PERL,
-        STD_RE_ECMA
-    };
-
     struct FindFileQuery
     {
-        std::string                  fnmatch_pattern                       = "*";
-        bool                         fnmatch_cs                            = false;
-        bool                         use_fnmatch_on_path_part              = true;
-        bool                         recurcive                             = true;
-        bool                         delve_into_hidden_dirs                = false;
-        std::filesystem::path        subpath                               = "/";
-        bool                         use_max_depth                         = false;
-        unsigned short               max_depth                             = 1;
-        bool                         search_contents                       = false;
-        std::string                  contents                              = "";
-        FindFileContentsSearchMethod contents_search_method                = PLAIN;
-        bool                         contents_search_cs                    = false;
-        bool                         one_content_match_is_enough           = false;
-        bool                         dont_show_files_with_0_contents_match = true;
+        std::string           fnmatch_pattern          = "*";
+        bool                  fnmatch_cs               = false;
+        bool                  use_fnmatch_on_path_part = true;
+        bool                  recurcive                = true;
+        bool                  delve_into_hidden_dirs   = false;
+        std::filesystem::path subpath                  = "/";
+        bool                  use_max_depth            = false;
+        unsigned short        max_depth                = 1;
+
+        bool contents_search_enabled               = false;
+        bool contents_search_cs                    = false;
+        bool dont_show_files_with_0_contents_match = true;
+
+        FindTextSettings find_text_settings;
     };
 
     class FindFileResultTreeItem;
@@ -94,16 +85,10 @@ namespace codeeditor
         Gtk::Label subpath_l;
         Gtk::Entry subpath_w;
 
-        Gtk::Label grep_l;
-        Gtk::Entry query_w;
-
         // -----------
 
         Gtk::Frame   files_settings_frame;
         Gtk::FlowBox files_settings_box;
-
-        Gtk::Frame   contents_settings_frame;
-        Gtk::FlowBox contents_settings_box;
 
         // -----------
 
@@ -119,14 +104,12 @@ namespace codeeditor
 
         // -----------
 
+        Gtk::Frame       search_contents_frame;
+        Gtk::Box         search_contents_box;
         Gtk::CheckButton search_contents_cb;
-        Gtk::CheckButton query_casesensitive_cb;
-        Gtk::CheckButton one_content_match_is_enough_cb;
+        Gtk::Frame       find_text_widget_frame;
+        FindTextWidget   find_text_widget;
         Gtk::CheckButton dont_show_files_with_0_contents_match_cb;
-
-        Gtk::Box     query_type_box;
-        Gtk::Label   query_type_l;
-        Gtk::ListBox query_type_lb;
 
         // -----------
 
@@ -168,6 +151,7 @@ namespace codeeditor
         void on_filelist_activate(gint);
 
         void on_start_btn();
+        void on_stop_btn();
         void on_destroy_sig();
     };
 

@@ -60,13 +60,16 @@ namespace codeeditor
 
         Gtk::Box path_box;
 
+        Gtk::FlowBox   fb1;
         Gtk::Button    reset_view_btn;
         Gtk::Button    go_root_btn;
         Gtk::Button    refresh_btn;
         Gtk::Separator sep1;
+        Gtk::FlowBox   fb2;
         Gtk::Button    filelauncher_dir_btn;
         Gtk::Button    find_file_btn;
         Gtk::Separator sep2;
+        Gtk::FlowBox   fb3;
         Gtk::Button    make_file_or_directory_btn;
         Gtk::Button    rename_file_or_directory_btn;
         Gtk::Button    remove_file_or_directory_btn;
@@ -125,16 +128,21 @@ namespace codeeditor
     {
       public:
         static std::shared_ptr<FileExplorerMakeFileDir> create(
-            std::shared_ptr<FileExplorer> expl
+            std::shared_ptr<FileExplorer> expl,
+            std::filesystem::path         subdir
         );
 
         ~FileExplorerMakeFileDir();
 
       protected:
-        FileExplorerMakeFileDir(std::shared_ptr<FileExplorer> expl);
+        FileExplorerMakeFileDir(
+            std::shared_ptr<FileExplorer> expl,
+            std::filesystem::path         subdir
+        );
 
       private:
         std::shared_ptr<FileExplorer> expl;
+        std::filesystem::path         subdir;
 
         std::shared_ptr<FileExplorerMakeFileDir> own_ptr;
 
@@ -154,6 +162,7 @@ namespace codeeditor
 
         void on_mk_dir_btn();
         void on_mk_file_btn();
+        void on_cancel_btn();
 
         void on_destroy_sig();
 

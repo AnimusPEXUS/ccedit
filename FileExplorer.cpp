@@ -42,21 +42,37 @@ FileExplorer::FileExplorer(std::shared_ptr<ProjectCtl> proj_ctl) :
     filelauncher_dir_btn.set_label("Open this Dir..");
     find_file_btn.set_label("Find File..");
 
-    make_file_or_directory_btn.set_label("mkdir/touch..");
+    make_file_or_directory_btn.set_label("mk dir/file..");
     rename_file_or_directory_btn.set_label("mv");
     remove_file_or_directory_btn.set_label("rm");
 
+    fb1.set_selection_mode(Gtk::SelectionMode::NONE);
+    fb2.set_selection_mode(Gtk::SelectionMode::NONE);
+    fb3.set_selection_mode(Gtk::SelectionMode::NONE);
+
+    fb1.set_hexpand(true);
+    fb2.set_hexpand(true);
+    fb3.set_hexpand(true);
+
+    fb1.set_orientation(Gtk::Orientation::HORIZONTAL);
+    fb2.set_orientation(Gtk::Orientation::HORIZONTAL);
+    fb3.set_orientation(Gtk::Orientation::HORIZONTAL);
+
     path_box.set_spacing(5);
-    path_box.append(reset_view_btn);
-    path_box.append(go_root_btn);
-    path_box.append(refresh_btn);
+    fb1.append(reset_view_btn);
+    fb1.append(go_root_btn);
+    fb1.append(refresh_btn);
+    path_box.append(fb1);
     path_box.append(sep1);
-    path_box.append(filelauncher_dir_btn);
-    path_box.append(find_file_btn);
+    fb2.append(filelauncher_dir_btn);
+    fb2.append(find_file_btn);
+    fb2.append(reset_view_btn);
+    path_box.append(fb2);
     path_box.append(sep2);
-    path_box.append(make_file_or_directory_btn);
-    path_box.append(rename_file_or_directory_btn);
-    path_box.append(remove_file_or_directory_btn);
+    fb3.append(make_file_or_directory_btn);
+    fb3.append(rename_file_or_directory_btn);
+    fb3.append(remove_file_or_directory_btn);
+    path_box.append(fb3);
     path_box.append(sep3);
     path_box.append(path_entry);
 
@@ -376,8 +392,7 @@ int FileExplorer::touchFileOrMkDir(
         try
         {
             create_directories(full_path);
-        }
-        catch (std::exception &e)
+        } catch (std::exception &e)
         {
             return 3;
         }
@@ -532,7 +547,7 @@ void FileExplorer::on_find_file_btn()
 
 void FileExplorer::on_make_file_or_directory_btn()
 {
-    auto x = FileExplorerMakeFileDir::create(own_ptr);
+    auto x = FileExplorerMakeFileDir::create(own_ptr, opened_subdir);
     x->show();
     proj_ctl->getController()->getGtkApp()->add_window(*x);
 }
@@ -796,6 +811,7 @@ std::tuple<Glib::RefPtr<Gio::ListModel>, int>
         }
     }
 
+    // todo: use ListStore sorting mechanism
     std::sort(
         items.begin(),
         items.end(),
@@ -817,21 +833,27 @@ std::tuple<Glib::RefPtr<Gio::ListModel>, int>
 }
 
 std::shared_ptr<FileExplorerMakeFileDir> FileExplorerMakeFileDir::create(
-    std::shared_ptr<FileExplorer> expl
+    std::shared_ptr<FileExplorer> expl,
+    std::filesystem::path         subdir
 )
 {
     auto ret = std::shared_ptr<FileExplorerMakeFileDir>(
-        new FileExplorerMakeFileDir(expl)
+        new FileExplorerMakeFileDir(
+            expl,
+            subdir
+        )
     );
     ret->own_ptr = ret;
     return ret;
 }
 
 FileExplorerMakeFileDir::FileExplorerMakeFileDir(
-    std::shared_ptr<FileExplorer> expl
+    std::shared_ptr<FileExplorer> expl,
+    std::filesystem::path         subdir
 )
 {
-    this->expl = expl;
+    this->expl   = expl;
+    this->subdir = subdir; // todo: rename to subpath
 
     set_child(main_box);
 
@@ -851,6 +873,8 @@ FileExplorerMakeFileDir::FileExplorerMakeFileDir(
 
     main_box.append(main_grid);
     main_box.append(btn_box);
+
+    placement_lbl2.set_text(subdir.string());
 
     main_grid.attach(placement_lbl, 0, 0);
     main_grid.attach(placement_lbl2, 1, 0);
@@ -877,6 +901,10 @@ FileExplorerMakeFileDir::FileExplorerMakeFileDir(
         sigc::mem_fun(*this, &FileExplorerMakeFileDir::on_mk_file_btn)
     );
 
+    cancel_btn.signal_clicked().connect(
+        sigc::mem_fun(*this, &FileExplorerMakeFileDir::on_cancel_btn)
+    );
+
     signal_destroy().connect(
         sigc::mem_fun(
             *this,
@@ -901,13 +929,14 @@ int FileExplorerMakeFileDir::common_func(bool file)
 {
     // todo: maybe additional name_from_user cleanups needed
     // (space strippings/trimmings?)
-    std::string           name_from_user = name_ent.get_text();
-    std::filesystem::path name_from_user_pth(name_from_user);
+
     // todo: show messages if error?
-    return expl->touchFileOrMkDirRelToCurrent(
-        name_from_user_pth,
-        file
-    );
+
+    auto new_name = subdir / std::filesystem::path(name_ent.get_text());
+
+    auto ret = expl->touchFileOrMkDirRelToProject(new_name, file);
+
+    return ret;
 }
 
 void FileExplorerMakeFileDir::on_mk_dir_btn()
@@ -921,5 +950,10 @@ void FileExplorerMakeFileDir::on_mk_file_btn()
 {
     common_func(true);
     expl->fileListRefresh();
+    close();
+}
+
+void FileExplorerMakeFileDir::on_cancel_btn()
+{
     close();
 }

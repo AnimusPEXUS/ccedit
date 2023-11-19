@@ -23,7 +23,7 @@ CommonEditorWindow::CommonEditorWindow(
 
     outline_view.set_model(outline_view_selection);
 
-    maximize();
+    // maximize();
 
     set_child(main_box);
 
