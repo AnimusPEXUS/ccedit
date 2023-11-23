@@ -16,6 +16,8 @@ set(Boost_USE_MULTITHREADED      ON)
 
 find_package(Boost REQUIRED COMPONENTS json regex)
 
+pkg_check_modules(gtk4 REQUIRED IMPORTED_TARGET gtk4)
+pkg_check_modules(glib REQUIRED IMPORTED_TARGET glib-2.0)
 pkg_check_modules(gtkmm4 REQUIRED IMPORTED_TARGET gtkmm-4.0)
 pkg_check_modules(sigc REQUIRED IMPORTED_TARGET sigc++-3.0)
 
@@ -45,6 +47,8 @@ target_link_libraries(
     codeedit 
     PUBLIC 
     # -static
+    PkgConfig::gtk4 
+    PkgConfig::glib
     PkgConfig::gtkmm4 
     PkgConfig::sigc 
     # PkgConfig::gtkmm3 
@@ -56,6 +60,8 @@ target_link_libraries(
 target_include_directories(
     codeedit 
     PUBLIC 
+    #PkgConfig::gtk4 
+    #PkgConfig::glib
     ${Boost_INCLUDE_DIRS}
     )
 

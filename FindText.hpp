@@ -14,6 +14,8 @@ namespace codeeditor
 
     enum FindTextSearchMethod : unsigned char
     {
+        INVALID, // this is for error reporting
+
         PLAIN,
 
         STD_RE_ECMAScript,
@@ -115,7 +117,7 @@ namespace codeeditor
 
         Gtk::Frame       main_settings_frame;
         Gtk::FlowBox     main_settings_box;
-        Gtk::DropDown    search_mode;
+        Gtk::DropDown    search_method;
         Gtk::CheckButton casesensitive;
         Gtk::CheckButton stop_after_first_match;
 
@@ -152,6 +154,53 @@ namespace codeeditor
         Gtk::CheckButton boost_re_common_mod_collate;
         Gtk::CheckButton boost_re_common_mod_newline_alt;
         // Gtk::CheckButton boost_re_common_mod_no_except;
+
+        FindTextSearchMethod getVisualSelectedFindTextSearchMethod();
+
+        void setVisualSelectedFindTextSearchMethod(
+            FindTextSearchMethod m
+        );
+
+        void setup_search_method_list();
+
+        void apply_search_method_visual();
+
+        void on_search_method_changed();
+        void on_search_method_btn_clicked();
+    };
+
+    class TextSearchMethodListItem : public Glib::Object
+    {
+      public:
+        static Glib::RefPtr<TextSearchMethodListItem> create(
+            FindTextSearchMethod value
+        )
+        {
+            auto ret = Glib::make_refptr_for_instance<TextSearchMethodListItem>(
+                new TextSearchMethodListItem(value)
+            );
+            return ret;
+        }
+
+        const FindTextSearchMethod value;
+
+      protected:
+        TextSearchMethodListItem(FindTextSearchMethod value) :
+            Glib::ObjectBase(typeid(TextSearchMethodListItem)),
+            value(value)
+        {
+        }
+    };
+
+    class TextSearchMethodListItemWidget : public Gtk::Label
+    {
+      public:
+        TextSearchMethodListItemWidget(
+            const Glib::RefPtr<Gtk::ListItem> &list_item
+        );
+        ~TextSearchMethodListItemWidget();
+
+        void bind(const Glib::RefPtr<Gtk::ListItem> &list_item);
     };
 
 } // namespace codeeditor

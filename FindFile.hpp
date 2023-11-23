@@ -104,12 +104,13 @@ namespace codeeditor
 
         // -----------
 
-        Gtk::Frame       search_contents_frame;
-        Gtk::Box         search_contents_box;
-        Gtk::CheckButton search_contents_cb;
-        Gtk::Frame       find_text_widget_frame;
-        FindTextWidget   find_text_widget;
-        Gtk::CheckButton dont_show_files_with_0_contents_match_cb;
+        Gtk::Frame          search_contents_frame;
+        Gtk::Box            search_contents_box;
+        Gtk::CheckButton    search_contents_cb;
+        Gtk::Frame          find_text_widget_frame;
+        // Gtk::ScrolledWindow find_text_widget_sw;
+        FindTextWidget      find_text_widget;
+        Gtk::CheckButton    dont_show_files_with_0_contents_match_cb;
 
         // -----------
 
@@ -173,7 +174,7 @@ namespace codeeditor
         );
 
       private:
-        FindFileResultTreeItemP own_ptr;
+        // FindFileResultTreeItemP own_ptr;
 
         Glib::RefPtr<Gio::ListStore<FindFileResultTreeItemItem>> items;
 
@@ -192,9 +193,9 @@ namespace codeeditor
     {
       public:
         static FindFileResultTreeItemItemP create(
-            FindFileResultTreeItemP tree_item,
-            unsigned int            line,
-            std::string             text
+            // FindFileResultTreeItemP tree_item,
+            unsigned int line,
+            std::string  text
         );
 
         ~FindFileResultTreeItemItem();
@@ -204,13 +205,13 @@ namespace codeeditor
 
       protected:
         FindFileResultTreeItemItem(
-            FindFileResultTreeItemP tree_item,
-            unsigned int            line,
-            std::string             text
+            // FindFileResultTreeItemP tree_item,
+            unsigned int line,
+            std::string  text
         );
 
       private:
-        FindFileResultTreeItemP tree_item;
+        // FindFileResultTreeItemP tree_item;
 
       public: // methods
     };

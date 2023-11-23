@@ -1,4 +1,5 @@
 
+#include <format>
 #include <iostream>
 
 #include "FindText.hpp"
@@ -24,8 +25,10 @@ namespace codeeditor
         append(query_frame);
         append(replace_frame);
 
+        setup_search_method_list();
+
         main_settings_frame.set_child(main_settings_box);
-        main_settings_box.append(search_mode);
+        main_settings_box.append(search_method);
         main_settings_box.append(casesensitive);
         main_settings_box.append(stop_after_first_match);
         append(main_settings_frame);
@@ -100,10 +103,74 @@ namespace codeeditor
         append(boost_re_posix_mod_frame);
 
         setMode(mode);
+        apply_search_method_visual();
+
+        search_method.property_selected_item().signal_changed().connect(
+            sigc::mem_fun(*this, &FindTextWidget::on_search_method_changed)
+        );
     }
 
     FindTextWidget::~FindTextWidget()
     {
+    }
+
+    void FindTextWidget::setup_search_method_list()
+    {
+
+        auto method_list_model = Gio::ListStore<TextSearchMethodListItem>::create();
+
+        for (auto i : {
+                 PLAIN,
+
+                 STD_RE_ECMAScript,
+                 STD_RE_BASIC,
+                 STD_RE_EXTENDED,
+                 STD_RE_AWK,
+                 STD_RE_GREP,
+                 STD_RE_EGREP,
+
+                 BOOST_RE_ECMAScript,
+                 BOOST_RE_BASIC,
+                 BOOST_RE_EXTENDED,
+                 BOOST_RE_AWK,
+                 BOOST_RE_GREP,
+                 BOOST_RE_EGREP,
+                 BOOST_RE_SED,
+                 BOOST_RE_PERL,
+                 BOOST_RE_LITERAL
+             })
+        {
+            method_list_model->append(TextSearchMethodListItem::create(i));
+        }
+
+        search_method.set_model(method_list_model);
+
+        auto factory = Gtk::SignalListItemFactory::create();
+        factory->signal_setup().connect(
+            [](const Glib::RefPtr<Gtk::ListItem> &list_item)
+            {
+                auto w = Gtk::make_managed<TextSearchMethodListItemWidget>(
+                    list_item
+                );
+                list_item->set_child(*w);
+            }
+        );
+        factory->signal_bind().connect(
+            [](const Glib::RefPtr<Gtk::ListItem> &list_item)
+            {
+                auto list_item_child = list_item->get_child();
+
+                auto tic = dynamic_cast<TextSearchMethodListItemWidget *>(
+                    list_item_child
+                );
+                if (!tic)
+                {
+                    return;
+                }
+                tic->bind(list_item);
+            }
+        );
+        search_method.set_factory(factory);
     }
 
     void FindTextWidget::setMode(FindTextWidgetMode mode)
@@ -262,6 +329,174 @@ namespace codeeditor
             }
         }
         return 0;
+    }
+
+    FindTextSearchMethod FindTextWidget::getVisualSelectedFindTextSearchMethod()
+    {
+        auto item = std::dynamic_pointer_cast<TextSearchMethodListItem>(
+            search_method.get_selected_item()
+        );
+        if (item != NULL)
+        {
+            return item->value;
+        }
+        else
+        {
+            return INVALID;
+        }
+    }
+
+    void FindTextWidget::setVisualSelectedFindTextSearchMethod(
+        FindTextSearchMethod m
+    )
+    {
+        auto dd_model = std::dynamic_pointer_cast<Gio::ListStore<TextSearchMethodListItem>>(search_method.get_model());
+
+        for (gint i = 0; i != dd_model->get_n_items(); i++)
+        {
+            auto itm = dd_model->get_item(i);
+            if (itm->value == m)
+            {
+                search_method.set_selected(i);
+                break;
+            }
+        }
+    }
+
+    void FindTextWidget::apply_search_method_visual()
+    {
+        auto mtd = getVisualSelectedFindTextSearchMethod();
+
+        std_re_mod_frame.set_visible(false);
+        boost_re_perl_mod_frame.set_visible(false);
+        boost_re_posix_mod_frame.set_visible(false);
+        boost_re_common_mod_frame.set_visible(false);
+
+        bool boost = false;
+
+        for (auto i : {
+                 BOOST_RE_ECMAScript,
+                 BOOST_RE_BASIC,
+                 BOOST_RE_EXTENDED,
+                 BOOST_RE_AWK,
+                 BOOST_RE_GREP,
+                 BOOST_RE_EGREP,
+                 BOOST_RE_SED,
+                 BOOST_RE_PERL,
+                 BOOST_RE_LITERAL
+             })
+        {
+            if (mtd == i)
+            {
+                boost_re_common_mod_frame.set_visible(true);
+                break;
+            }
+        }
+
+        for (auto i : {BOOST_RE_BASIC, BOOST_RE_SED, BOOST_RE_GREP})
+        {
+            if (mtd == i)
+            {
+                boost_re_posix_mod_frame.set_visible(true);
+                break;
+            }
+        }
+
+        if (mtd == BOOST_RE_PERL)
+        {
+            boost_re_perl_mod_frame.set_visible(true);
+        }
+    }
+
+    void FindTextWidget::on_search_method_changed()
+    {
+        apply_search_method_visual();
+    }
+
+    // -----
+
+    TextSearchMethodListItemWidget::TextSearchMethodListItemWidget(
+        const Glib::RefPtr<Gtk::ListItem> &list_item
+    )
+    {
+    }
+
+    TextSearchMethodListItemWidget::~TextSearchMethodListItemWidget()
+    {
+    }
+
+    void TextSearchMethodListItemWidget::bind(
+        const Glib::RefPtr<Gtk::ListItem> &list_item
+    )
+    {
+        auto list_item_item = list_item->get_item();
+
+        auto ti = std::dynamic_pointer_cast<TextSearchMethodListItem>(
+            list_item_item
+        );
+        if (!ti)
+        {
+            return;
+        }
+
+        std::string text = "undefined";
+
+        switch (ti->value)
+        {
+            default:
+                text = std::format("TODO: {}", (unsigned char)ti->value);
+                break;
+            case PLAIN:
+                text = "PLAIN (simple text search)";
+                break;
+            case STD_RE_ECMAScript:
+                text = "std C++ ECMA Script";
+                break;
+            case STD_RE_BASIC:
+                text = "std C++ Basic";
+                break;
+            case STD_RE_EXTENDED:
+                text = "std C++ Extended";
+                break;
+            case STD_RE_AWK:
+                text = "std C++ AWK";
+                break;
+            case STD_RE_GREP:
+                text = "std C++ grep";
+                break;
+            case STD_RE_EGREP:
+                text = "std C++ egrep";
+                break;
+            case BOOST_RE_ECMAScript:
+                text = "boostlib ECMA Script";
+                break;
+            case BOOST_RE_BASIC:
+                text = "boostlib Basic";
+                break;
+            case BOOST_RE_EXTENDED:
+                text = "boostlib Extended";
+                break;
+            case BOOST_RE_AWK:
+                text = "boostlib AWK";
+                break;
+            case BOOST_RE_GREP:
+                text = "boostlib grep";
+                break;
+            case BOOST_RE_EGREP:
+                text = "boostlib egrep";
+                break;
+            case BOOST_RE_SED:
+                text = "boostlib sed";
+                break;
+            case BOOST_RE_PERL:
+                text = "boostlib Perl";
+                break;
+            case BOOST_RE_LITERAL:
+                text = "boostlib LITERAL";
+                break;
+        }
+
+        set_text(text);
     }
 
 } // namespace codeeditor

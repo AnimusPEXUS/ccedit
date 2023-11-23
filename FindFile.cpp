@@ -84,7 +84,7 @@ namespace codeeditor
 
         files_settings_frame.set_child(files_settings_box);
         files_settings_frame.set_label("File Search Settings");
-	files_settings_box.set_selection_mode(Gtk::SelectionMode::NONE);
+        files_settings_box.set_selection_mode(Gtk::SelectionMode::NONE);
         files_settings_box.append(use_fnmatch_on_path_part_cb);
         files_settings_box.append(recurcive_cb);
         files_settings_box.append(delve_hidden_cb);
@@ -96,8 +96,12 @@ namespace codeeditor
         find_text_widget_frame.set_margin_start(5);
         find_text_widget_frame.set_margin_end(5);
 
+        // if (find_text_widget have scrolled window) {
+        // find_text_widget_sw.set_child(find_text_widget);
+        // find_text_widget_frame.set_child(find_text_widget_sw);
+        // } else {
         find_text_widget_frame.set_child(find_text_widget);
-        // find_text_widget_frame.set_label("More Settings");
+        // }
 
         search_contents_box.set_orientation(Gtk::Orientation::VERTICAL);
         search_contents_box.set_spacing(5);
@@ -797,9 +801,11 @@ namespace codeeditor
                 subpath
             )
         );
-        ret->own_ptr = ret;
+        // ret->own_ptr = ret;
         return ret;
     }
+
+    // ---------------------
 
     FindFileResultTreeItem::FindFileResultTreeItem(
         std::filesystem::path subpath
@@ -821,7 +827,7 @@ namespace codeeditor
     )
     {
         auto x = FindFileResultTreeItemItem::create(
-            own_ptr,
+            // own_ptr,
             line,
             text
         );
@@ -835,15 +841,17 @@ namespace codeeditor
         return items;
     }
 
+    // ---------------------
+
     FindFileResultTreeItemItemP FindFileResultTreeItemItem::create(
-        FindFileResultTreeItemP tree_item,
-        unsigned int            line,
-        std::string             text
+        // FindFileResultTreeItemP tree_item,
+        unsigned int line,
+        std::string  text
     )
     {
         auto ret = Glib::make_refptr_for_instance<FindFileResultTreeItemItem>(
             new FindFileResultTreeItemItem(
-                tree_item,
+                // tree_item,
                 line,
                 text
             )
@@ -853,16 +861,16 @@ namespace codeeditor
     }
 
     FindFileResultTreeItemItem::FindFileResultTreeItemItem(
-        FindFileResultTreeItemP tree_item,
-        unsigned int            line,
-        std::string             text
+        // FindFileResultTreeItemP tree_item,
+        unsigned int line,
+        std::string  text
     ) :
         Glib::ObjectBase(typeid(FindFileResultTreeItemItem)),
         line(line),
         text(text)
 
     {
-        this->tree_item = tree_item;
+        // this->tree_item = tree_item;
     }
 
     FindFileResultTreeItemItem::~FindFileResultTreeItemItem()
@@ -939,7 +947,7 @@ namespace codeeditor
         {
             return;
         }
-        // todo: something better is needed whan std::format
+        // todo: something better is needed than std::format
         line.set_text(std::format("{}", ti->line));
         text.set_text(ti->text);
     }
