@@ -10,7 +10,8 @@ CommonEditorWindow::CommonEditorWindow(
 ) :
     main_box(Gtk::Orientation::VERTICAL, 0),
     outline_box(Gtk::Orientation::VERTICAL, 5),
-    text_view_box(Gtk::Orientation::HORIZONTAL, 5)
+    text_view_box(Gtk::Orientation::HORIZONTAL, 5),
+    text_view_box_upper(Gtk::Orientation::VERTICAL, 0)
 {
     this->project_ctl = project_ctl;
     this->subject     = subject;
@@ -32,10 +33,15 @@ CommonEditorWindow::CommonEditorWindow(
     main_box.append(menu_bar);
     main_box.append(paned);
 
+    text_view_box.set_vexpand(true);
+
+    text_view_box_upper.append(text_view_box);
+    // text_view_box_upper.append(search_exp);
+
     text_view_box.append(linum_area);
     text_view_box.append(text_view_sw);
 
-    paned.set_start_child(text_view_box);
+    paned.set_start_child(text_view_box_upper);
     paned.set_end_child(outline_box);
 
     outline_box.append(outline_view_refresh_btn);
@@ -241,6 +247,16 @@ void CommonEditorWindow::make_menubar()
     mm_buffer->append_item(mm_buffer_reload);
     mm_buffer->append_item(mm_buffer_save);
     mm_buffer->append_item(mm_buffer_save_as);
+
+    mm_search = Gio::Menu::create();
+    menu_model->append_submenu("Search", mm_search);
+
+    mm_search_search_window = Gio::MenuItem::create(
+        "Search Window..",
+        "editor_window.search_show_window"
+    );
+
+    mm_search->append_item(mm_search_search_window);
 };
 
 void CommonEditorWindow::make_special_menu()
@@ -264,6 +280,11 @@ void CommonEditorWindow::make_actions()
         "buffer_save_as",
         sigc::mem_fun(*this, &CommonEditorWindow::action_buffer_save_as)
     );
+    action_group->add_action(
+        "search_show_window",
+        sigc::mem_fun(*this, &CommonEditorWindow::action_search_show_window)
+    );
+
     insert_action_group("editor_window", action_group);
 }
 
@@ -299,6 +320,13 @@ void CommonEditorWindow::make_hotkeys()
                 | Gdk::ModifierType::SHIFT_MASK
         ),
         Gtk::NamedAction::create("editor_window.buffer_save_as")
+    ));
+    controller->add_shortcut(Gtk::Shortcut::create(
+        Gtk::KeyvalTrigger::create(
+            GDK_KEY_f,
+            Gdk::ModifierType::CONTROL_MASK
+        ),
+        Gtk::NamedAction::create("editor_window.search_show_window")
     ));
     add_controller(controller);
 }
@@ -367,7 +395,6 @@ void CommonEditorWindow::saveState()
 
 void CommonEditorWindow::restoreState()
 {
-
     auto context = Glib::MainContext::get_default();
 
     context->signal_idle().connect_once(
@@ -470,10 +497,12 @@ void CommonEditorWindow::force_redraw_linum()
     linum_area.queue_draw();
 }
 
+/*
 void CommonEditorWindow::saveOwnPtr(std::shared_ptr<CodeEditorAbstract> val)
 {
     own_ptr = val;
 }
+*/
 
 void CommonEditorWindow::show()
 {
@@ -504,6 +533,14 @@ void CommonEditorWindow::action_buffer_save_as()
     std::cout << "save as" << std::endl;
 }
 
+void CommonEditorWindow::action_search_show_window()
+{
+    auto ed1 = dynamic_cast<CodeEditorAbstract *>(this);
+    auto w   = FindText::create(ed1->getOwnPtr());
+    w->show();
+    project_ctl->getController()->registerWindow(w);
+}
+
 void CommonEditorWindow::on_outline_refresh_btn()
 {
     auto oc = genOutlineContents();
@@ -524,8 +561,9 @@ void CommonEditorWindow::on_outline_activate(guint val)
 
 void CommonEditorWindow::on_destroy_sig()
 {
-    project_ctl->unregisterEditor(own_ptr);
-    own_ptr.reset();
+    auto ed1 = dynamic_cast<CodeEditorAbstract *>(this);
+    project_ctl->unregisterEditor(ed1->getOwnPtr());
+    ed1->resetOwnPtr();
 }
 
 /*

@@ -1,7 +1,6 @@
 
 
-extern "C"
-{
+extern "C" {
 #include <sys/wait.h>
 #include <unistd.h>
 }
@@ -21,6 +20,18 @@ namespace wayround_i2p
 {
 namespace codeeditor
 {
+
+    std::shared_ptr<CodeEditorAbstract> CodeEditorCCPP::create(
+        std::shared_ptr<ProjectCtl>  proj_ctl,
+        std::shared_ptr<WorkSubject> subj
+    )
+    {
+        auto x = std::shared_ptr<CodeEditorCCPP>(
+            new CodeEditorCCPP(proj_ctl, subj)
+        );
+        x->own_ptr = x;
+        return dynamic_pointer_cast<CodeEditorAbstract>(x);
+    }
 
     CodeEditorCCPP::CodeEditorCCPP(
         std::shared_ptr<ProjectCtl>  project_ctl,
@@ -42,6 +53,15 @@ namespace codeeditor
         std::cout << "~CodeEditorCCPP()" << std::endl;
     }
 
+    std::shared_ptr<CodeEditorAbstract> CodeEditorCCPP::getOwnPtr()
+    {
+        return dynamic_pointer_cast<CodeEditorAbstract>(own_ptr);
+    }
+
+    void CodeEditorCCPP::resetOwnPtr()
+    {
+        own_ptr.reset();
+    }
     void CodeEditorCCPP::make_special_menu()
     {
 

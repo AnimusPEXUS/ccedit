@@ -3,6 +3,10 @@
 
 using namespace std;
 
+// todo: delete this module?
+//       I don't currently use it, and
+//       probably never will
+
 class error : public std::exception
 {
   public:

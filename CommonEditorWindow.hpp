@@ -7,6 +7,7 @@
 // #include <gtksourceview/gtksource.h>
 
 #include "CodeEditorAbstract.hpp"
+#include "FindText.hpp"
 #include "ProjectCtl.hpp"
 #include "WorkSubject.hpp"
 
@@ -31,7 +32,7 @@ namespace codeeditor
         );
         ~CommonEditorWindow();
 
-        void saveOwnPtr(std::shared_ptr<CodeEditorAbstract>) override;
+        // void saveOwnPtr(std::shared_ptr<CodeEditorAbstract>) override;
 
         void show() override;
         void close() override;
@@ -51,10 +52,11 @@ namespace codeeditor
         std::shared_ptr<WorkSubject> subject;
         CodeEditorMod               *mod;
 
-        std::shared_ptr<CodeEditorAbstract> own_ptr;
+        // std::shared_ptr<CodeEditorAbstract> own_ptr;
 
         Gtk::Box                                      main_box;
         Gtk::Paned                                    paned;
+        Gtk::Box                                      text_view_box_upper;
         Gtk::Box                                      text_view_box;
         Gtk::DrawingArea                              linum_area;
         Gtk::ScrolledWindow                           text_view_sw;
@@ -81,9 +83,14 @@ namespace codeeditor
         Glib::RefPtr<Gio::MenuItem> mm_buffer_save;
         Glib::RefPtr<Gio::MenuItem> mm_buffer_save_as;
 
+        Glib::RefPtr<Gio::Menu>     mm_search;
+        Glib::RefPtr<Gio::MenuItem> mm_search_search_window;
+
         void action_buffer_reload();
         void action_buffer_save();
         void action_buffer_save_as();
+
+        void action_search_show_window();
 
         CommonEditorWindowStateStorage saved_editor_state;
         void                           saveState();
@@ -103,8 +110,6 @@ namespace codeeditor
         void on_destroy_sig();
 
       protected:
-        // std::shared_ptr<ProjectCtl> getProjectCtl();
-        // std::shared_ptr<WorkSubject> getSubject();
         Glib::RefPtr<Gio::Menu> getMenuModel();
 
       private:

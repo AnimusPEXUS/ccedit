@@ -10,9 +10,10 @@ namespace codeeditor
     class CodeEditorAbstract
     {
       public:
-        virtual void saveOwnPtr(std::shared_ptr<CodeEditorAbstract>) = 0;
-        virtual void show()                                          = 0;
-        virtual void close()                                         = 0;
+        virtual void                                show()        = 0;
+        virtual void                                close()       = 0;
+        virtual std::shared_ptr<CodeEditorAbstract> getOwnPtr()   = 0;
+        virtual void                                resetOwnPtr() = 0;
     };
 } // namespace codeeditor
 } // namespace wayround_i2p

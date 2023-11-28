@@ -542,14 +542,14 @@ void FileExplorer::on_find_file_btn()
 {
     auto x = FindFile::create(proj_ctl);
     x->show();
-    proj_ctl->getController()->getGtkApp()->add_window(*x);
+    proj_ctl->getController()->registerWindow(x);
 }
 
 void FileExplorer::on_make_file_or_directory_btn()
 {
     auto x = FileExplorerMakeFileDir::create(own_ptr, opened_subdir);
     x->show();
-    proj_ctl->getController()->getGtkApp()->add_window(*x);
+    proj_ctl->getController()->registerWindow(x);
 }
 
 void FileExplorer::on_destroy_sig()

@@ -29,6 +29,8 @@ add_executable(
 	FileExplorer.cpp
 	FindFile.cpp
 	FindText.cpp
+	FindTypes.cpp
+	FindTables.cpp
 	main.cpp
 	modularity.cpp
 	ProjectCtl.cpp

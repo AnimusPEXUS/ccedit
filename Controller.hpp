@@ -81,8 +81,10 @@ namespace codeeditor
             int>
             getPathProject(ProjectCtl *p_ctl);
 
-        Glib::RefPtr<Gtk::Application>
-            getGtkApp();
+        Glib::RefPtr<Gtk::Application> getGtkApp();
+
+        void registerWindow(Gtk::Window *win);
+        void registerWindow(std::shared_ptr<Gtk::Window> win);
 
         int saveConfig();
         int loadConfig();

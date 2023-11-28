@@ -175,13 +175,15 @@ namespace codeeditor
 
     void FindTextWidget::setMode(FindTextWidgetMode mode)
     {
-        switch (this->mode)
+        switch (mode)
         {
             case SEARCH:
                 replace_frame.set_visible(false);
+                stop_after_first_match.set_visible(true);
                 break;
             case EDIT:
                 replace_frame.set_visible(true);
+                stop_after_first_match.set_visible(false);
                 break;
         }
         this->mode = mode;
@@ -262,7 +264,13 @@ namespace codeeditor
 
         std::function<bool()> check_stop_flag,
 
-        std::function<int(unsigned int line, std::string text)>
+        std::function<
+            int(
+                unsigned int line,
+                std::string  text,
+                unsigned int start_offset,
+                unsigned int end_offset
+            )>
             here_s_new_occurance
     )
     {
@@ -320,7 +328,12 @@ namespace codeeditor
 
                     auto substr = in_text.substr(r0, r1 - r0);
 
-                    err = here_s_new_occurance(line_no, substr);
+                    err = here_s_new_occurance(
+                        line_no,
+                        substr,
+                        dist,
+                        dist + subj.length()
+                    );
 
                     i = ri;
                     i = std::next(i);
@@ -497,6 +510,132 @@ namespace codeeditor
         }
 
         set_text(text);
+    }
+
+    // ---------------
+
+    std::shared_ptr<FindText> FindText::create(
+        std::weak_ptr<CodeEditorAbstract> editor_window
+    )
+    {
+        auto n     = std::shared_ptr<FindText>(new FindText(editor_window));
+        n->own_ptr = n;
+        return n;
+    }
+
+    FindText::FindText(std::weak_ptr<CodeEditorAbstract> editor_window) :
+        main_box(Gtk::Orientation::VERTICAL, 5),
+        search_box(Gtk::Orientation::VERTICAL, 5),
+        text_search_btn_box(Gtk::Orientation::HORIZONTAL, 5),
+        text_search(EDIT)
+    {
+        this->editor_window = editor_window;
+
+        set_child(main_box);
+
+        main_box.set_margin(5);
+        main_box.append(search_ex);
+        main_box.append(result_frame);
+
+        search_ex.set_label("Settings");
+        search_ex.set_expanded(true);
+        search_ex.set_child(search_box);
+
+        search_box.append(text_search);
+        search_box.append(text_search_btn_box);
+
+        text_search_btn_box.append(text_search_btn_box1);
+        text_search_btn_box.append(text_search_btn_box2);
+        text_search_btn_box1.set_halign(Gtk::Align::START);
+        text_search_btn_box2.set_halign(Gtk::Align::END);
+        text_search_btn_box1.append(find_all_btn);
+        text_search_btn_box1.append(stop_btn);
+        text_search_btn_box2.append(reacquire_offset_btn);
+        text_search_btn_box2.append(back_to_offset_btn);
+
+        find_all_btn.set_label("Find All");
+        stop_btn.set_label("Stop");
+        reacquire_offset_btn.set_label("Reacquire Current Cursor Position");
+        back_to_offset_btn.set_label("Back to Acquired Cursor Position");
+
+        result_frame.set_vexpand(true);
+        result_frame.set_child(result_sw);
+
+        result_sw.set_child(result_list_view);
+
+        setup_result_linelist();
+
+        find_all_btn.signal_clicked().connect(
+            sigc::mem_fun(*this, &FindText::on_find_all)
+        );
+
+        stop_btn.signal_clicked().connect(
+            sigc::mem_fun(*this, &FindText::on_stop)
+        );
+
+        reacquire_offset_btn.signal_clicked().connect(
+            sigc::mem_fun(*this, &FindText::on_reacquire_offset)
+        );
+
+        back_to_offset_btn.signal_clicked().connect(
+            sigc::mem_fun(*this, &FindText::on_back_to_offset)
+        );
+    }
+
+    void FindText::setup_result_linelist()
+    {
+        auto factory = Gtk::SignalListItemFactory::create();
+        factory->signal_setup().connect(
+            [](const Glib::RefPtr<Gtk::ListItem> &list_item)
+            {
+                auto w = Gtk::make_managed<FindFileResultTreeItemItemWidget>(
+                    list_item
+                );
+                list_item->set_child(*w);
+            }
+        );
+        factory->signal_bind().connect(
+            [](const Glib::RefPtr<Gtk::ListItem> &list_item)
+            {
+                auto list_item_child = list_item->get_child();
+
+                auto tic = dynamic_cast<FindFileResultTreeItemItemWidget *>(
+                    list_item_child
+                );
+                if (!tic)
+                {
+                    return;
+                }
+                tic->bind(list_item);
+            }
+        );
+        result_list_view.set_factory(factory);
+    }
+
+    FindText::~FindText()
+    {
+    }
+
+    void FindText::on_find_all()
+    {
+        stop_flag = false;
+    }
+
+    void FindText::on_stop()
+    {
+        stop_flag = true;
+    }
+
+    void FindText::on_reacquire_offset()
+    {
+    }
+
+    void FindText::on_back_to_offset()
+    {
+    }
+
+    void FindText::worker_thread()
+    {
     }
 
 } // namespace codeeditor

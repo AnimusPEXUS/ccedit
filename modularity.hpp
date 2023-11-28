@@ -24,10 +24,17 @@ namespace codeeditor
         bool feature_text_editor;
         bool feature_binary_editor;
 
-        std::tuple<std::shared_ptr<CodeEditorAbstract>, int> (*newEditorForSubject)(
-            std::shared_ptr<ProjectCtl>  proj_ctl,
-            std::shared_ptr<WorkSubject> subj
-        );
+        std::function<
+            std::shared_ptr<CodeEditorAbstract>(
+                std::shared_ptr<ProjectCtl>  proj_ctl,
+                std::shared_ptr<WorkSubject> subj
+            )>
+            newEditorForSubject;
+
+        /*     std::tuple<std::shared_ptr<CodeEditorAbstract>, int> (*newEditorForSubject)(
+                 std::shared_ptr<ProjectCtl>  proj_ctl,
+                 std::shared_ptr<WorkSubject> subj
+             );*/
     };
 
     void printInfoCodeEditorMod(CodeEditorMod *info);

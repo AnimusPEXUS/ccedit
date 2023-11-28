@@ -59,7 +59,7 @@ void Controller::showProjectMgr()
         project_mgr = std::shared_ptr<ProjectMgr>(
             new ProjectMgr(own_ptr)
         );
-        app->add_window(*project_mgr);
+        registerWindow(project_mgr);
     }
 
     project_mgr->show();
@@ -74,6 +74,16 @@ Glib::RefPtr<Gtk::Application>
     Controller::getGtkApp()
 {
     return app;
+}
+
+void Controller::registerWindow(Gtk::Window *win)
+{
+    app->add_window(*win);
+}
+
+void Controller::registerWindow(std::shared_ptr<Gtk::Window> win)
+{
+    registerWindow(win.get());
 }
 
 int Controller::findProjectIndex(std::string proj_name)

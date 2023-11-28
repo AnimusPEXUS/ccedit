@@ -83,24 +83,20 @@ int ProjectCtl::workSubjectNewEditor(std::filesystem::path fpth)
     auto x = controller->getBuiltinMods()[0];
 
     {
-        auto [editor, err] = x->newEditorForSubject(own_ptr, subj);
-        if (err != 0)
-        {
-            return err;
-        }
-
-        auto new_editor_item = CodeEditorTableRow::create();
-
+        auto editor             = x->newEditorForSubject(own_ptr, subj);
+        auto new_editor_item    = CodeEditorTableRow::create();
         new_editor_item->editor = editor;
 
+        // todo: create special function for registering/unregistering editor
+        //       windows - don't use stores directly
         editors_list_store->append(new_editor_item);
-
         editor->show();
     }
 
     return 0;
 }
 
+// todo: looks like second return value (error code) is unused, - remove it?
 std::tuple<
     std::shared_ptr<WorkSubject>,
     int>
@@ -226,21 +222,21 @@ void ProjectCtl::showNewFileExplorer()
 {
     auto x = FileExplorer::create(own_ptr);
     x->show();
-    controller->getGtkApp()->add_window(*x);
+    controller->registerWindow(x);
 }
 
 void ProjectCtl::showNewWorkSubjectList()
 {
     auto x = new WorkSubjectListView(this->own_ptr);
     x->show();
-    controller->getGtkApp()->add_window(*x);
+    controller->registerWindow(x);
 }
 
 void ProjectCtl::showNewEditorList()
 {
     auto x = new EditorListView(this->own_ptr);
     x->show();
-    controller->getGtkApp()->add_window(*x);
+    controller->registerWindow(x);
 }
 
 std::shared_ptr<sigc::signal<void()>> ProjectCtl::signal_updated_name()

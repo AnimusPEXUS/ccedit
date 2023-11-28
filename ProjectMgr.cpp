@@ -230,7 +230,7 @@ void ProjectMgr::on_add_click()
     w->set_transient_for(*this);
     w->set_destroy_with_parent(true);
     w->show();
-    controller->getGtkApp()->add_window(*w);
+    controller->registerWindow(w);
 }
 
 void ProjectMgr::on_rm_click()
@@ -268,7 +268,7 @@ void ProjectMgr::on_edit_click()
         w->set_transient_for(*this);
         w->set_destroy_with_parent(true);
         w->show();
-        controller->getGtkApp()->add_window(*w);
+        controller->registerWindow(w);
         ++i;
     }
 }

@@ -2,77 +2,20 @@
 #define FIND_TEXT_HPP
 
 #include <future>
+#include <memory>
 
 #include <gtkmm.h>
 
+#include "FindTables.hpp"
+#include "FindTypes.hpp"
+
+#include "CodeEditorAbstract.hpp"
 #include "utils.hpp"
 
 namespace wayround_i2p
 {
 namespace codeeditor
 {
-
-    enum FindTextSearchMethod : unsigned char
-    {
-        INVALID, // this is for error reporting
-
-        PLAIN,
-
-        STD_RE_ECMAScript,
-        STD_RE_BASIC,
-        STD_RE_EXTENDED,
-        STD_RE_AWK,
-        STD_RE_GREP,
-        STD_RE_EGREP,
-
-        BOOST_RE_ECMAScript,
-        BOOST_RE_BASIC,
-        BOOST_RE_EXTENDED,
-        BOOST_RE_AWK,
-        BOOST_RE_GREP,
-        BOOST_RE_EGREP,
-        BOOST_RE_SED,
-        BOOST_RE_PERL,
-        BOOST_RE_LITERAL
-    };
-
-    struct FindTextSettings
-    {
-        bool replace_visible = false;
-
-        std::string query   = "";
-        std::string replace = "";
-
-        FindTextSearchMethod search_method          = PLAIN;
-        bool                 stop_after_first_match = false;
-        bool                 casesensitive          = false;
-
-        // ----------
-        bool std_re_mod_icase;
-        bool std_re_mod_nosubs;
-        bool std_re_mod_optimize;
-        bool std_re_mod_collate;
-        bool std_re_mod_multiline;
-
-        // ----------
-        bool boost_re_perl_mod_no_mod_m;
-        bool boost_re_perl_mod_no_mod_s;
-        bool boost_re_perl_mod_mod_s;
-        bool boost_re_perl_mod_mod_x;
-
-        // ----------
-        bool boost_re_posix_mod_bk_plus_qm;
-        bool boost_re_posix_mod_bk_vbar;
-        bool boost_re_posix_mod_no_char_classes;
-        bool boost_re_posix_mod_no_intervals;
-
-        // ----------
-        bool boost_re_common_mod_nosubs;
-        bool boost_re_common_mod_optimize;
-        bool boost_re_common_mod_collate;
-        bool boost_re_common_mod_newline_alt;
-        // bool boost_re_common_mod_no_except;
-    };
 
     enum FindTextWidgetMode : unsigned char
     {
@@ -95,7 +38,13 @@ namespace codeeditor
 
             std::function<bool()> check_stop_flag,
 
-            std::function<int(unsigned int line, std::string text)>
+            std::function<
+                int(
+                    unsigned int line,
+                    std::string  text,
+                    unsigned int start_offset,
+                    unsigned int end_offset
+                )>
                 here_s_new_occurance
         );
 
@@ -201,6 +150,56 @@ namespace codeeditor
         ~TextSearchMethodListItemWidget();
 
         void bind(const Glib::RefPtr<Gtk::ListItem> &list_item);
+    };
+
+    class FindText : public Gtk::Window
+    {
+      public:
+        static std::shared_ptr<FindText> create(
+            std::weak_ptr<CodeEditorAbstract> editor_window
+        );
+
+        ~FindText();
+
+      protected:
+        FindText(
+            std::weak_ptr<CodeEditorAbstract> editor_window
+        );
+
+      private:
+        std::shared_ptr<FindText> own_ptr;
+
+        std::weak_ptr<CodeEditorAbstract> editor_window;
+        unsigned int                      saved_cursor_position;
+
+        Gtk::Box       main_box;
+        Gtk::Expander  search_ex;
+        Gtk::Box       search_box;
+        FindTextWidget text_search;
+
+        Gtk::Box text_search_btn_box;
+        Gtk::Box text_search_btn_box1;
+        Gtk::Box text_search_btn_box2;
+
+        Gtk::Button find_all_btn;
+        Gtk::Button stop_btn;
+        Gtk::Button reacquire_offset_btn;
+        Gtk::Button back_to_offset_btn;
+
+        Gtk::Frame          result_frame;
+        Gtk::ScrolledWindow result_sw;
+        Gtk::ListView       result_list_view;
+
+        bool stop_flag = false;
+
+        void setup_result_linelist();
+
+        void worker_thread();
+
+        void on_find_all();
+        void on_stop();
+        void on_reacquire_offset();
+        void on_back_to_offset();
     };
 
 } // namespace codeeditor
