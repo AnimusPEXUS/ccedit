@@ -381,6 +381,7 @@ void CommonEditorWindow::updateTitle()
 
 void CommonEditorWindow::saveState()
 {
+    // todo: maybe use get_cursor_locations() instead of directly using TextBuffer
     auto tb = subject->getTextBuffer();
 
     auto cur_pos             = tb->get_insert();
@@ -402,7 +403,9 @@ void CommonEditorWindow::restoreState()
         {
             auto tb = subject->getTextBuffer();
 
-            auto new_iter = tb->get_iter_at_offset(saved_editor_state.cur_pos_iter_offset);
+            auto new_iter = tb->get_iter_at_offset(
+                saved_editor_state.cur_pos_iter_offset
+            );
             tb->place_cursor(new_iter);
 
             auto v_scrollbar = this->text_view_sw.get_vscrollbar();
@@ -497,13 +500,6 @@ void CommonEditorWindow::force_redraw_linum()
     linum_area.queue_draw();
 }
 
-/*
-void CommonEditorWindow::saveOwnPtr(std::shared_ptr<CodeEditorAbstract> val)
-{
-    own_ptr = val;
-}
-*/
-
 void CommonEditorWindow::show()
 {
     auto x = (Gtk::Window *)this;
@@ -514,6 +510,74 @@ void CommonEditorWindow::close()
 {
     auto x = (Gtk::Window *)this;
     x->close();
+}
+
+unsigned int CommonEditorWindow::getCursorOffsetPosition()
+{
+    auto tb = subject->getTextBuffer();
+
+    auto cur_pos      = tb->get_insert();
+    auto cur_pos_iter = tb->get_iter_at_mark(cur_pos);
+    auto offset       = cur_pos_iter.get_offset();
+    return offset;
+}
+
+void CommonEditorWindow::setCursorOffsetPosition(
+    unsigned int new_pos,
+    bool         scroll
+)
+{
+    auto tb = subject->getTextBuffer();
+
+    auto itr = tb->get_iter_at_offset(new_pos);
+    tb->place_cursor(itr);
+    if (scroll)
+    {
+        text_view.scroll_to(itr, 0.5);
+    }
+}
+
+unsigned int CommonEditorWindow::getCurrentLine()
+{
+    auto tb = subject->getTextBuffer();
+
+    auto cur_pos      = tb->get_insert();
+    auto cur_pos_iter = tb->get_iter_at_mark(cur_pos);
+    auto line         = cur_pos_iter.get_line();
+    return line;
+}
+
+void CommonEditorWindow::setCurrentLine(unsigned int line, bool scroll)
+{
+    auto tb = subject->getTextBuffer();
+
+    auto line_iter = tb->get_iter_at_line(line);
+    tb->place_cursor(line_iter);
+    if (scroll)
+    {
+        text_view.scroll_to(line_iter, 0.5);
+    }
+}
+
+void CommonEditorWindow::selectSlice(unsigned int start, unsigned int end)
+{
+    auto tb = subject->getTextBuffer();
+
+    auto it1 = tb->get_iter_at_offset(start);
+    auto it2 = tb->get_iter_at_offset(end);
+
+    tb->select_range(it1, it2);
+}
+
+void CommonEditorWindow::unselect()
+{
+    auto tb = subject->getTextBuffer();
+    tb->place_cursor(tb->get_iter_at_mark(tb->get_insert())); // is there better way to deselect?
+}
+
+std::string CommonEditorWindow::getText()
+{
+    return subject->getText();
 }
 
 void CommonEditorWindow::action_buffer_reload()

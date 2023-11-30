@@ -30,7 +30,7 @@ namespace codeeditor
             new CodeEditorCCPP(proj_ctl, subj)
         );
         x->own_ptr = x;
-        return dynamic_pointer_cast<CodeEditorAbstract>(x);
+        return std::dynamic_pointer_cast<CodeEditorAbstract>(x);
     }
 
     CodeEditorCCPP::CodeEditorCCPP(

@@ -34,10 +34,21 @@ namespace codeeditor
 
         // void saveOwnPtr(std::shared_ptr<CodeEditorAbstract>) override;
 
-        void show() override;
-        void close() override;
+        // ⬇️ {CodeEditorAbstract overrides} ⬇️
 
-        void updateTitle();
+        void         show() override;
+        void         close() override;
+        unsigned int getCursorOffsetPosition() override;
+        void         setCursorOffsetPosition(unsigned int new_pos, bool scroll = true) override;
+        unsigned int getCurrentLine() override;
+        void         setCurrentLine(unsigned int line, bool scroll = true) override;
+        void         selectSlice(unsigned int start, unsigned int end) override;
+        void         unselect() override;
+        std::string  getText() override;
+
+        // ⬆️ {CodeEditorAbstract overrides} ⬆️
+
+        void updateTitle(); // todo: make it private?
 
         void setOutlineContents(
             std::vector<std::tuple<unsigned int, std::string>> val
