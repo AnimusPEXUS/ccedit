@@ -237,7 +237,7 @@ namespace codeeditor
         ret.contents_search_enabled               = search_contents_cb.get_active();
         ret.dont_show_files_with_0_contents_match = dont_show_files_with_0_contents_match_cb.get_active();
 
-        ret.find_text_settings = find_text_widget.getSettings();
+        ret.find_text_query = find_text_widget.getFindTextQuery();
 
         return ret;
     }
@@ -257,7 +257,7 @@ namespace codeeditor
             q.dont_show_files_with_0_contents_match
         );
 
-        find_text_widget.setSettings(q.find_text_settings);
+        find_text_widget.setFindTextQuery(q.find_text_query);
 
         return 0;
     }
@@ -416,7 +416,7 @@ namespace codeeditor
             }
         );
 
-        std::cout << "search_thread()" << std::endl;
+        std::cout << "FindFile::search_thread()" << std::endl;
 
         auto matched_files = Gio::ListStore<FindFileResultTreeItem>::create();
         auto sel           = Gtk::SingleSelection::create(matched_files);

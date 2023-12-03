@@ -1,4 +1,5 @@
 
+#include <experimental/scope>
 #include <format>
 #include <iostream>
 
@@ -194,9 +195,9 @@ namespace codeeditor
         return this->mode;
     }
 
-    FindTextSettings FindTextWidget::getSettings()
+    FindTextQuery FindTextWidget::getFindTextQuery()
     {
-        FindTextSettings ret;
+        FindTextQuery ret;
 
         // ret.replace_active = replace_active.get_active();
 
@@ -231,7 +232,7 @@ namespace codeeditor
         return ret;
     }
 
-    void FindTextWidget::setSettings(FindTextSettings q)
+    int FindTextWidget::setFindTextQuery(FindTextQuery q)
     {
         query.set_text(q.query);
         replace.set_text(q.replace);
@@ -256,6 +257,7 @@ namespace codeeditor
         boost_re_common_mod_optimize.set_active(q.boost_re_common_mod_optimize);
         boost_re_common_mod_collate.set_active(q.boost_re_common_mod_collate);
         boost_re_common_mod_newline_alt.set_active(q.boost_re_common_mod_newline_alt);
+        return 0;
     };
 
     int FindTextWidget::search_in_text(
@@ -274,7 +276,7 @@ namespace codeeditor
             here_s_new_occurance
     )
     {
-        auto query = getSettings();
+        auto query = getFindTextQuery();
 
         int err = 0;
 
@@ -527,7 +529,7 @@ namespace codeeditor
         main_box(Gtk::Orientation::VERTICAL, 5),
         search_box(Gtk::Orientation::VERTICAL, 5),
         text_search_btn_box(Gtk::Orientation::HORIZONTAL, 5),
-        text_search(EDIT)
+        find_text_widget(EDIT)
     {
         this->editor_window = editor_window;
 
@@ -541,22 +543,22 @@ namespace codeeditor
         search_ex.set_expanded(true);
         search_ex.set_child(search_box);
 
-        search_box.append(text_search);
+        search_box.append(find_text_widget);
         search_box.append(text_search_btn_box);
 
         text_search_btn_box.append(text_search_btn_box1);
         text_search_btn_box.append(text_search_btn_box2);
         text_search_btn_box1.set_halign(Gtk::Align::START);
         text_search_btn_box2.set_halign(Gtk::Align::END);
-        text_search_btn_box1.append(find_all_btn);
+        text_search_btn_box1.append(start_btn);
         text_search_btn_box1.append(stop_btn);
-        text_search_btn_box2.append(reacquire_offset_btn);
-        text_search_btn_box2.append(back_to_offset_btn);
+        text_search_btn_box2.append(acquire_cursor_position_btn);
+        text_search_btn_box2.append(restore_cursor_position_btn);
 
-        find_all_btn.set_label("Find All");
+        start_btn.set_label("Find All");
         stop_btn.set_label("Stop");
-        reacquire_offset_btn.set_label("Reacquire Current Cursor Position");
-        back_to_offset_btn.set_label("Back to Acquired Cursor Position");
+        acquire_cursor_position_btn.set_label("Save Cursor Position");
+        restore_cursor_position_btn.set_label("Back to Line");
 
         result_frame.set_vexpand(true);
         result_frame.set_child(result_sw);
@@ -565,20 +567,22 @@ namespace codeeditor
 
         setup_result_linelist();
 
-        find_all_btn.signal_clicked().connect(
-            sigc::mem_fun(*this, &FindText::on_find_all)
+        saveEditorLine();
+
+        start_btn.signal_clicked().connect(
+            sigc::mem_fun(*this, &FindText::on_start_btn)
         );
 
         stop_btn.signal_clicked().connect(
-            sigc::mem_fun(*this, &FindText::on_stop)
+            sigc::mem_fun(*this, &FindText::on_stop_btn)
         );
 
-        reacquire_offset_btn.signal_clicked().connect(
-            sigc::mem_fun(*this, &FindText::on_reacquire_offset)
+        acquire_cursor_position_btn.signal_clicked().connect(
+            sigc::mem_fun(*this, &FindText::on_acquire_cursor_position)
         );
 
-        back_to_offset_btn.signal_clicked().connect(
-            sigc::mem_fun(*this, &FindText::on_back_to_offset)
+        restore_cursor_position_btn.signal_clicked().connect(
+            sigc::mem_fun(*this, &FindText::on_restore_cursor_position)
         );
     }
 
@@ -616,26 +620,182 @@ namespace codeeditor
     {
     }
 
-    void FindText::on_find_all()
+    FindTextQuery FindText::getFindTextQuery()
     {
-        stop_flag = false;
+        return find_text_widget.getFindTextQuery();
     }
 
-    void FindText::on_stop()
+    int FindText::setFindTextQuery(FindTextQuery q)
     {
-        stop_flag = true;
+        return find_text_widget.setFindTextQuery(q);
     }
 
-    void FindText::on_reacquire_offset()
+    void FindText::saveEditorLine()
     {
+        if (auto p = editor_window.lock())
+        {
+            saved_cursor_line = p->getCurrentLine();
+            restore_cursor_position_btn.set_label(
+                std::format("Back to Line {}", saved_cursor_line)
+            );
+        }
+        else
+        {
+            // todo: exception?
+        }
     }
 
-    void FindText::on_back_to_offset()
+    void FindText::on_start_btn()
     {
+        std::cout << "on_start_btn()" << std::endl;
+        start_search_thread();
     }
 
-    void FindText::worker_thread()
+    void FindText::on_stop_btn()
     {
+        std::cout << "on_stop_btn()" << std::endl;
+        stop_search_thread();
+    }
+
+    int FindText::start_search_thread()
+    {
+        if (search_working)
+        {
+            return 1;
+        }
+        search_stop_flag = false;
+
+        work_time_query = getFindTextQuery();
+
+        // todo: thread
+        std::cout << "std::thread(search_thread);" << std::endl;
+        std::thread thr1(&FindText::search_thread, this);
+        thr1.detach();
+        return 0;
+    }
+
+    void FindText::stop_search_thread()
+    {
+        search_stop_flag = true;
+    }
+
+    void FindText::search_thread()
+    {
+        if (search_working)
+        {
+            return;
+        }
+        search_working = true;
+        auto sg04      = std::experimental::fundamentals_v3::scope_exit(
+            [this]
+            {
+                search_working = false;
+            }
+        );
+
+        auto m1     = std::promise<void>();
+        auto m1_fut = m1.get_future();
+
+        Glib::MainContext::get_default()->signal_idle().connect_once(
+            [this, &m1]()
+            {
+                auto sg01 = std::experimental::fundamentals_v3::scope_exit(
+                    [&m1]()
+                    {
+                        m1.set_value();
+                    }
+                );
+
+                auto item_store = Gio::ListStore<FindFileResultTreeItemItem>::create();
+                auto sel        = Gtk::SingleSelection::create(item_store);
+                result_list_view.set_model(sel);
+            }
+        );
+        m1_fut.wait();
+
+        std::cout << "FindText::search_thread()" << std::endl;
+
+        std::string cont_txt;
+
+        if (auto p = editor_window.lock())
+        {
+            cont_txt = p->getText();
+        }
+        else
+        {
+            // todo: report error
+            return;
+        }
+
+        auto cont_txt_ls = std::make_shared<LineStarts>(cont_txt);
+
+        // todo: error checking?
+        find_text_widget.search_in_text(
+            cont_txt,
+            cont_txt_ls,
+
+            [this]() -> bool
+            {
+                return search_stop_flag;
+            },
+            [this](
+                unsigned int line,
+                std::string  line_text,
+                unsigned int start_offset,
+                unsigned int end_offset
+            ) -> int
+            {
+                auto m1     = std::promise<void>();
+                auto m1_fut = m1.get_future();
+
+                Glib::MainContext::get_default()->signal_idle().connect_once(
+                    [this,
+                     &m1,
+                     &line,
+                     &line_text,
+                     &start_offset,
+                     &end_offset]()
+                    {
+                        auto sg01 = std::experimental::fundamentals_v3::scope_exit(
+                            [&m1]()
+                            {
+                                m1.set_value();
+                            }
+                        );
+
+                        auto s1 = trim_right(line_text);
+
+                        auto list_item = FindFileResultTreeItemItem::create(
+                            line,
+                            s1,
+                            start_offset,
+                            end_offset
+                        );
+                    }
+                );
+
+                m1_fut.wait();
+
+                return 0;
+            }
+        );
+    }
+
+    void FindText::on_acquire_cursor_position()
+    {
+        saveEditorLine();
+    }
+
+    void FindText::on_restore_cursor_position()
+    {
+        if (auto p = editor_window.lock())
+        {
+            p->setCurrentLine(saved_cursor_line, true);
+        }
+        else
+        {
+            // todo: exception?
+        }
     }
 
 } // namespace codeeditor

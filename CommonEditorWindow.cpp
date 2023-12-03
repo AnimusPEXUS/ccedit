@@ -1,4 +1,6 @@
+
 #include <format>
+#include <limits>
 
 #include "CommonEditorWindow.hpp"
 
@@ -544,11 +546,21 @@ unsigned int CommonEditorWindow::getCurrentLine()
     auto cur_pos      = tb->get_insert();
     auto cur_pos_iter = tb->get_iter_at_mark(cur_pos);
     auto line         = cur_pos_iter.get_line();
+    if (line != std::numeric_limits<typeof(line)>::max())
+    {
+        line += 1;
+    }
     return line;
 }
 
 void CommonEditorWindow::setCurrentLine(unsigned int line, bool scroll)
 {
+
+    if (line != std::numeric_limits<typeof(line)>::min())
+    {
+        line -= 1;
+    }
+
     auto tb = subject->getTextBuffer();
 
     auto line_iter = tb->get_iter_at_line(line);

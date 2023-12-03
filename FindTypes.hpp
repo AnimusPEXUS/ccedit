@@ -35,7 +35,7 @@ namespace codeeditor
         BOOST_RE_LITERAL
     };
 
-    struct FindTextSettings
+    struct FindTextQuery
     {
         bool replace_visible = false;
 
@@ -88,7 +88,7 @@ namespace codeeditor
         bool contents_search_cs                    = false;
         bool dont_show_files_with_0_contents_match = true;
 
-        FindTextSettings find_text_settings;
+        FindTextQuery find_text_query;
     };
 
 } // namespace codeeditor

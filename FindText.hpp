@@ -29,8 +29,8 @@ namespace codeeditor
         FindTextWidget(FindTextWidgetMode mode = SEARCH);
         ~FindTextWidget();
 
-        FindTextSettings getSettings();
-        void             setSettings(FindTextSettings settings);
+        FindTextQuery getFindTextQuery();
+        int           setFindTextQuery(FindTextQuery q);
 
         int search_in_text(
             const std::string           in_text,
@@ -161,6 +161,9 @@ namespace codeeditor
 
         ~FindText();
 
+        FindTextQuery getFindTextQuery();
+        int           setFindTextQuery(FindTextQuery q);
+
       protected:
         FindText(
             std::weak_ptr<CodeEditorAbstract> editor_window
@@ -170,36 +173,41 @@ namespace codeeditor
         std::shared_ptr<FindText> own_ptr;
 
         std::weak_ptr<CodeEditorAbstract> editor_window;
-        unsigned int                      saved_cursor_position;
+        unsigned int                      saved_cursor_line;
 
         Gtk::Box       main_box;
         Gtk::Expander  search_ex;
         Gtk::Box       search_box;
-        FindTextWidget text_search;
+        FindTextWidget find_text_widget;
 
         Gtk::Box text_search_btn_box;
         Gtk::Box text_search_btn_box1;
         Gtk::Box text_search_btn_box2;
 
-        Gtk::Button find_all_btn;
+        Gtk::Button start_btn;
         Gtk::Button stop_btn;
-        Gtk::Button reacquire_offset_btn;
-        Gtk::Button back_to_offset_btn;
+        Gtk::Button acquire_cursor_position_btn;
+        Gtk::Button restore_cursor_position_btn;
 
         Gtk::Frame          result_frame;
         Gtk::ScrolledWindow result_sw;
         Gtk::ListView       result_list_view;
 
-        bool stop_flag = false;
-
         void setup_result_linelist();
 
-        void worker_thread();
+        void saveEditorLine();
 
-        void on_find_all();
-        void on_stop();
-        void on_reacquire_offset();
-        void on_back_to_offset();
+        FindTextQuery work_time_query;
+        bool          search_stop_flag = false;
+        bool          search_working   = false;
+        int           start_search_thread();
+        void          stop_search_thread();
+        void          search_thread();
+
+        void on_start_btn();
+        void on_stop_btn();
+        void on_acquire_cursor_position();
+        void on_restore_cursor_position();
     };
 
 } // namespace codeeditor
