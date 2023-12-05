@@ -2,6 +2,8 @@
 #include <format>
 #include <limits>
 
+#include <gtkmm.h>
+
 #include "CommonEditorWindow.hpp"
 
 using namespace wayround_i2p::codeeditor;
@@ -17,6 +19,8 @@ CommonEditorWindow::CommonEditorWindow(
 {
     this->project_ctl = project_ctl;
     this->subject     = subject;
+
+    set_hide_on_close(false);
 
     outline_list_store = Gio::ListStore<OutlineTableRow>::create();
 
@@ -514,6 +518,16 @@ void CommonEditorWindow::close()
     x->close();
 }
 
+void CommonEditorWindow::setTransientWindow(Gtk::Window *win)
+{
+    win->set_transient_for(*(Gtk::Window *)this);
+}
+
+void CommonEditorWindow::setTransientWindow(std::shared_ptr<Gtk::Window> win)
+{
+    setTransientWindow(win.get());
+}
+
 unsigned int CommonEditorWindow::getCursorOffsetPosition()
 {
     auto tb = subject->getTextBuffer();
@@ -535,7 +549,7 @@ void CommonEditorWindow::setCursorOffsetPosition(
     tb->place_cursor(itr);
     if (scroll)
     {
-        text_view.scroll_to(itr, 0.5);
+        text_view.scroll_to(itr, 0, 0.5, 0.5);
     }
 }
 
@@ -555,11 +569,12 @@ unsigned int CommonEditorWindow::getCurrentLine()
 
 void CommonEditorWindow::setCurrentLine(unsigned int line, bool scroll)
 {
-
     if (line != std::numeric_limits<typeof(line)>::min())
     {
         line -= 1;
     }
+
+    std::cout << std::format("setCurrentLine({}, {})", line, scroll) << std::endl;
 
     auto tb = subject->getTextBuffer();
 
@@ -567,7 +582,7 @@ void CommonEditorWindow::setCurrentLine(unsigned int line, bool scroll)
     tb->place_cursor(line_iter);
     if (scroll)
     {
-        text_view.scroll_to(line_iter, 0.5);
+        text_view.scroll_to(line_iter, 0, 0.5, 0.5);
     }
 }
 
@@ -615,6 +630,8 @@ void CommonEditorWindow::action_search_show_window()
     auto w   = FindText::create(ed1->getOwnPtr());
     w->show();
     project_ctl->getController()->registerWindow(w);
+    setTransientWindow(w);
+    w->set_destroy_with_parent(true);
 }
 
 void CommonEditorWindow::on_outline_refresh_btn()
@@ -631,7 +648,7 @@ void CommonEditorWindow::on_outline_activate(guint val)
     auto tb = subject->getTextBuffer();
 
     auto iter_at_line = tb->get_iter_at_line(x->line);
-    text_view.scroll_to(iter_at_line, 0.2);
+    text_view.scroll_to(iter_at_line, 0, 0.5, 0.5);
     tb->place_cursor(iter_at_line);
 }
 
@@ -641,10 +658,3 @@ void CommonEditorWindow::on_destroy_sig()
     project_ctl->unregisterEditor(ed1->getOwnPtr());
     ed1->resetOwnPtr();
 }
-
-/*
-std::shared_ptr<ProjectCtl> CommonEditorWindow::getProjectCtl()
-{
-    return project_ctl;
-}
-*/

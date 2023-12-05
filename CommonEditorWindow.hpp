@@ -36,8 +36,11 @@ namespace codeeditor
 
         // ⬇️ {CodeEditorAbstract overrides} ⬇️
 
-        void         show() override;
-        void         close() override;
+        void show() override;
+        void close() override;
+        void setTransientWindow(Gtk::Window *win) override;
+        void setTransientWindow(std::shared_ptr<Gtk::Window> win) override;
+
         unsigned int getCursorOffsetPosition() override;
         void         setCursorOffsetPosition(unsigned int new_pos, bool scroll = true) override;
         unsigned int getCurrentLine() override;

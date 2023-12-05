@@ -3,6 +3,9 @@
 
 #include "ProjectCtl.hpp"
 
+// todo: is this file used at all?
+//       merge it to Controller.hpp?
+
 namespace wayround_i2p
 {
 namespace codeeditor

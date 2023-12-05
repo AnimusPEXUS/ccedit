@@ -165,7 +165,8 @@ namespace codeeditor
             [](const Glib::RefPtr<Gtk::ListItem> &list_item)
             {
                 auto w = Gtk::make_managed<FindFileResultTreeItemWidget>(
-                    list_item
+                    list_item,
+                    [](FindFileResultTreeItemP item) {}
                 );
                 list_item->set_child(*w);
             }
@@ -195,7 +196,8 @@ namespace codeeditor
             [](const Glib::RefPtr<Gtk::ListItem> &list_item)
             {
                 auto w = Gtk::make_managed<FindFileResultTreeItemItemWidget>(
-                    list_item
+                    list_item,
+                    [](FindFileResultTreeItemItemP item) {}
                 );
                 list_item->set_child(*w);
             }

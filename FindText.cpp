@@ -590,10 +590,17 @@ namespace codeeditor
     {
         auto factory = Gtk::SignalListItemFactory::create();
         factory->signal_setup().connect(
-            [](const Glib::RefPtr<Gtk::ListItem> &list_item)
+            [this](const Glib::RefPtr<Gtk::ListItem> &list_item)
             {
                 auto w = Gtk::make_managed<FindFileResultTreeItemItemWidget>(
-                    list_item
+                    list_item,
+                    [this](FindFileResultTreeItemItemP item)
+                    {
+                        if (auto p = editor_window.lock())
+                        {
+                            p->setCurrentLine(item->line, true);
+                        }
+                    }
                 );
                 list_item->set_child(*w);
             }
@@ -696,8 +703,10 @@ namespace codeeditor
         auto m1     = std::promise<void>();
         auto m1_fut = m1.get_future();
 
+        auto item_store = Gio::ListStore<FindFileResultTreeItemItem>::create();
+
         Glib::MainContext::get_default()->signal_idle().connect_once(
-            [this, &m1]()
+            [this, &m1, &item_store]()
             {
                 auto sg01 = std::experimental::fundamentals_v3::scope_exit(
                     [&m1]()
@@ -706,8 +715,7 @@ namespace codeeditor
                     }
                 );
 
-                auto item_store = Gio::ListStore<FindFileResultTreeItemItem>::create();
-                auto sel        = Gtk::SingleSelection::create(item_store);
+                auto sel = Gtk::SingleSelection::create(item_store);
                 result_list_view.set_model(sel);
             }
         );
@@ -738,7 +746,7 @@ namespace codeeditor
             {
                 return search_stop_flag;
             },
-            [this](
+            [this, &item_store](
                 unsigned int line,
                 std::string  line_text,
                 unsigned int start_offset,
@@ -751,6 +759,7 @@ namespace codeeditor
                 Glib::MainContext::get_default()->signal_idle().connect_once(
                     [this,
                      &m1,
+                     &item_store,
                      &line,
                      &line_text,
                      &start_offset,
@@ -771,6 +780,8 @@ namespace codeeditor
                             start_offset,
                             end_offset
                         );
+                        // todo: use insert_sorted()
+                        item_store->append(list_item);
                     }
                 );
 

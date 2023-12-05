@@ -3,6 +3,8 @@
 
 #include <memory>
 
+#include <gtkmm.h>
+
 namespace wayround_i2p
 {
 namespace codeeditor
@@ -10,10 +12,13 @@ namespace codeeditor
     class CodeEditorAbstract
     {
       public:
-        virtual void                                show()        = 0;
-        virtual void                                close()       = 0;
         virtual std::shared_ptr<CodeEditorAbstract> getOwnPtr()   = 0;
         virtual void                                resetOwnPtr() = 0;
+
+        virtual void show()                                               = 0;
+        virtual void close()                                              = 0;
+        virtual void setTransientWindow(Gtk::Window *win)                 = 0;
+        virtual void setTransientWindow(std::shared_ptr<Gtk::Window> win) = 0;
 
         virtual unsigned int getCursorOffsetPosition() = 0;
         virtual void         setCursorOffsetPosition(

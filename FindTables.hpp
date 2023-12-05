@@ -77,7 +77,8 @@ namespace codeeditor
     {
       public:
         FindFileResultTreeItemWidget(
-            const Glib::RefPtr<Gtk::ListItem> &list_item
+            const Glib::RefPtr<Gtk::ListItem>                &list_item,
+            std::function<void(FindFileResultTreeItemP item)> go_action
         );
         ~FindFileResultTreeItemWidget();
 
@@ -85,15 +86,23 @@ namespace codeeditor
         void unbind(const Glib::RefPtr<Gtk::ListItem> &list_item);
 
       private:
-        Gtk::Label subpath;
-        Gtk::Label found_count;
+        Gtk::Label  subpath;
+        Gtk::Label  found_count;
+        Gtk::Button go_btn;
+
+        FindFileResultTreeItemP item;
+
+        std::function<void(FindFileResultTreeItemP item)> go_action;
+
+        void on_go_btn();
     };
 
     class FindFileResultTreeItemItemWidget : public Gtk::Box
     {
       public:
         FindFileResultTreeItemItemWidget(
-            const Glib::RefPtr<Gtk::ListItem> &list_item
+            const Glib::RefPtr<Gtk::ListItem>                    &list_item,
+            std::function<void(FindFileResultTreeItemItemP item)> go_action
         );
         ~FindFileResultTreeItemItemWidget();
 
@@ -101,8 +110,15 @@ namespace codeeditor
         void unbind(const Glib::RefPtr<Gtk::ListItem> &list_item);
 
       private:
-        Gtk::Label line;
-        Gtk::Label text;
+        Gtk::Label  line;
+        Gtk::Label  text;
+        Gtk::Button go_btn;
+
+        FindFileResultTreeItemItemP item;
+
+        std::function<void(FindFileResultTreeItemItemP item)> go_action;
+
+        void on_go_btn();
     };
 
 } // namespace codeeditor

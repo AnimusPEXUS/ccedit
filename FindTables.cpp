@@ -84,14 +84,23 @@ namespace codeeditor
     // ---------------------
 
     FindFileResultTreeItemWidget::FindFileResultTreeItemWidget(
-        const Glib::RefPtr<Gtk::ListItem> &list_item
+        const Glib::RefPtr<Gtk::ListItem>                &list_item,
+        std::function<void(FindFileResultTreeItemP item)> go_action
     )
     {
+        this->go_action = go_action;
+
         set_orientation(Gtk::Orientation::HORIZONTAL);
         set_spacing(5);
+        go_btn.set_label("go");
 
         append(subpath);
         append(found_count);
+        append(go_btn);
+
+        go_btn.signal_clicked().connect(
+            sigc::mem_fun(*this, &FindFileResultTreeItemWidget::on_go_btn)
+        );
     }
 
     FindFileResultTreeItemWidget::~FindFileResultTreeItemWidget()
@@ -111,6 +120,7 @@ namespace codeeditor
         {
             return;
         }
+        this->item = ti;
         subpath.set_text(ti->subpath.string());
     }
 
@@ -120,17 +130,34 @@ namespace codeeditor
     {
     }
 
+    void FindFileResultTreeItemWidget::on_go_btn()
+    {
+        if (go_action)
+        {
+            go_action(this->item);
+        }
+    }
+
     // ---------------------
 
     FindFileResultTreeItemItemWidget::FindFileResultTreeItemItemWidget(
-        const Glib::RefPtr<Gtk::ListItem> &list_item
+        const Glib::RefPtr<Gtk::ListItem>                    &list_item,
+        std::function<void(FindFileResultTreeItemItemP item)> go_action
     )
     {
+        this->go_action = go_action;
+
         set_orientation(Gtk::Orientation::HORIZONTAL);
         set_spacing(5);
+        go_btn.set_label("go");
 
         append(line);
         append(text);
+        append(go_btn);
+
+        go_btn.signal_clicked().connect(
+            sigc::mem_fun(*this, &FindFileResultTreeItemItemWidget::on_go_btn)
+        );
     }
 
     FindFileResultTreeItemItemWidget::~FindFileResultTreeItemItemWidget()
@@ -150,6 +177,8 @@ namespace codeeditor
         {
             return;
         }
+        this->item = ti;
+
         // todo: something better is needed than std::format
         line.set_text(std::format("{}", ti->line));
         text.set_text(ti->text);
@@ -159,6 +188,14 @@ namespace codeeditor
         const Glib::RefPtr<Gtk::ListItem> &list_item
     )
     {
+    }
+
+    void FindFileResultTreeItemItemWidget::on_go_btn()
+    {
+        if (go_action)
+        {
+            go_action(this->item);
+        }
     }
 } // namespace codeeditor
 } // namespace wayround_i2p
