@@ -584,6 +584,10 @@ namespace codeeditor
         restore_cursor_position_btn.signal_clicked().connect(
             sigc::mem_fun(*this, &FindText::on_restore_cursor_position)
         );
+
+        signal_destroy().connect(
+            sigc::mem_fun(*this, &FindText::on_destroy_sig)
+        );
     }
 
     void FindText::setup_result_linelist()
@@ -598,7 +602,14 @@ namespace codeeditor
                     {
                         if (auto p = editor_window.lock())
                         {
-                            p->setCurrentLine(item->line, true);
+                            p->setCurrentLine(
+                                item->line,
+                                true
+                            );
+                            p->selectSlice(
+                                item->start_offset,
+                                item->end_offset
+                            );
                         }
                     }
                 );
@@ -775,6 +786,7 @@ namespace codeeditor
                         auto s1 = trim_right(line_text);
 
                         auto list_item = FindFileResultTreeItemItem::create(
+                            std::filesystem::path(""), // not used
                             line,
                             s1,
                             start_offset,
@@ -807,6 +819,11 @@ namespace codeeditor
         {
             // todo: exception?
         }
+    }
+
+    void FindText::on_destroy_sig()
+    {
+        own_ptr.reset();
     }
 
 } // namespace codeeditor

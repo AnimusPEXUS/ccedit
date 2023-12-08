@@ -38,16 +38,55 @@ namespace codeeditor
         std::tuple<std::string, int>           getProjectName();
         std::tuple<std::filesystem::path, int> getProjectPath();
 
-        bool workSubjectExists(std::filesystem::path fpth);
-        void workSubjectEnsureExistance(std::filesystem::path fpth); // todo: return new WorkSubject?
-        int  workSubjectNewEditor(std::filesystem::path fpth);       // todo: return new editor?
-        std::tuple<
-            std::shared_ptr<WorkSubject>,
-            int>
-            getWorkSubject(std::filesystem::path fpth);
+        // ----------
 
-        void unregisterEditor(CodeEditorAbstract *);
-        void unregisterEditor(std::shared_ptr<CodeEditorAbstract>);
+        bool workSubjectExists(std::filesystem::path fpth);
+
+        // tries to find and return existing WorkSubject. result is empty if
+        // there's no existing WS for fpath
+
+        std::shared_ptr<WorkSubject> getWorkSubject(std::filesystem::path fpth);
+
+        // tries to find and return existing WorkSubject. if WS not exists already -
+        // creates and returns new one
+
+        std::shared_ptr<WorkSubject> workSubjectEnsureExistance(
+            std::filesystem::path fpth
+        );
+
+        // ----------
+
+        // if subject not exists - create.
+        // tries to find and return existing editor.
+
+        std::shared_ptr<CodeEditorAbstract> workSubjectExistingOrNewEditor(
+            std::filesystem::path fpth
+        );
+
+        // if subject not exists - create.
+        // allways create new editor for resulting subject
+
+        std::shared_ptr<CodeEditorAbstract> workSubjectNewEditor(
+            std::filesystem::path fpth
+        );
+
+        // ----------
+
+        // tries to find and return existing editor.
+
+        std::shared_ptr<CodeEditorAbstract> workSubjectExistingOrNewEditor(
+            std::shared_ptr<WorkSubject>
+        );
+
+        // allways create new editor for subject
+
+        std::shared_ptr<CodeEditorAbstract> workSubjectNewEditor(
+            std::shared_ptr<WorkSubject>
+        );
+
+        // ----------
+
+        void destroyEditor(std::shared_ptr<CodeEditorAbstract>);
 
         Glib::RefPtr<Gio::ListStore<WorkSubjectTableRow>> getWorkSubjectListStore();
         Glib::RefPtr<Gio::ListStore<CodeEditorTableRow>>  getCodeEditorListStore();
@@ -74,9 +113,17 @@ namespace codeeditor
 
         std::shared_ptr<ProjectCtlWin> proj_ctl_win;
 
+        std::shared_ptr<CodeEditorAbstract> createBestEditorForWorkSubject(
+            std::shared_ptr<WorkSubject>
+        );
+
+        void registerEditor(std::shared_ptr<CodeEditorAbstract>);
+        void unregisterEditor(std::shared_ptr<CodeEditorAbstract>);
+
         Glib::RefPtr<Gio::ListStore<WorkSubjectTableRow>> work_subj_list_store;
         Glib::RefPtr<Gio::ListStore<CodeEditorTableRow>>  editors_list_store;
 
+        // todo: cant remember why I did those signals in form of ptr
         std::shared_ptr<sigc::signal<void()>> priv_signal_updated_name;
         std::shared_ptr<sigc::signal<void()>> priv_signal_updated_path;
     };

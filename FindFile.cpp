@@ -162,11 +162,19 @@ namespace codeeditor
     {
         auto factory = Gtk::SignalListItemFactory::create();
         factory->signal_setup().connect(
-            [](const Glib::RefPtr<Gtk::ListItem> &list_item)
+            [this](const Glib::RefPtr<Gtk::ListItem> &list_item)
             {
                 auto w = Gtk::make_managed<FindFileResultTreeItemWidget>(
                     list_item,
-                    [](FindFileResultTreeItemP item) {}
+                    [this](FindFileResultTreeItemP item)
+                    {
+                        auto ed = p_ctl->workSubjectExistingOrNewEditor(item->subpath);
+                        if (!ed)
+                        {
+                            return;
+                        }
+                        ed->present();
+                    }
                 );
                 list_item->set_child(*w);
             }
@@ -193,11 +201,27 @@ namespace codeeditor
     {
         auto factory = Gtk::SignalListItemFactory::create();
         factory->signal_setup().connect(
-            [](const Glib::RefPtr<Gtk::ListItem> &list_item)
+            [this](const Glib::RefPtr<Gtk::ListItem> &list_item)
             {
                 auto w = Gtk::make_managed<FindFileResultTreeItemItemWidget>(
                     list_item,
-                    [](FindFileResultTreeItemItemP item) {}
+                    [this](FindFileResultTreeItemItemP item)
+                    {
+                        auto ed = p_ctl->workSubjectExistingOrNewEditor(item->subpath);
+                        if (!ed)
+                        {
+                            return;
+                        }
+                        ed->present();
+                        ed->setCurrentLine(
+                            item->line,
+                            true
+                        );
+                        ed->selectSlice(
+                            item->start_offset,
+                            item->end_offset
+                        );
+                    }
                 );
                 list_item->set_child(*w);
             }
@@ -760,10 +784,10 @@ namespace codeeditor
                 return search_stop_flag;
             },
             [this, &item](
-                unsigned int line,
-                std::string  line_text,
-                unsigned int start_offset,
-                unsigned int end_offset
+                unsigned int          line,
+                std::string           line_text,
+                unsigned int          start_offset,
+                unsigned int          end_offset
             ) -> int
             {
                 auto m1     = std::promise<void>();
@@ -788,6 +812,7 @@ namespace codeeditor
                         auto s1 = trim_right(line_text);
 
                         item->create_item(
+                            item->subpath,
                             line,
                             s1,
                             start_offset,

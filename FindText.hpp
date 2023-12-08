@@ -208,6 +208,8 @@ namespace codeeditor
         void on_stop_btn();
         void on_acquire_cursor_position();
         void on_restore_cursor_position();
+
+        void on_destroy_sig();
     };
 
 } // namespace codeeditor

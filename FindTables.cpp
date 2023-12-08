@@ -19,13 +19,15 @@ namespace codeeditor
     }
 
     FindFileResultTreeItemItemP FindFileResultTreeItem::create_item(
-        unsigned int line,
-        std::string  text,
-        unsigned int start_offset,
-        unsigned int end_offset
+        std::filesystem::path subpath,
+        unsigned int          line,
+        std::string           text,
+        unsigned int          start_offset,
+        unsigned int          end_offset
     )
     {
         auto x = FindFileResultTreeItemItem::create(
+            subpath,
             line,
             text,
             start_offset,
@@ -44,15 +46,16 @@ namespace codeeditor
     // ---------------------
 
     FindFileResultTreeItemItemP FindFileResultTreeItemItem::create(
-        // FindFileResultTreeItemP tree_item,
-        unsigned int line,
-        std::string  text,
-        unsigned int start_offset,
-        unsigned int end_offset
+        std::filesystem::path subpath,
+        unsigned int          line,
+        std::string           text,
+        unsigned int          start_offset,
+        unsigned int          end_offset
     )
     {
         auto ret = Glib::make_refptr_for_instance<FindFileResultTreeItemItem>(
             new FindFileResultTreeItemItem(
+                subpath,
                 line,
                 text,
                 start_offset,
@@ -63,12 +66,14 @@ namespace codeeditor
     }
 
     FindFileResultTreeItemItem::FindFileResultTreeItemItem(
-        unsigned int line,
-        std::string  text,
-        unsigned int start_offset,
-        unsigned int end_offset
+        std::filesystem::path subpath,
+        unsigned int          line,
+        std::string           text,
+        unsigned int          start_offset,
+        unsigned int          end_offset
     ) :
         Glib::ObjectBase(typeid(FindFileResultTreeItemItem)),
+        subpath(subpath),
         line(line),
         text(text),
         start_offset(start_offset),

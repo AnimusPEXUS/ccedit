@@ -37,10 +37,11 @@ namespace codeeditor
 
       public: // methods
         FindFileResultTreeItemItemP create_item(
-            unsigned int line,
-            std::string  text,
-            unsigned int start_offset,
-            unsigned int end_offset
+            std::filesystem::path subpath,
+            unsigned int          line,
+            std::string           text,
+            unsigned int          start_offset,
+            unsigned int          end_offset
         );
 
         Glib::RefPtr<Gio::ListStore<FindFileResultTreeItemItem>>
@@ -51,25 +52,28 @@ namespace codeeditor
     {
       public:
         static FindFileResultTreeItemItemP create(
-            unsigned int line,
-            std::string  text,
-            unsigned int start_offset,
-            unsigned int end_offset
+            std::filesystem::path subpath,
+            unsigned int          line,
+            std::string           text,
+            unsigned int          start_offset,
+            unsigned int          end_offset
         );
 
         ~FindFileResultTreeItemItem();
 
-        const unsigned int line;
-        const std::string  text;
-        unsigned int       start_offset;
-        unsigned int       end_offset;
+        std::filesystem::path subpath;
+        const unsigned int    line;
+        const std::string     text;
+        unsigned int          start_offset;
+        unsigned int          end_offset;
 
       protected:
         FindFileResultTreeItemItem(
-            unsigned int line,
-            std::string  text,
-            unsigned int start_offset,
-            unsigned int end_offset
+            std::filesystem::path subpath,
+            unsigned int          line,
+            std::string           text,
+            unsigned int          start_offset,
+            unsigned int          end_offset
         );
     };
 

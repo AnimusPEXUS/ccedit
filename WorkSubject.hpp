@@ -21,7 +21,7 @@ namespace codeeditor
     {
       public:
         // path should be always relative to project root
-        WorkSubject(
+        static std::shared_ptr<WorkSubject> create(
             std::shared_ptr<Controller> controller,
             std::shared_ptr<ProjectCtl> project_ctl,
             std::filesystem::path       fpth
@@ -52,6 +52,13 @@ namespace codeeditor
         std::shared_ptr<sigc::signal<void()>> signal_editors_restore_state();
 
         std::shared_ptr<sigc::signal<void()>> signal_modified_changed();
+
+      protected:
+        WorkSubject(
+            std::shared_ptr<Controller> controller,
+            std::shared_ptr<ProjectCtl> project_ctl,
+            std::filesystem::path       fpth
+        );
 
       private:
         std::shared_ptr<Controller> controller;

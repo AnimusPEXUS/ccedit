@@ -37,6 +37,7 @@ namespace codeeditor
         // ⬇️ {CodeEditorAbstract overrides} ⬇️
 
         void show() override;
+        void present() override;
         void close() override;
         void setTransientWindow(Gtk::Window *win) override;
         void setTransientWindow(std::shared_ptr<Gtk::Window> win) override;

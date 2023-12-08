@@ -22,6 +22,9 @@ namespace codeeditor
         std::shared_ptr<CodeEditorAbstract> getOwnPtr() override;
         void                                resetOwnPtr() override;
 
+        std::shared_ptr<WorkSubject> getWorkSubject() override;
+        bool                         workSubjectIs(std::shared_ptr<WorkSubject>) override;
+
         // todo: is this good place for this?
         std::vector<std::tuple<unsigned int, std::string>>
             genOutlineContents() override;

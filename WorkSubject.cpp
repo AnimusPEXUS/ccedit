@@ -5,6 +5,22 @@
 
 using namespace wayround_i2p::codeeditor;
 
+std::shared_ptr<WorkSubject> WorkSubject::create(
+    std::shared_ptr<Controller> controller,
+    std::shared_ptr<ProjectCtl> project_ctl,
+    std::filesystem::path       fpth
+)
+{
+    auto ret = std::shared_ptr<WorkSubject>(
+        new WorkSubject(
+            controller,
+            project_ctl,
+            fpth
+        )
+    );
+    return ret;
+}
+
 WorkSubject::WorkSubject(
     std::shared_ptr<Controller> controller,
     std::shared_ptr<ProjectCtl> project_ctl,

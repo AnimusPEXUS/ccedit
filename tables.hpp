@@ -89,6 +89,7 @@ namespace codeeditor
         }
     };
 
+    // todo: move this to better place?
     class OutlineTableRow : public Glib::Object
     {
       public:
@@ -114,7 +115,8 @@ namespace codeeditor
       public:
         // std::string filename;
 
-        // todo: I have to store here full path,
+        // todo: retry finding better solution?
+        // note: I have to store here full subpath,
         //       because Gtk::TreeListModel's SlotCreateModel
         //       doesn't gives way to traceback expanded row parents
         //       and build path by single filename().

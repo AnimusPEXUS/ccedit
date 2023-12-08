@@ -83,8 +83,8 @@ namespace codeeditor
 
         Glib::RefPtr<Gtk::Application> getGtkApp();
 
-        void registerWindow(Gtk::Window *win);
         void registerWindow(std::shared_ptr<Gtk::Window> win);
+        void registerWindow(Gtk::Window *win);
 
         int saveConfig();
         int loadConfig();
@@ -111,7 +111,7 @@ namespace codeeditor
 
         // this also calls closeGlobalProjCtl if global ProjectCtl passed
         void closeProjCtl(std::shared_ptr<ProjectCtl> p_ctl);
-        void closeProjCtl(ProjectCtl *p_ctl);
+        void closeProjCtl(ProjectCtl *);
 
         Glib::RefPtr<Gtk::IconTheme> icon_theme;
 

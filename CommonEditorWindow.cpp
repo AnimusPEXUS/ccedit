@@ -512,6 +512,12 @@ void CommonEditorWindow::show()
     x->show();
 }
 
+void CommonEditorWindow::present()
+{
+    auto x = (Gtk::Window *)this;
+    x->present();
+}
+
 void CommonEditorWindow::close()
 {
     auto x = (Gtk::Window *)this;
@@ -655,6 +661,6 @@ void CommonEditorWindow::on_outline_activate(guint val)
 void CommonEditorWindow::on_destroy_sig()
 {
     auto ed1 = dynamic_cast<CodeEditorAbstract *>(this);
-    project_ctl->unregisterEditor(ed1->getOwnPtr());
+    project_ctl->destroyEditor(ed1->getOwnPtr());
     ed1->resetOwnPtr();
 }

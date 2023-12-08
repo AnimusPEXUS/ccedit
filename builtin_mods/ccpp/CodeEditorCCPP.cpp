@@ -109,6 +109,16 @@ namespace codeeditor
         return;
     }
 
+    std::shared_ptr<WorkSubject> CodeEditorCCPP::getWorkSubject()
+    {
+        return subject;
+    }
+
+    bool CodeEditorCCPP::workSubjectIs(std::shared_ptr<WorkSubject> subj)
+    {
+        return subj == subject;
+    }
+
     void CodeEditorCCPP::clang_format_buffer()
     {
         // todo: display error messages
