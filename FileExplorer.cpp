@@ -275,7 +275,7 @@ void FileExplorer::setupFileListView()
                     return;
                 }
 
-                auto f_path = tlr->pth;
+                auto f_path = proj_ctl->getProjectPath() / tlr->pth;
 
                 auto fi   = Gio::File::create_for_path(f_path);
                 auto fii  = fi->query_info();
@@ -389,7 +389,8 @@ int FileExplorer::touchFileOrMkDir(
 
 void FileExplorer::on_dir_tree_view_activate(guint pos)
 {
-    int  err = 0;
+    int err = 0;
+    std::cout << "on_dir_tree_view_activate pos " << pos;
     auto sel = std::dynamic_pointer_cast<Gtk::SingleSelection>(dir_tree_view.get_model());
     if (!sel)
     {
@@ -415,13 +416,9 @@ void FileExplorer::on_dir_tree_view_activate(guint pos)
         return;
     }
 
-    // std::cout << item->pth << std::endl;
-
-    auto pth     = item->pth;
-    auto base    = proj_ctl->getProjectPath();
-    // todo: add correctness check
-    auto pth_rel = std::filesystem::relative(pth, base);
-    fileListNavigateTo(pth_rel);
+    auto pth = proj_ctl->getProjectPath() / item->pth;
+    std::cout << "on_dir_tree_view_activate trying to navigate to " << pth;
+    fileListNavigateTo(pth);
 }
 
 void FileExplorer::on_file_list_view_activate(guint pos)
@@ -453,7 +450,8 @@ void FileExplorer::on_file_list_view_activate(guint pos)
 
     std::cout << "on_file_list_view_activate: " << item->pth << std::endl;
 
-    auto pth = item->pth;
+    auto pth = proj_ctl->getProjectPath() / item->pth;
+    std::cout << "on_file_list_view_activate trying to open " << pth;
 
     // todo: add correctness checks
 
@@ -590,8 +588,11 @@ int FileExplorer::navigateToRoot()
 
             auto projPath = proj_ctl->getProjectPath();
 
+            // std::tie(res_good, err) = dirTreeGenDirListStore(
+            //  std::filesystem::relative(cast_res->pth, projPath)
+            // );
             std::tie(res_good, err) = dirTreeGenDirListStore(
-                std::filesystem::relative(cast_res->pth, projPath)
+                cast_res->pth
             );
             if (err != 0)
             {
@@ -641,6 +642,8 @@ int FileExplorer::fileListNavigateTo(std::filesystem::path subpath)
 
     std::filesystem::path path_to_list = proj_path / subpath;
 
+    std::cout << "fileListNavigateTo path_to_list: " << path_to_list << std::endl;
+
     auto dir = Gio::File::create_for_path(path_to_list.string());
 
     // todo: check dir is directory
@@ -669,8 +672,16 @@ int FileExplorer::fileListNavigateTo(std::filesystem::path subpath)
         auto name = fi->get_name();
         auto type = fi->get_file_type();
 
-        auto new_item = FileExplorerFileListRow::create();
-        new_item->pth = path_to_list / name;
+        std::cout << "fileListNavigateTo    fi->name: " << name << std::endl;
+
+        auto new_item          = FileExplorerFileListRow::create();
+        auto complete_filename = path_to_list / name;
+        std::cout << "fileListNavigateTo    complete_filename: " << complete_filename << std::endl;
+        new_item->pth = std::filesystem::relative(
+            complete_filename,
+            proj_path
+        );
+        std::cout << "fileListNavigateTo    new_item->pth: " << new_item->pth << std::endl;
         if (type == Gio::FileType::DIRECTORY)
         {
             dir_items.push_back(new_item);
@@ -728,6 +739,7 @@ int FileExplorer::fileListNavigateTo(std::filesystem::path subpath)
 std::tuple<Glib::RefPtr<Gio::ListModel>, int>
     FileExplorer::dirTreeGenDirListStore(std::filesystem::path subpath)
 {
+    // todo: more subpath checks and sanitations
     subpath = subpath.relative_path();
 
     auto err_ret = Gio::ListStore<FileExplorerDirTreeRow>::create();
@@ -735,6 +747,8 @@ std::tuple<Glib::RefPtr<Gio::ListModel>, int>
     auto proj_path = proj_ctl->getProjectPath();
 
     std::filesystem::path path_to_list = proj_path / subpath;
+
+    std::cout << "dirTreeGenDirListStore path_to_list: " << path_to_list << std::endl;
 
     auto dir = Gio::File::create_for_path(path_to_list.string());
 
@@ -762,8 +776,12 @@ std::tuple<Glib::RefPtr<Gio::ListModel>, int>
         auto type = fi->get_file_type();
         if (type == Gio::FileType::DIRECTORY)
         {
-            auto new_item = FileExplorerDirTreeRow::create();
-            new_item->pth = path_to_list / name;
+            auto new_item          = FileExplorerDirTreeRow::create();
+            auto complete_filename = path_to_list / name;
+            new_item->pth          = std::filesystem::relative(
+                complete_filename,
+                proj_path
+            );
             items.push_back(new_item);
         }
     }
