@@ -75,12 +75,12 @@ std::shared_ptr<WorkSubject> ProjectCtl::getWorkSubject(
     std::filesystem::path fpth
 )
 {
-    // todo: fpth value checks
+    // todo: fpth value checks here and for WorkSubject
     for (unsigned int i = 0; i < work_subj_list_store->get_n_items(); i++)
     {
         auto x    = work_subj_list_store->get_item(i);
         auto sbj  = x->work_subj;
-        auto x_fp = sbj->getFullPath();
+        auto x_fp = sbj->getPath();
         if (x_fp == fpth)
         {
             return sbj;
