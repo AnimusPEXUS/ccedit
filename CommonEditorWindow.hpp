@@ -34,7 +34,11 @@ namespace codeeditor
 
         // void saveOwnPtr(std::shared_ptr<CodeEditorAbstract>) override;
 
+        // todo: this 'todo:' should be ok
         // ⬇️ {CodeEditorAbstract overrides} ⬇️
+        // todo: looks like unicode causes incorrect character counting in file
+        //       search. check: use FindFile to search for 'todo:' and try to 'Go'
+        //       to this 'todo:' - if first 'todo:' not highlited - bug present
 
         void show() override;
         void present() override;
