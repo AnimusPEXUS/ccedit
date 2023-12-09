@@ -302,16 +302,9 @@ void FileExplorer::updateTitle()
     }
     else
     {
-        int         err = 0;
-        std::string name;
-        std::tie(name, err) = proj_ctl->getProjectName();
-        if (err != 0)
-        {
-            name = "can't determine project name";
-        }
         new_title = std::format(
             "{} - File Explorer - Code Editor",
-            name
+            proj_ctl->getProjectName()
         );
     }
 
@@ -350,14 +343,7 @@ int FileExplorer::touchFileOrMkDir(
         return err;
     }
 
-    std::filesystem::path proj_path;
-
-    std::tie(proj_path, err) = getProjectPath();
-    if (err != 0)
-    {
-        return err;
-    }
-
+    std::filesystem::path proj_path = proj_ctl->getProjectPath();
     std::filesystem::path base_path = proj_path;
 
     if (rel_to_current)
@@ -431,13 +417,8 @@ void FileExplorer::on_dir_tree_view_activate(guint pos)
 
     // std::cout << item->pth << std::endl;
 
-    auto                  pth = item->pth;
-    std::filesystem::path base;
-    std::tie(base, err) = getProjectPath();
-    if (err != 0)
-    {
-        return;
-    }
+    auto pth     = item->pth;
+    auto base    = proj_ctl->getProjectPath();
     // todo: add correctness check
     auto pth_rel = std::filesystem::relative(pth, base);
     fileListNavigateTo(pth_rel);
@@ -470,7 +451,7 @@ void FileExplorer::on_file_list_view_activate(guint pos)
         return;
     }
 
-    // std::cout << item->pth << std::endl;
+    std::cout << "on_file_list_view_activate: " << item->pth << std::endl;
 
     auto pth = item->pth;
 
@@ -485,6 +466,7 @@ void FileExplorer::on_file_list_view_activate(guint pos)
     {
         proj_ctl->workSubjectEnsureExistance(pth);
         proj_ctl->workSubjectNewEditor(pth);
+        // proj_ctl->workSubjectExistingOrNewEditor(pth);
     }
 }
 
@@ -521,11 +503,7 @@ void FileExplorer::on_refresh_btn()
 
 void FileExplorer::on_filelauncher_dir_btn()
 {
-    auto [proj_path, err] = getProjectPath();
-    if (err != 0)
-    {
-        return;
-    }
+    auto proj_path = proj_ctl->getProjectPath();
 
     auto lun = Gtk::FileLauncher::create(
         Gio::File::create_for_path((proj_path / opened_subdir).string())
@@ -604,19 +582,13 @@ int FileExplorer::navigateToRoot()
 
             int err = 0;
 
-            std::filesystem::path        projPath;
             Glib::RefPtr<Gio::ListModel> res_good;
 
             auto cast_res = std::dynamic_pointer_cast<FileExplorerDirTreeRow>(item);
 
             std::cout << "asked to create children for row with: " << cast_res->pth << std::endl;
 
-            std::tie(projPath, err) = getProjectPath();
-            if (err != 0)
-            {
-                // todo: report error
-                return ret_null;
-            }
+            auto projPath = proj_ctl->getProjectPath();
 
             std::tie(res_good, err) = dirTreeGenDirListStore(
                 std::filesystem::relative(cast_res->pth, projPath)
@@ -640,20 +612,13 @@ int FileExplorer::navigateToRoot()
     return 0;
 }
 
-std::tuple<std::filesystem::path, int> FileExplorer::getProjectPath()
-{
-    return proj_ctl->getProjectPath();
-}
-
 int FileExplorer::dirTreeNavigateTo(std::filesystem::path subpath)
 {
+    /*
     subpath = subpath.relative_path();
 
-    auto [proj_path, err] = getProjectPath();
-    if (err != 0)
-    {
-        return err;
-    }
+    auto proj_path = proj_ctl->getProjectPath();
+*/
 
     // todo: todo
 
@@ -672,11 +637,7 @@ int FileExplorer::fileListNavigateTo(std::filesystem::path subpath)
 
     subpath = subpath.relative_path();
 
-    auto [proj_path, err] = getProjectPath();
-    if (err != 0)
-    {
-        return err;
-    }
+    auto proj_path = proj_ctl->getProjectPath();
 
     std::filesystem::path path_to_list = proj_path / subpath;
 
@@ -771,11 +732,7 @@ std::tuple<Glib::RefPtr<Gio::ListModel>, int>
 
     auto err_ret = Gio::ListStore<FileExplorerDirTreeRow>::create();
 
-    auto [proj_path, err] = getProjectPath();
-    if (err != 0)
-    {
-        return std::tuple<Glib::RefPtr<Gio::ListModel>, int>(err_ret, err);
-    }
+    auto proj_path = proj_ctl->getProjectPath();
 
     std::filesystem::path path_to_list = proj_path / subpath;
 

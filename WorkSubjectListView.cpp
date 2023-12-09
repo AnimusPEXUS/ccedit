@@ -114,16 +114,9 @@ void WorkSubjectListView::updateTitle()
     }
     else
     {
-        int         err = 0;
-        std::string name;
-        std::tie(name, err) = project_ctl->getProjectName();
-        if (err != 0)
-        {
-            name = "can't determine project name";
-        }
         new_title = std::format(
             "{} - Subject List - Code Editor",
-            name
+            project_ctl->getProjectName()
         );
     }
 

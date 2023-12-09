@@ -106,24 +106,13 @@ void EditorListView::table_subject_cell_bind(const Glib::RefPtr<Gtk::ListItem> &
 
 void EditorListView::updateTitle()
 {
-    std::string new_title("");
+    std::string new_title("global - Editor List - Code Editor");
 
-    if (project_ctl->isGlobalProject())
+    if (!project_ctl->isGlobalProject())
     {
-        new_title = "global - Editor List - Code Editor";
-    }
-    else
-    {
-        int         err = 0;
-        std::string name;
-        std::tie(name, err) = project_ctl->getProjectName();
-        if (err != 0)
-        {
-            name = "can't determine project name";
-        }
         new_title = std::format(
             "{} - Editor List - Code Editor",
-            name
+            project_ctl->getProjectName()
         );
     }
 

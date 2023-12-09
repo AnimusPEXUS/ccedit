@@ -70,7 +70,8 @@ std::filesystem::path WorkSubject::getPath()
 // complete system filepath
 std::filesystem::path WorkSubject::getFullPath()
 {
-    return fpth; // fixme
+    // todo: sanity check
+    return project_ctl->getProjectPath() / fpth;
 }
 
 void WorkSubject::createNew()

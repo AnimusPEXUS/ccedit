@@ -91,8 +91,6 @@ namespace codeeditor
 
         void updateTitle();
 
-        std::tuple<std::filesystem::path, int> getProjectPath();
-
         int navigateToRoot();
 
         std::tuple<Glib::RefPtr<Gio::ListModel>, int>

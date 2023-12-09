@@ -112,8 +112,6 @@ namespace codeeditor
         void setup_result_filelist();
         void setup_result_linelist();
 
-        std::tuple<std::filesystem::path, int> getProjectPath();
-
         FindFileQuery work_time_query;
         bool          search_stop_flag = false;
         bool          search_working   = false;

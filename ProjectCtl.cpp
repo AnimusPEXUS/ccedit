@@ -40,14 +40,28 @@ bool ProjectCtl::isGlobalProject()
     return controller->isGlobalProjCtl(this);
 }
 
-std::tuple<std::string, int> ProjectCtl::getProjectName()
+std::string ProjectCtl::getProjectName()
 {
-    return controller->getNameProject(this);
+    auto [name, err] = controller->getNameProject(this);
+    if (err != 0)
+    {
+        // todo: better action needed. atlease message to user
+        close();
+    }
+
+    return name;
 }
 
-std::tuple<std::filesystem::path, int> ProjectCtl::getProjectPath()
+std::filesystem::path ProjectCtl::getProjectPath()
 {
-    return controller->getPathProject(this);
+    auto [pth, err] = controller->getPathProject(this);
+    if (err != 0)
+    {
+        // todo: better action needed. atlease message to user
+        close();
+    }
+
+    return pth;
 }
 
 bool ProjectCtl::workSubjectExists(
@@ -105,6 +119,7 @@ std::shared_ptr<CodeEditorAbstract> ProjectCtl::workSubjectExistingOrNewEditor(
     std::filesystem::path fpth
 )
 {
+    std::cout << "workSubjectExistingOrNewEditor(" << fpth << ")" << std::endl;
     // todo: fpth value checks
     auto subj = workSubjectEnsureExistance(fpth);
     if (!subj)
@@ -118,6 +133,7 @@ std::shared_ptr<CodeEditorAbstract> ProjectCtl::workSubjectNewEditor(
     std::filesystem::path fpth
 )
 {
+    std::cout << "workSubjectNewEditor(" << fpth << ")" << std::endl;
     // todo: fpth value checks
     auto subj = workSubjectEnsureExistance(fpth);
     if (!subj)
@@ -132,10 +148,19 @@ std::shared_ptr<CodeEditorAbstract> ProjectCtl::workSubjectExistingOrNewEditor(
     std::shared_ptr<WorkSubject> val
 )
 {
+    std::cout << "workSubjectExistingOrNewEditor(" << val << ")" << std::endl;
     for (unsigned int i = 0; i != editors_list_store->get_n_items(); i++)
     {
-        auto x    = editors_list_store->get_item(i);
+        auto x = editors_list_store->get_item(i);
+        if (!x)
+        {
+            continue;
+        }
         auto x_ed = x->editor;
+        if (!x_ed)
+        {
+            continue;
+        }
         if (x_ed->workSubjectIs(val))
         {
             return x_ed;
@@ -149,12 +174,16 @@ std::shared_ptr<CodeEditorAbstract> ProjectCtl::workSubjectNewEditor(
     std::shared_ptr<WorkSubject> val
 )
 {
+    std::cout << "workSubjectNewEditor(" << val << ")" << std::endl;
     auto ed = createBestEditorForWorkSubject(val);
+    std::cout << "createBestEditorForWorkSubject res: " << ed << std::endl;
     if (!ed)
     {
         return nullptr;
     }
     registerEditor(ed);
+    ed->show();
+    ed->present();
     return ed;
 }
 
@@ -162,17 +191,9 @@ std::shared_ptr<CodeEditorAbstract> ProjectCtl::createBestEditorForWorkSubject(
     std::shared_ptr<WorkSubject> subj
 )
 {
-    auto x = controller->getBuiltinMods()[0];
-
-    auto editor             = x->newEditorForSubject(own_ptr, subj);
-    auto new_editor_item    = CodeEditorTableRow::create();
-    new_editor_item->editor = editor;
-
-    // todo: create special function for registering/unregistering editor
-    //       windows - don't use stores directly
-    editors_list_store->append(new_editor_item);
-    editor->show();
-
+    std::cout << "createBestEditorForWorkSubject(" << subj << ")" << std::endl;
+    auto x      = controller->getBuiltinMods()[0];
+    auto editor = x->newEditorForSubject(own_ptr, subj);
     return editor;
 }
 
@@ -180,7 +201,7 @@ void ProjectCtl::registerEditor(std::shared_ptr<CodeEditorAbstract> val)
 {
     // todo: register in Application?
     // todo: check is already exists
-
+    std::cout << "registerEditor(" << val << ")" << std::endl;
     auto v    = CodeEditorTableRow::create();
     v->editor = val;
     editors_list_store->append(v);
@@ -189,6 +210,8 @@ void ProjectCtl::registerEditor(std::shared_ptr<CodeEditorAbstract> val)
 
 void ProjectCtl::unregisterEditor(std::shared_ptr<CodeEditorAbstract> val)
 {
+    // todo: redo or maybe even remove this function
+
     std::vector<std::shared_ptr<CodeEditorAbstract>> vec;
 
     for (int i = (editors_list_store->get_n_items() - 1); i > -1; i--)
@@ -212,6 +235,8 @@ void ProjectCtl::unregisterEditor(std::shared_ptr<CodeEditorAbstract> val)
 
 void ProjectCtl::destroyEditor(std::shared_ptr<CodeEditorAbstract> val)
 {
+    // todo: redo
+    unregisterEditor(val);
 }
 
 Glib::RefPtr<Gio::ListStore<WorkSubjectTableRow>> ProjectCtl::getWorkSubjectListStore()

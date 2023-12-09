@@ -34,9 +34,9 @@ namespace codeeditor
 
         std::shared_ptr<Controller> getController();
 
-        bool                                   isGlobalProject();
-        std::tuple<std::string, int>           getProjectName();
-        std::tuple<std::filesystem::path, int> getProjectPath();
+        bool                  isGlobalProject();
+        std::string           getProjectName();
+        std::filesystem::path getProjectPath();
 
         // ----------
 

@@ -363,15 +363,9 @@ void CommonEditorWindow::updateTitle()
     std::string proj_name("(global)");
     if (!project_ctl->isGlobalProject())
     {
-        int err                  = 0;
-        std::tie(proj_name, err) = project_ctl->getProjectName();
-        if (err != 0)
-        {
-            proj_name = "error getting project name :-(";
-        }
         proj_name = std::format(
             "(proj: {})",
-            proj_name
+            project_ctl->getProjectName()
         );
     }
 

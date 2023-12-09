@@ -168,7 +168,9 @@ namespace codeeditor
                     list_item,
                     [this](FindFileResultTreeItemP item)
                     {
-                        auto ed = p_ctl->workSubjectExistingOrNewEditor(item->subpath);
+                        auto ed = p_ctl->workSubjectExistingOrNewEditor(
+                            item->subpath
+                        );
                         if (!ed)
                         {
                             return;
@@ -286,11 +288,6 @@ namespace codeeditor
         find_text_widget.setFindTextQuery(q.find_text_query);
 
         return 0;
-    }
-
-    std::tuple<std::filesystem::path, int> FindFile::getProjectPath()
-    {
-        return p_ctl->getProjectPath();
     }
 
     void FindFile::updateProgressbar(
@@ -466,14 +463,7 @@ namespace codeeditor
 
         m1_fut.wait();
 
-        std::filesystem::path proj_path;
-
-        std::tie(proj_path, err) = getProjectPath();
-        if (err != 0)
-        {
-            // todo: report
-            return;
-        }
+        auto proj_path = p_ctl->getProjectPath();
 
         std::queue<std::filesystem::path> dir_subpaths_to_search_q;
         // std::queue<std::filesystem::path> files_to_grep_q;
@@ -751,14 +741,7 @@ namespace codeeditor
         int         err = 0;
         std::string cont_txt;
 
-        std::filesystem::path proj_path;
-
-        std::tie(proj_path, err) = getProjectPath();
-        if (err != 0)
-        {
-            // todo: report
-            return 1;
-        }
+        auto proj_path = p_ctl->getProjectPath();
 
         auto item_subpath   = item->subpath;
         auto full_file_name = proj_path / item_subpath;
@@ -784,10 +767,10 @@ namespace codeeditor
                 return search_stop_flag;
             },
             [this, &item](
-                unsigned int          line,
-                std::string           line_text,
-                unsigned int          start_offset,
-                unsigned int          end_offset
+                unsigned int line,
+                std::string  line_text,
+                unsigned int start_offset,
+                unsigned int end_offset
             ) -> int
             {
                 auto m1     = std::promise<void>();

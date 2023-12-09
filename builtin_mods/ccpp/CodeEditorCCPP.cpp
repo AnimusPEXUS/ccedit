@@ -116,6 +116,10 @@ namespace codeeditor
 
     bool CodeEditorCCPP::workSubjectIs(std::shared_ptr<WorkSubject> subj)
     {
+        if (!subj || !subject)
+        {
+            return false;
+        }
         return subj == subject;
     }
 

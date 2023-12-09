@@ -89,12 +89,7 @@ void ProjectCtlWin::updateTitle()
     std::string proj_name("(global)");
     if (!proj_ctl->isGlobalProject())
     {
-        int err                  = 0;
-        std::tie(proj_name, err) = proj_ctl->getProjectName();
-        if (err != 0)
-        {
-            proj_name = "(can't determine project name)";
-        }
+        proj_name = proj_ctl->getProjectName();
     }
 
     new_title = std::format(
