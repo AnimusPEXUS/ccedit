@@ -4,6 +4,8 @@
 #include <iostream>
 #include <mutex>
 
+#include <boost/regex/icu.hpp>
+
 #include "utils.hpp"
 
 namespace wayround_i2p
@@ -38,11 +40,25 @@ namespace codeeditor
         return saveStringToDesc(f, str);
     }
 
-    std::tuple<std::string, int> loadStringFromFile(
-        std::filesystem::path pth
+    int saveStringToFileICU(
+        std::filesystem::path pth,
+        icu::UnicodeString    str
     )
     {
-        return loadStringFromFile(pth, false);
+        std::string x;
+        return saveStringToFile(pth, str.toUTF8String(x));
+    }
+
+    std::tuple<icu::UnicodeString, int> loadStringFromFileICU(
+        std::filesystem::path pth,
+        bool                  allow_nonexist
+    )
+    {
+        auto r = loadStringFromFile(pth, allow_nonexist);
+        return std::tuple<icu::UnicodeString, int>(
+            icu::UnicodeString::fromUTF8(icu::StringPiece(std::get<0>(r))),
+            std::get<1>(r)
+        );
     }
 
     std::tuple<std::string, int> loadStringFromFile(
@@ -83,6 +99,18 @@ namespace codeeditor
         return loadStringFromDesc(f);
     }
 
+    int saveStringToDescICU(
+        FILE              *f,
+        icu::UnicodeString str
+    )
+    {
+        std::string x;
+        return saveStringToDesc(
+            f,
+            str.toUTF8String(x)
+        );
+    }
+
     int saveStringToDesc(
         FILE       *f,
         std::string str
@@ -114,6 +142,17 @@ namespace codeeditor
         }
 
         return 0;
+    }
+
+    std::tuple<icu::UnicodeString, int> loadStringFromDescICU(
+        FILE *f
+    )
+    {
+        auto r = loadStringFromDesc(f);
+        return std::tuple<icu::UnicodeString, int>(
+            icu::UnicodeString::fromUTF8(icu::StringPiece(std::get<0>(r))),
+            std::get<1>(r)
+        );
     }
 
     std::tuple<std::string, int> loadStringFromDesc(
@@ -215,6 +254,35 @@ namespace codeeditor
         }
     }
 
+    LineStartsICU::LineStartsICU(std::string text) :
+        LineStartsICU(icu::UnicodeString::fromUTF8(icu::StringPiece(text)))
+    {
+    }
+
+    LineStartsICU::LineStartsICU(icu::UnicodeString text)
+    {
+        auto match_end = boost::u32regex_iterator<const char16_t *>();
+        auto nl_rex    = boost::make_u32regex(R"x(\n)x");
+        auto it        = boost::make_u32regex_iterator(text, nl_rex);
+
+        text_size = text.length();
+
+        starts.push_back(0);
+
+        for (;;)
+        {
+            if (it == match_end)
+            {
+                break;
+            }
+
+            auto z = *it;
+
+            starts.push_back(z.position() + z.length());
+            it++;
+        }
+    }
+
     void LineStarts::printParsingResult(std::string text)
     {
         std::cout << "LineStarts : parsing result :" << std::endl;
@@ -236,7 +304,51 @@ namespace codeeditor
         }
     }
 
+    void LineStartsICU::printParsingResult(icu::UnicodeString text)
+    {
+        std::cout << "LineStartsICU : parsing result :" << std::endl;
+        {
+            for (int i = 0; i != starts.size(); i++)
+            {
+                auto        j    = i + 1;
+                auto        info = getLineInfo(j);
+                auto        r0   = std::get<0>(info);
+                auto        r1   = std::get<1>(info);
+                std::string sinc_buff("");
+                std::cout << std::format(
+                    "{} ({}, {}): `{}`",
+                    j,
+                    r0,
+                    r1,
+                    trim_right(
+                        text.tempSubString(r0, r1 - r0)
+                    )
+                        .toUTF8String(sinc_buff)
+                ) << std::endl;
+            }
+        }
+    }
+
     unsigned int LineStarts::getLineByOffset(unsigned int offset)
+    {
+
+        for (int i = 0; i != starts.size(); i++)
+        {
+            auto j    = i + 1;
+            auto info = getLineInfo(j);
+            auto r0   = std::get<0>(info);
+            auto r1   = std::get<1>(info);
+            if ((offset >= r0) && (offset < r1))
+            {
+                return j;
+            }
+        }
+
+        return starts.size();
+    }
+
+    // todo: how to avoid code duplication here and in LineStarts::getLineByOffset?
+    unsigned int LineStartsICU::getLineByOffset(unsigned int offset)
     {
 
         for (int i = 0; i != starts.size(); i++)
@@ -300,6 +412,54 @@ namespace codeeditor
         return std::tuple(start, end, err);
     }
 
+    // todo: use template to create LineStarts::getLineInfo
+    //       and LineStartsICU::getLineInfo?
+    std::tuple<
+        unsigned int,
+        unsigned int,
+        int>
+        LineStartsICU::getLineInfo(unsigned int index)
+    {
+        unsigned int start = 0;
+        unsigned int end   = 0;
+        int          err   = 0;
+
+        if (index == 0)
+        {
+            err = 3;
+            goto return_res;
+        }
+
+        index -= 1; // because line 1 saved at index 0
+
+        if (index > starts.size() - 1)
+        {
+            err = 1;
+            goto return_res;
+        }
+
+        if (index == 0)
+        {
+            start = 0;
+        }
+        else
+        {
+            start = starts[index];
+        }
+
+        if (index == starts.size() - 1)
+        {
+            end = text_size;
+        }
+        else
+        {
+            end = starts[index + 1];
+        }
+
+    return_res:
+        return std::tuple(start, end, err);
+    }
+
     std::string trim_right(std::string s)
     {
         bool found = false;
@@ -322,6 +482,38 @@ namespace codeeditor
                 {
                     found = true;
                     s     = s.substr(0, s.length() - i.length());
+                }
+            }
+            if (!found)
+            {
+                break;
+            }
+        }
+        return s;
+    }
+
+    icu::UnicodeString trim_right(icu::UnicodeString s)
+    {
+        bool found = false;
+        for (;;)
+        {
+            found = false;
+            // todo: is this portable?
+            for (
+                icu::UnicodeString i :
+                std::vector<icu::UnicodeString>{
+                    "\t",
+                    "\n",
+                    "\r",
+                    " ",
+                    icu::UnicodeString("\0", 1)
+                }
+            )
+            {
+                while (s.endsWith(i))
+                {
+                    found = true;
+                    s     = s.tempSubString(0, s.length() - i.length());
                 }
             }
             if (!found)

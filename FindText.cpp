@@ -3,6 +3,12 @@
 #include <format>
 #include <iostream>
 
+#include <unicode/locid.h>
+#include <unicode/schriter.h>
+#include <unicode/stringpiece.h>
+#include <unicode/stsearch.h>
+#include <unicode/unistr.h>
+
 #include "FindText.hpp"
 
 namespace wayround_i2p
@@ -201,8 +207,8 @@ namespace codeeditor
 
         // ret.replace_active = replace_active.get_active();
 
-        ret.query   = query.get_text();
-        ret.replace = replace.get_text();
+        ret.query   = icu::UnicodeString::fromUTF8(icu::StringPiece(query.get_text()));
+        ret.replace = icu::UnicodeString::fromUTF8(icu::StringPiece(replace.get_text()));
 
         // ----------
         ret.std_re_mod_icase     = std_re_mod_icase.get_active();
@@ -234,8 +240,12 @@ namespace codeeditor
 
     int FindTextWidget::setFindTextQuery(FindTextQuery q)
     {
-        query.set_text(q.query);
-        replace.set_text(q.replace);
+        {
+            std::string x = "";
+            query.set_text(q.query.toUTF8String(x));
+            x = "";
+            replace.set_text(q.replace.toUTF8String(x));
+        }
 
         std_re_mod_icase.set_active(q.std_re_mod_icase);
         std_re_mod_nosubs.set_active(q.std_re_mod_nosubs);
@@ -261,22 +271,24 @@ namespace codeeditor
     };
 
     int FindTextWidget::search_in_text(
-        const std::string           in_text,
-        std::shared_ptr<LineStarts> in_text_ls,
+        const icu::UnicodeString       in_text,
+        std::shared_ptr<LineStartsICU> in_text_ls,
 
         std::function<bool()> check_stop_flag,
 
         std::function<
             int(
-                unsigned int line,
-                std::string  text,
-                unsigned int start_offset,
-                unsigned int end_offset
+                unsigned int       line,
+                icu::UnicodeString text,
+                unsigned int       start_offset,
+                unsigned int       end_offset
             )>
             here_s_new_occurance
     )
     {
         auto query = getFindTextQuery();
+
+        auto in_text_iter = icu::StringCharacterIterator(in_text);
 
         int err = 0;
 
@@ -290,34 +302,34 @@ namespace codeeditor
                 break;
             case PLAIN:
             {
-                std::string subj(query.query);
+                icu::UnicodeString subj(query.query);
+
+                auto subj_iter = icu::StringCharacterIterator(subj);
 
                 if (subj.length() == 0)
                 {
                     return 2;
                 }
 
-                auto i = in_text.begin();
+                UErrorCode status = U_ZERO_ERROR;
+                UErrorCode error  = U_ZERO_ERROR;
 
-                for (;;)
+                auto iter = std::shared_ptr<icu::SearchIterator>(
+                    new icu::StringSearch(
+                        subj,
+                        in_text,
+                        icu::Locale::getUS(),
+                        nullptr,
+                        status
+                    )
+                );
+                for (
+                    int pos = iter->first(error);
+                    pos != USEARCH_DONE;
+                    pos = iter->next(error)
+                )
                 {
-
-                    if (check_stop_flag())
-                    {
-                        return 4;
-                    }
-
-                    auto ri = std::search(
-                        i, in_text.end(), subj.begin(), subj.end()
-                    );
-
-                    if (ri == in_text.end())
-                    {
-                        break;
-                    }
-                    std::cout << "search ok" << std::endl;
-
-                    auto dist      = std::distance(in_text.begin(), ri);
+                    auto dist      = pos;
                     auto line_no   = in_text_ls->getLineByOffset(dist);
                     auto line_info = in_text_ls->getLineInfo(line_no);
                     auto r0        = std::get<0>(line_info);
@@ -328,7 +340,9 @@ namespace codeeditor
                         return 5;
                     }
 
-                    auto substr = in_text.substr(r0, r1 - r0);
+                    auto substr = in_text.tempSubString(
+                        r0, r1 - r0
+                    );
 
                     err = here_s_new_occurance(
                         line_no,
@@ -336,10 +350,10 @@ namespace codeeditor
                         dist,
                         dist + subj.length()
                     );
-
-                    i = ri;
-                    i = std::next(i);
                 }
+
+                // todo: status result control..
+
                 break;
             }
         }
@@ -734,11 +748,11 @@ namespace codeeditor
 
         std::cout << "FindText::search_thread()" << std::endl;
 
-        std::string cont_txt;
+        icu::UnicodeString cont_txt;
 
         if (auto p = editor_window.lock())
         {
-            cont_txt = p->getText();
+            cont_txt = icu::UnicodeString::fromUTF8(icu::StringPiece(p->getText()));
         }
         else
         {
@@ -746,7 +760,7 @@ namespace codeeditor
             return;
         }
 
-        auto cont_txt_ls = std::make_shared<LineStarts>(cont_txt);
+        auto cont_txt_ls = std::make_shared<LineStartsICU>(cont_txt);
 
         // todo: error checking?
         find_text_widget.search_in_text(
@@ -758,10 +772,10 @@ namespace codeeditor
                 return search_stop_flag;
             },
             [this, &item_store](
-                unsigned int line,
-                std::string  line_text,
-                unsigned int start_offset,
-                unsigned int end_offset
+                unsigned int       line,
+                icu::UnicodeString line_text,
+                unsigned int       start_offset,
+                unsigned int       end_offset
             ) -> int
             {
                 auto m1     = std::promise<void>();
@@ -785,15 +799,18 @@ namespace codeeditor
 
                         auto s1 = trim_right(line_text);
 
-                        auto list_item = FindFileResultTreeItemItem::create(
-                            std::filesystem::path(""), // not used
-                            line,
-                            s1,
-                            start_offset,
-                            end_offset
-                        );
-                        // todo: use insert_sorted()
-                        item_store->append(list_item);
+                        {
+                            std::string x;
+                            auto        list_item = FindFileResultTreeItemItem::create(
+                                std::filesystem::path(""), // not used
+                                line,
+                                s1.toUTF8String(x),
+                                start_offset,
+                                end_offset
+                            );
+                            // todo: use insert_sorted()
+                            item_store->append(list_item);
+                        }
                     }
                 );
 

@@ -6,6 +6,9 @@
 
 #include <gtkmm.h>
 
+#include <unicode/stringpiece.h>
+#include <unicode/unistr.h>
+
 #include "FindTables.hpp"
 #include "FindTypes.hpp"
 
@@ -33,17 +36,17 @@ namespace codeeditor
         int           setFindTextQuery(FindTextQuery q);
 
         int search_in_text(
-            const std::string           in_text,
-            std::shared_ptr<LineStarts> in_text_ls,
+            const icu::UnicodeString       in_text,
+            std::shared_ptr<LineStartsICU> in_text_ls,
 
             std::function<bool()> check_stop_flag,
 
             std::function<
                 int(
-                    unsigned int line,
-                    std::string  text,
-                    unsigned int start_offset,
-                    unsigned int end_offset
+                    unsigned int       line,
+                    icu::UnicodeString text,
+                    unsigned int       start_offset,
+                    unsigned int       end_offset
                 )>
                 here_s_new_occurance
         );

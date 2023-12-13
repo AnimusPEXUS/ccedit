@@ -7,6 +7,9 @@
 
 #include <gtkmm.h>
 
+#include <unicode/stringpiece.h>
+#include <unicode/unistr.h>
+
 namespace wayround_i2p
 {
 namespace codeeditor
@@ -39,8 +42,8 @@ namespace codeeditor
     {
         bool replace_visible = false;
 
-        std::string query   = "";
-        std::string replace = "";
+        icu::UnicodeString query   = "";
+        icu::UnicodeString replace = "";
 
         FindTextSearchMethod search_method          = PLAIN;
         bool                 stop_after_first_match = false;
@@ -75,7 +78,7 @@ namespace codeeditor
 
     struct FindFileQuery
     {
-        std::string           fnmatch_pattern          = "*";
+        icu::UnicodeString    fnmatch_pattern          = "*";
         bool                  fnmatch_cs               = false;
         bool                  use_fnmatch_on_path_part = true;
         bool                  recurcive                = true;

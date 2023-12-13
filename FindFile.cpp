@@ -254,7 +254,11 @@ namespace codeeditor
     FindFileQuery FindFile::getFindFileQuery()
     {
         FindFileQuery ret;
-        ret.fnmatch_pattern                       = filemask_w.get_text();
+        ret.fnmatch_pattern = icu::UnicodeString::fromUTF8(
+            icu::StringPiece(
+                filemask_w.get_text()
+            )
+        );
         ret.fnmatch_cs                            = fnmatch_cs_cb.get_active();
         ret.use_fnmatch_on_path_part              = use_fnmatch_on_path_part_cb.get_active();
         ret.recurcive                             = recurcive_cb.get_active();
@@ -272,7 +276,10 @@ namespace codeeditor
 
     int FindFile::setFindFileQuery(FindFileQuery q)
     {
-        filemask_w.set_text(q.fnmatch_pattern);
+        {
+            auto x = std::string("");
+            filemask_w.set_text(q.fnmatch_pattern.toUTF8String(x));
+        }
         fnmatch_cs_cb.set_active(q.fnmatch_cs);
         use_fnmatch_on_path_part_cb.set_active(q.use_fnmatch_on_path_part);
         recurcive_cb.set_active(q.recurcive);
@@ -605,9 +612,11 @@ namespace codeeditor
                 }
                 else
                 {
+                    auto x = std::string("");
+                    // todo: fnmatch maybe not good to work with utf8
                     if (
                         fnmatch(
-                            work_time_query.fnmatch_pattern.c_str(),
+                            work_time_query.fnmatch_pattern.toUTF8String(x).c_str(),
                             (work_time_query.use_fnmatch_on_path_part ? work_path_full_name_rel.c_str() : name.c_str()),
                             0
                         )
@@ -738,8 +747,8 @@ namespace codeeditor
         FindFileResultTreeItemP item
     )
     {
-        int         err = 0;
-        std::string cont_txt;
+        int                err = 0;
+        icu::UnicodeString cont_txt;
 
         auto proj_path = p_ctl->getProjectPath();
 
@@ -748,14 +757,14 @@ namespace codeeditor
 
         std::cout << "grepping file: " << full_file_name << std::endl;
 
-        std::tie(cont_txt, err) = loadStringFromFile(full_file_name);
+        std::tie(cont_txt, err) = loadStringFromFileICU(full_file_name);
         if (err != 0)
         {
             // todo: report
             return 1;
         }
 
-        auto cont_txt_ls = std::make_shared<LineStarts>(cont_txt);
+        auto cont_txt_ls = std::make_shared<LineStartsICU>(cont_txt);
 
         // todo: error checking?
         find_text_widget.search_in_text(
@@ -767,10 +776,10 @@ namespace codeeditor
                 return search_stop_flag;
             },
             [this, &item](
-                unsigned int line,
-                std::string  line_text,
-                unsigned int start_offset,
-                unsigned int end_offset
+                unsigned int       line,
+                icu::UnicodeString line_text,
+                unsigned int       start_offset,
+                unsigned int       end_offset
             ) -> int
             {
                 auto m1     = std::promise<void>();
@@ -794,13 +803,16 @@ namespace codeeditor
 
                         auto s1 = trim_right(line_text);
 
-                        item->create_item(
-                            item->subpath,
-                            line,
-                            s1,
-                            start_offset,
-                            end_offset
-                        );
+                        {
+                            std::string x;
+                            item->create_item(
+                                item->subpath,
+                                line,
+                                s1.toUTF8String(x),
+                                start_offset,
+                                end_offset
+                            );
+                        }
                     }
                 );
 
