@@ -344,8 +344,10 @@ namespace codeeditor
                         return 5;
                     }
 
-                    auto substr = in_text.tempSubString(
-                        r0, r1 - r0
+                    icu::UnicodeString substr;
+
+                    in_text.extract(
+                        r0, r1 - r0, substr
                     );
 
                     err = here_s_new_occurance(
@@ -487,8 +489,10 @@ namespace codeeditor
                         line2_end = e;
                     }
 
-                    auto substr = in_text.tempSubString(
-                        line1_start, line1_start - line2_end
+                    icu::UnicodeString substr;
+
+                    in_text.extract(
+                        line1_start, line1_start - line2_end, substr
                     );
 
                     err = here_s_new_occurance(

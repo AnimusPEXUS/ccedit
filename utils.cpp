@@ -321,14 +321,17 @@ namespace codeeditor
                 auto        r0   = std::get<0>(info);
                 auto        r1   = std::get<1>(info);
                 std::string sinc_buff("");
+
+                icu::UnicodeString substr;
+
+                text.extract(r0, r1 - r0, substr);
+
                 std::cout << std::format(
                     "{} ({}, {}): `{}`",
                     j,
                     r0,
                     r1,
-                    trim_right(
-                        text.tempSubString(r0, r1 - r0)
-                    )
+                    trim_right(substr)
                         .toUTF8String(sinc_buff)
                 ) << std::endl;
             }
@@ -519,7 +522,8 @@ namespace codeeditor
                 while (s.endsWith(i))
                 {
                     found = true;
-                    s     = s.tempSubString(0, s.length() - i.length());
+                    icu::UnicodeString substr;
+                    s.extract(0, s.length() - i.length(), substr);
                 }
             }
             if (!found)
