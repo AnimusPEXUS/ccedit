@@ -306,7 +306,7 @@ namespace codeeditor
                 break;
             case PLAIN:
             {
-                icu::UnicodeString subj(query.query);
+                auto subj = query.query;
 
                 auto subj_iter = icu::StringCharacterIterator(subj);
 
@@ -318,7 +318,7 @@ namespace codeeditor
                 UErrorCode status = U_ZERO_ERROR;
                 UErrorCode error  = U_ZERO_ERROR;
 
-                auto iter = std::shared_ptr<icu::SearchIterator>(
+                auto iter = std::shared_ptr<icu::StringSearch>(
                     new icu::StringSearch(
                         subj,
                         in_text,
@@ -356,6 +356,11 @@ namespace codeeditor
                         dist,
                         dist + subj.length()
                     );
+                    if (err != 0)
+                    {
+                        // todo: report
+                        return 5;
+                    }
                 }
 
                 // todo: status result control..
