@@ -308,7 +308,7 @@ namespace codeeditor
             {
                 auto subj = query.query;
 
-                auto subj_iter = icu::StringCharacterIterator(subj);
+                // auto subj_iter = icu::StringCharacterIterator(subj);
 
                 if (subj.length() == 0)
                 {
@@ -344,7 +344,7 @@ namespace codeeditor
                         return 5;
                     }
 
-                    icu::UnicodeString substr;
+                    icu::UnicodeString substr("");
 
                     in_text.extract(
                         r0, r1 - r0, substr
@@ -494,17 +494,19 @@ namespace codeeditor
                         line2_end = e;
                     }
 
-                    icu::UnicodeString substr;
+                    icu::UnicodeString substr("");
 
                     in_text.extract(
-                        line1_start, line1_start - line2_end, substr
+                        line1_start,
+                        line2_end - line1_start,
+                        substr
                     );
 
                     err = here_s_new_occurance(
                         line,
                         substr,
                         line1_start,
-                        line1_start - line2_end
+                        line2_end - line1_start
                     );
 
                     it++;
@@ -958,8 +960,9 @@ namespace codeeditor
                         auto s1 = trim_right(line_text);
 
                         {
-                            std::string x;
-                            auto        list_item = FindFileResultTreeItemItem::create(
+                            std::string x("");
+
+                            auto list_item = FindFileResultTreeItemItem::create(
                                 std::filesystem::path(""), // not used
                                 line,
                                 s1.toUTF8String(x),

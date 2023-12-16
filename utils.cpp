@@ -322,7 +322,7 @@ namespace codeeditor
                 auto        r1   = std::get<1>(info);
                 std::string sinc_buff("");
 
-                icu::UnicodeString substr;
+                icu::UnicodeString substr("");
 
                 text.extract(r0, r1 - r0, substr);
 
@@ -522,8 +522,9 @@ namespace codeeditor
                 while (s.endsWith(i))
                 {
                     found = true;
-                    icu::UnicodeString substr;
+                    icu::UnicodeString substr("");
                     s.extract(0, s.length() - i.length(), substr);
+                    s = substr;
                 }
             }
             if (!found)
