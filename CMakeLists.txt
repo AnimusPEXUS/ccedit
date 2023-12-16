@@ -57,6 +57,7 @@ target_link_libraries(
     PkgConfig::gtkmm4 
     PkgConfig::sigc 
     Boost::json
+    Boost::regex
     ICU::uc 
     ICU::i18n
     )

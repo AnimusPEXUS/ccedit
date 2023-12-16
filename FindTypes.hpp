@@ -20,12 +20,14 @@ namespace codeeditor
 
         PLAIN,
 
-        STD_RE_ECMAScript,
-        STD_RE_BASIC,
-        STD_RE_EXTENDED,
-        STD_RE_AWK,
-        STD_RE_GREP,
-        STD_RE_EGREP,
+        /* disabling, because as far as I know, std c++ re doesnt support unicode
+STD_RE_ECMAScript,
+STD_RE_BASIC,
+STD_RE_EXTENDED,
+STD_RE_AWK,
+STD_RE_GREP,
+STD_RE_EGREP,
+*/
 
         BOOST_RE_ECMAScript,
         BOOST_RE_BASIC,

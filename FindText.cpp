@@ -9,6 +9,8 @@
 #include <unicode/stsearch.h>
 #include <unicode/unistr.h>
 
+#include <boost/regex/icu.hpp>
+
 #include "FindText.hpp"
 
 namespace wayround_i2p
@@ -129,12 +131,14 @@ namespace codeeditor
         for (auto i : {
                  PLAIN,
 
-                 STD_RE_ECMAScript,
-                 STD_RE_BASIC,
-                 STD_RE_EXTENDED,
-                 STD_RE_AWK,
-                 STD_RE_GREP,
-                 STD_RE_EGREP,
+                 /* disabling, because as far as I know, std c++ re doesnt support unicode
+                          STD_RE_ECMAScript,
+                          STD_RE_BASIC,
+                          STD_RE_EXTENDED,
+                          STD_RE_AWK,
+                          STD_RE_GREP,
+                          STD_RE_EGREP,
+                 */
 
                  BOOST_RE_ECMAScript,
                  BOOST_RE_BASIC,
@@ -356,6 +360,149 @@ namespace codeeditor
 
                 break;
             }
+            case BOOST_RE_ECMAScript:
+            case BOOST_RE_BASIC:
+            case BOOST_RE_EXTENDED:
+            case BOOST_RE_AWK:
+            case BOOST_RE_GREP:
+            case BOOST_RE_EGREP:
+            case BOOST_RE_SED:
+            case BOOST_RE_PERL:
+            case BOOST_RE_LITERAL:
+            {
+
+                boost::regex_constants::syntax_option_type opt = boost::regex_constants::normal;
+
+                switch (query.search_method)
+                {
+                    default:
+                        // todo: report
+                        return 6;
+                    case BOOST_RE_ECMAScript:
+                        opt = boost::regex_constants::ECMAScript;
+                        break;
+                    case BOOST_RE_BASIC:
+                        opt = boost::regex_constants::basic;
+                        break;
+                    case BOOST_RE_EXTENDED:
+                        opt = boost::regex_constants::extended;
+                        break;
+                    case BOOST_RE_AWK:
+                        opt = boost::regex_constants::awk;
+                        break;
+                    case BOOST_RE_GREP:
+                        opt = boost::regex_constants::grep;
+                        break;
+                    case BOOST_RE_EGREP:
+                        opt = boost::regex_constants::egrep;
+                        break;
+                    case BOOST_RE_SED:
+                        opt = boost::regex_constants::sed;
+                        break;
+                    case BOOST_RE_PERL:
+                        opt = boost::regex_constants::perl;
+                        break;
+                    case BOOST_RE_LITERAL:
+                        opt = boost::regex_constants::literal;
+                        break;
+                }
+
+                // todo: I don't like this part: "<const char16_t *>" - need to
+                //       somehow forcibly make it 32bit (4 bytes) or even bigger
+                auto match_end = boost::u32regex_iterator<const char16_t *>();
+                auto match_rex = boost::make_u32regex(
+                    icu::UnicodeString(query.query),
+                    opt = opt
+                );
+                auto it = boost::make_u32regex_iterator(in_text, match_rex);
+
+                unsigned int text_size = in_text.length();
+
+                for (;;)
+                {
+                    if (it == match_end)
+                    {
+                        break;
+                    }
+
+                    auto z = *it;
+
+                    unsigned int pos1 = 0, pos2 = 0;
+
+                    unsigned int line = 0;
+                    pos1              = z.position();
+                    pos2              = pos1 + z.length();
+
+                    unsigned int line1_start = 0, line2_end = 0;
+
+                    auto calc_line = [&](unsigned int pos)
+                        -> std::tuple<
+                            unsigned int, // line
+                            unsigned int, // index_start
+                            unsigned int, // index_end
+                            int           // error
+                            >
+                    {
+                        auto dist      = pos;
+                        auto line_no   = in_text_ls->getLineByOffset(dist);
+                        auto line_info = in_text_ls->getLineInfo(line_no);
+                        auto r0        = std::get<0>(line_info);
+                        auto r1        = std::get<1>(line_info);
+                        auto err       = std::get<2>(line_info);
+                        if (err != 0)
+                        {
+                            return std::tuple<
+                                unsigned int,
+                                unsigned int,
+                                unsigned int,
+                                int>(
+                                0, 0, 0, 5
+                            );
+                        }
+                        return std::tuple<
+                            unsigned int,
+                            unsigned int,
+                            unsigned int,
+                            int>(
+                            line_no, r0, r1, 0
+                        );
+                    };
+
+                    {
+                        auto [l, s, e, err] = calc_line(pos1);
+                        if (err != 0)
+                        {
+                            return err;
+                        }
+                        line        = l;
+                        line1_start = s;
+                    }
+
+                    {
+                        auto [l, s, e, err] = calc_line(pos2);
+                        if (err != 0)
+                        {
+                            return err;
+                        }
+                        line2_end = e;
+                    }
+
+                    auto substr = in_text.tempSubString(
+                        line1_start, line1_start - line2_end
+                    );
+
+                    err = here_s_new_occurance(
+                        line,
+                        substr,
+                        line1_start,
+                        line1_start - line2_end
+                    );
+
+                    it++;
+                }
+
+                break;
+            }
         }
         return 0;
     }
@@ -478,24 +625,26 @@ namespace codeeditor
             case PLAIN:
                 text = "PLAIN (simple text search)";
                 break;
-            case STD_RE_ECMAScript:
-                text = "std C++ ECMA Script";
-                break;
-            case STD_RE_BASIC:
-                text = "std C++ Basic";
-                break;
-            case STD_RE_EXTENDED:
-                text = "std C++ Extended";
-                break;
-            case STD_RE_AWK:
-                text = "std C++ AWK";
-                break;
-            case STD_RE_GREP:
-                text = "std C++ grep";
-                break;
-            case STD_RE_EGREP:
-                text = "std C++ egrep";
-                break;
+                /*
+                        case STD_RE_ECMAScript:
+                            text = "std C++ ECMA Script";
+                            break;
+                        case STD_RE_BASIC:
+                            text = "std C++ Basic";
+                            break;
+                        case STD_RE_EXTENDED:
+                            text = "std C++ Extended";
+                            break;
+                        case STD_RE_AWK:
+                            text = "std C++ AWK";
+                            break;
+                        case STD_RE_GREP:
+                            text = "std C++ grep";
+                            break;
+                        case STD_RE_EGREP:
+                            text = "std C++ egrep";
+                            break;
+                */
             case BOOST_RE_ECMAScript:
                 text = "boostlib ECMA Script";
                 break;

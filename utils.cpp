@@ -261,9 +261,15 @@ namespace codeeditor
 
     LineStartsICU::LineStartsICU(icu::UnicodeString text)
     {
+        // todo: I don't like this part: "<const char16_t *>" - need to
+        //       somehow forcibly make it 32bit (4 bytes) or even bigger
         auto match_end = boost::u32regex_iterator<const char16_t *>();
-        auto nl_rex    = boost::make_u32regex(R"x(\n)x");
-        auto it        = boost::make_u32regex_iterator(text, nl_rex);
+        auto nl_rex    = boost::make_u32regex(
+            icu::UnicodeString::fromUTF8(
+                icu::StringPiece(R"x(\n)x")
+            )
+        );
+        auto it = boost::make_u32regex_iterator(text, nl_rex);
 
         text_size = text.length();
 
