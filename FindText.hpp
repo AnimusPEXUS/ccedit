@@ -32,8 +32,10 @@ namespace codeeditor
         FindTextWidget(FindTextWidgetMode mode = SEARCH);
         ~FindTextWidget();
 
-        FindTextQuery getFindTextQuery();
-        int           setFindTextQuery(FindTextQuery q);
+        FindTextQuery        getFindTextQuery();
+        int                  setFindTextQuery(FindTextQuery q);
+        FindTextSearchMethod getSearchMethod();
+        int                  setSearchMethod(FindTextSearchMethod meth);
 
         int search_in_text(
             const icu::UnicodeString       in_text,

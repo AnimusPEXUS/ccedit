@@ -205,6 +205,49 @@ namespace codeeditor
         return this->mode;
     }
 
+    FindTextSearchMethod FindTextWidget::getSearchMethod()
+    {
+        auto item   = search_method.get_selected_item();
+        auto item_c = std::dynamic_pointer_cast<TextSearchMethodListItem>(item);
+        if (!item_c)
+        {
+            std::cout << "FindTextWidget::getSearchMethod() can't "
+                         "cast to TextSearchMethodListItem"
+                      << std::endl;
+            return PLAIN;
+        }
+        return item_c->value;
+    }
+
+    int FindTextWidget::setSearchMethod(FindTextSearchMethod meth)
+    {
+        auto model = std::dynamic_pointer_cast<
+            Gio::ListStore<TextSearchMethodListItem>>(
+            search_method.get_model()
+        );
+        if (!model)
+        {
+            std::cout << "FindTextWidget::setSearchMethod() "
+                         "can't cast to Gio::ListStore<TextSearchMethodListItem"
+                      << std::endl;
+            return 1;
+        }
+
+        int found = 0;
+        for (int i = 0; i != model->get_n_items(); i++)
+        {
+            auto itm = model->get_item(i);
+            if (itm->value == meth)
+            {
+                found = i;
+                break;
+            }
+        }
+
+        search_method.set_selected(found);
+        return 0;
+    }
+
     FindTextQuery FindTextWidget::getFindTextQuery()
     {
         FindTextQuery ret;
@@ -239,6 +282,8 @@ namespace codeeditor
         ret.boost_re_common_mod_collate     = boost_re_common_mod_collate.get_active();
         ret.boost_re_common_mod_newline_alt = boost_re_common_mod_newline_alt.get_active();
 
+        ret.search_method = getSearchMethod();
+
         return ret;
     }
 
@@ -271,6 +316,9 @@ namespace codeeditor
         boost_re_common_mod_optimize.set_active(q.boost_re_common_mod_optimize);
         boost_re_common_mod_collate.set_active(q.boost_re_common_mod_collate);
         boost_re_common_mod_newline_alt.set_active(q.boost_re_common_mod_newline_alt);
+
+        setSearchMethod(q.search_method);
+
         return 0;
     };
 
