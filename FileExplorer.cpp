@@ -416,7 +416,8 @@ void FileExplorer::on_dir_tree_view_activate(guint pos)
         return;
     }
 
-    auto pth = proj_ctl->getProjectPath() / item->pth;
+    auto pth = item->pth;
+
     std::cout << "on_dir_tree_view_activate trying to navigate to " << pth;
     fileListNavigateTo(pth);
 }
