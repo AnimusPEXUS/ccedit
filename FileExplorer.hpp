@@ -60,16 +60,16 @@ namespace codeeditor
 
         Gtk::Box path_box;
 
-        Gtk::FlowBox   fb1;
+        // Gtk::FlowBox   fb1;
         Gtk::Button    reset_view_btn;
         Gtk::Button    go_root_btn;
         Gtk::Button    refresh_btn;
         Gtk::Separator sep1;
-        Gtk::FlowBox   fb2;
+        // Gtk::FlowBox   fb2;
         Gtk::Button    filelauncher_dir_btn;
         Gtk::Button    find_file_btn;
         Gtk::Separator sep2;
-        Gtk::FlowBox   fb3;
+        // Gtk::FlowBox   fb3;
         Gtk::Button    make_file_or_directory_btn;
         Gtk::Button    rename_file_or_directory_btn;
         Gtk::Button    remove_file_or_directory_btn;

@@ -35,44 +35,37 @@ FileExplorer::FileExplorer(std::shared_ptr<ProjectCtl> proj_ctl) :
     path_box.set_orientation(Gtk::Orientation::HORIZONTAL);
     // path_box.set_spacing(5);
 
-    reset_view_btn.set_label("Reset View");
-    go_root_btn.set_label("Nav to Root");
-    refresh_btn.set_label("Refresh");
+    reset_view_btn.set_label("⏹️");
+    reset_view_btn.set_tooltip_text("Reset View");
+    go_root_btn.set_label("🏠");
+    go_root_btn.set_tooltip_text("Nav to Project Root");
+    refresh_btn.set_label("⟲");
+    refresh_btn.set_tooltip_text("Refresh");
 
-    filelauncher_dir_btn.set_label("Open this Dir..");
-    find_file_btn.set_label("Find File..");
+    filelauncher_dir_btn.set_label("🗁");
+    filelauncher_dir_btn.set_tooltip_text("Open current Folder in System's App");
+    find_file_btn.set_label("🔍");
+    find_file_btn.set_tooltip_text("Find File..");
 
-    make_file_or_directory_btn.set_label("mk dir/file..");
-    rename_file_or_directory_btn.set_label("mv");
-    remove_file_or_directory_btn.set_label("rm");
-
-    fb1.set_selection_mode(Gtk::SelectionMode::NONE);
-    fb2.set_selection_mode(Gtk::SelectionMode::NONE);
-    fb3.set_selection_mode(Gtk::SelectionMode::NONE);
-
-    fb1.set_hexpand(true);
-    fb2.set_hexpand(true);
-    fb3.set_hexpand(true);
-
-    fb1.set_orientation(Gtk::Orientation::HORIZONTAL);
-    fb2.set_orientation(Gtk::Orientation::HORIZONTAL);
-    fb3.set_orientation(Gtk::Orientation::HORIZONTAL);
+    make_file_or_directory_btn.set_label("🆕");
+    make_file_or_directory_btn.set_tooltip_text("mk dir/file..");
+    rename_file_or_directory_btn.set_label("✒️");
+    rename_file_or_directory_btn.set_tooltip_text("Rename..");
+    remove_file_or_directory_btn.set_label("␡");
+    remove_file_or_directory_btn.set_tooltip_text("Delete File or Dir..");
 
     path_box.set_spacing(5);
-    fb1.append(reset_view_btn);
-    fb1.append(go_root_btn);
-    fb1.append(refresh_btn);
-    path_box.append(fb1);
+    path_box.append(reset_view_btn);
+    path_box.append(go_root_btn);
+    path_box.append(refresh_btn);
     path_box.append(sep1);
-    fb2.append(filelauncher_dir_btn);
-    fb2.append(find_file_btn);
-    fb2.append(reset_view_btn);
-    path_box.append(fb2);
+    path_box.append(filelauncher_dir_btn);
+    path_box.append(find_file_btn);
+    path_box.append(reset_view_btn);
     path_box.append(sep2);
-    fb3.append(make_file_or_directory_btn);
-    fb3.append(rename_file_or_directory_btn);
-    fb3.append(remove_file_or_directory_btn);
-    path_box.append(fb3);
+    path_box.append(make_file_or_directory_btn);
+    path_box.append(rename_file_or_directory_btn);
+    path_box.append(remove_file_or_directory_btn);
     path_box.append(sep3);
     path_box.append(path_entry);
 
