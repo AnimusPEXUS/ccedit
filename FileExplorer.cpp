@@ -34,7 +34,7 @@ FileExplorer::FileExplorer(std::shared_ptr<ProjectCtl> proj_ctl) :
 
     path_box.set_orientation(Gtk::Orientation::HORIZONTAL);
     // path_box.set_spacing(5);
-
+    // абв
     reset_view_btn.set_label("⏹️");
     reset_view_btn.set_tooltip_text("Reset View");
     go_root_btn.set_label("🏠");

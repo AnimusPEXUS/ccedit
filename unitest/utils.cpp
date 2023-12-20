@@ -10,7 +10,7 @@
 
 namespace wayround_i2p
 {
-namespace codeeditor
+namespace unitest
 {
 
     int saveStringToFile(
@@ -289,9 +289,13 @@ namespace codeeditor
         }
     }
 
-    void LineStarts::printParsingResult(std::string text)
+    std::string LineStarts::getParsingDiagnostics(
+        std::string original_text
+    )
     {
-        std::cout << "LineStarts : parsing result :" << std::endl;
+        std::string ret;
+
+        ret.append("LineStarts : parsing result :\n");
         {
             for (int i = 0; i != starts.size(); i++)
             {
@@ -299,20 +303,30 @@ namespace codeeditor
                 auto info = getLineInfo(j);
                 auto r0   = std::get<0>(info);
                 auto r1   = std::get<1>(info);
-                std::cout << format(
-                    "{} ({}, {}): `{}`",
-                    j,
-                    r0,
-                    r1,
-                    trim_right(text.substr(r0, r1 - r0))
-                ) << std::endl;
+
+                ret.append(
+                    std::format(
+                        "{} ({}, {}, len:{}): `{}`\n",
+                        j,
+                        r0,
+                        r1,
+                        r1 - r0,
+                        trim_right(original_text.substr(r0, r1 - r0))
+                    )
+                );
             }
         }
+
+        return ret;
     }
 
-    void LineStartsICU::printParsingResult(icu::UnicodeString text)
+    std::string LineStartsICU::getParsingDiagnostics(
+        icu::UnicodeString original_text
+    )
     {
-        std::cout << "LineStartsICU : parsing result :" << std::endl;
+        std::string ret;
+
+        ret.append("LineStartsICU : parsing result :\n");
         {
             for (int i = 0; i != starts.size(); i++)
             {
@@ -320,22 +334,27 @@ namespace codeeditor
                 auto        info = getLineInfo(j);
                 auto        r0   = std::get<0>(info);
                 auto        r1   = std::get<1>(info);
-                std::string sinc_buff("");
+                std::string sinc_buff;
 
-                icu::UnicodeString substr("");
+                icu::UnicodeString substr;
 
-                text.extract(r0, r1 - r0, substr);
+                original_text.extract(r0, r1 - r0, substr);
 
-                std::cout << std::format(
-                    "{} ({}, {}): `{}`",
-                    j,
-                    r0,
-                    r1,
-                    trim_right(substr)
-                        .toUTF8String(sinc_buff)
-                ) << std::endl;
+                ret.append(
+                    std::format(
+                        "{} ({}, {}, len:{}): `{}`\n",
+                        j,
+                        r0,
+                        r1,
+                        r1 - r0,
+                        trim_right(substr)
+                            .toUTF8String(sinc_buff)
+                    )
+                );
             }
         }
+
+        return ret;
     }
 
     unsigned int LineStarts::getLineByOffset(unsigned int offset)
@@ -535,5 +554,5 @@ namespace codeeditor
         return s;
     }
 
-} // namespace codeeditor
+} // namespace unitest
 } // namespace wayround_i2p

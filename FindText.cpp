@@ -370,8 +370,11 @@ namespace codeeditor
                     new icu::StringSearch(
                         subj,
                         in_text,
-                        icu::Locale::getUS(),
-                        nullptr,
+                        icu::Locale::getDefault(),
+                        icu::BreakIterator::createCharacterInstance(
+                            icu::Locale::getDefault(),
+                            status
+                        ),
                         status
                     )
                 );
