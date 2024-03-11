@@ -1,5 +1,5 @@
-#ifndef MODULARITY_HPP
-#define MODULARITY_HPP
+#ifndef WAYROUND_I2P_20240311_144846_122231
+#define WAYROUND_I2P_20240311_144846_122231
 
 #include <memory>
 #include <string>

@@ -1,5 +1,5 @@
-#ifndef WAYROUND_I2P_20240311_144846_119767
-#define WAYROUND_I2P_20240311_144846_119767
+#ifndef WAYROUND_I2P_20240311_144846_119265
+#define WAYROUND_I2P_20240311_144846_119265
 
 #include <memory>
 
@@ -9,7 +9,7 @@ namespace wayround_i2p
 {
 namespace codeeditor
 {
-    class CodeEditorCCPP : public CommonEditorWindow
+    class CodeEditorGo : public CommonEditorWindow
     {
       public:
         static std::shared_ptr<CodeEditorAbstract> create(
@@ -17,7 +17,7 @@ namespace codeeditor
             std::shared_ptr<WorkSubject> subj
         );
 
-        ~CodeEditorCCPP();
+        ~CodeEditorGo();
 
         std::shared_ptr<CodeEditorAbstract> getOwnPtr() override;
         void                                resetOwnPtr() override;
@@ -30,7 +30,7 @@ namespace codeeditor
             genOutlineContents() override;
 
       protected:
-        CodeEditorCCPP(
+        CodeEditorGo(
             std::shared_ptr<ProjectCtl>  project_ctl,
             std::shared_ptr<WorkSubject> subject
         );
@@ -39,12 +39,12 @@ namespace codeeditor
         std::shared_ptr<ProjectCtl>  project_ctl;
         std::shared_ptr<WorkSubject> subject;
 
-        std::shared_ptr<CodeEditorCCPP> own_ptr;
+        std::shared_ptr<CodeEditorGo> own_ptr;
 
         Glib::RefPtr<Gio::Menu>     mm_special;
-        Glib::RefPtr<Gio::MenuItem> mm_special_clang_format;
+        Glib::RefPtr<Gio::MenuItem> mm_special_go_fmt;
 
-        void clang_format_buffer();
+        void go_fmt_buffer();
 
         void make_special_menu() override;
         void make_special_actions() override;

@@ -11,6 +11,7 @@
 #include "Controller.hpp"
 
 #include "builtin_mods/ccpp/mod_ccpp.hpp"
+#include "builtin_mods/go/mod_go.hpp"
 
 using namespace wayround_i2p::codeeditor;
 
@@ -367,6 +368,7 @@ int Controller::addBuiltinMod(CodeEditorMod *mod)
 int Controller::addBuiltinMods()
 {
     addBuiltinMod(get_mod_info_ccpp());
+    addBuiltinMod(get_mod_info_go());
     return 0;
 }
 

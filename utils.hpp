@@ -1,5 +1,5 @@
-#ifndef UTILS_HPP
-#define UTILS_HPP
+#ifndef WAYROUND_I2P_20240311_144846_107171
+#define WAYROUND_I2P_20240311_144846_107171
 
 #include <filesystem>
 #include <regex>

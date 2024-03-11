@@ -1,5 +1,5 @@
-#ifndef TYPES_HPP
-#define TYPES_HPP
+#ifndef WAYROUND_I2P_20240311_144846_122785
+#define WAYROUND_I2P_20240311_144846_122785
 
 using namespace std;
 

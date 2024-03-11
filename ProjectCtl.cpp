@@ -192,8 +192,25 @@ std::shared_ptr<CodeEditorAbstract> ProjectCtl::createBestEditorForWorkSubject(
 )
 {
     std::cout << "createBestEditorForWorkSubject(" << subj << ")" << std::endl;
-    auto x      = controller->getBuiltinMods()[0];
-    auto editor = x->newEditorForSubject(own_ptr, subj);
+
+    // todo: plain text or hex viewver should be used by default
+    CodeEditorMod *best_editor_mod = controller->getBuiltinMods()[0];
+
+    auto subj_pth = subj->getPath().string();
+
+    for (CodeEditorMod *x : controller->getBuiltinMods())
+    {
+        for (auto ext : x->supported_extensions)
+        {
+            if (subj_pth.ends_with(ext))
+            {
+                best_editor_mod = x;
+                break;
+            }
+        }
+    }
+
+    auto editor = best_editor_mod->newEditorForSubject(own_ptr, subj);
     return editor;
 }
 

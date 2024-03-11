@@ -1,5 +1,5 @@
-#ifndef MWIN_HPP
-#define MWIN_HPP
+#ifndef WAYROUND_I2P_20240311_144846_110980
+#define WAYROUND_I2P_20240311_144846_110980
 
 #include <gtkmm.h>
 

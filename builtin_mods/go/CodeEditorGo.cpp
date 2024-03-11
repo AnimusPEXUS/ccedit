@@ -14,26 +14,26 @@ extern "C" {
 #include <boost/regex.hpp>
 
 #include "../../utils.hpp"
-#include "CodeEditorCCPP.hpp"
+#include "CodeEditorGo.hpp"
 
 namespace wayround_i2p
 {
 namespace codeeditor
 {
 
-    std::shared_ptr<CodeEditorAbstract> CodeEditorCCPP::create(
+    std::shared_ptr<CodeEditorAbstract> CodeEditorGo::create(
         std::shared_ptr<ProjectCtl>  proj_ctl,
         std::shared_ptr<WorkSubject> subj
     )
     {
-        auto x = std::shared_ptr<CodeEditorCCPP>(
-            new CodeEditorCCPP(proj_ctl, subj)
+        auto x = std::shared_ptr<CodeEditorGo>(
+            new CodeEditorGo(proj_ctl, subj)
         );
         x->own_ptr = x;
         return std::dynamic_pointer_cast<CodeEditorAbstract>(x);
     }
 
-    CodeEditorCCPP::CodeEditorCCPP(
+    CodeEditorGo::CodeEditorGo(
         std::shared_ptr<ProjectCtl>  project_ctl,
         std::shared_ptr<WorkSubject> subject
     ) :
@@ -48,49 +48,49 @@ namespace codeeditor
         make_special_hotkeys();
     }
 
-    CodeEditorCCPP::~CodeEditorCCPP()
+    CodeEditorGo::~CodeEditorGo()
     {
-        std::cout << "~CodeEditorCCPP()" << std::endl;
+        std::cout << "~CodeEditorGo()" << std::endl;
     }
 
-    std::shared_ptr<CodeEditorAbstract> CodeEditorCCPP::getOwnPtr()
+    std::shared_ptr<CodeEditorAbstract> CodeEditorGo::getOwnPtr()
     {
         return dynamic_pointer_cast<CodeEditorAbstract>(own_ptr);
     }
 
-    void CodeEditorCCPP::resetOwnPtr()
+    void CodeEditorGo::resetOwnPtr()
     {
         own_ptr.reset();
     }
-    void CodeEditorCCPP::make_special_menu()
+    void CodeEditorGo::make_special_menu()
     {
 
-        mm_special_clang_format = Gio::MenuItem::create(
-            "clang-format on buffer",
-            "editor_window_special.clang_format_buffer"
+        mm_special_go_fmt = Gio::MenuItem::create(
+            "gofmt on buffer",
+            "editor_window_special.go_fmt_buffer"
         );
 
         mm_special = Gio::Menu::create();
 
-        mm_special->append_item(mm_special_clang_format);
+        mm_special->append_item(mm_special_go_fmt);
 
-        getMenuModel()->append_submenu("C/C++", mm_special);
+        getMenuModel()->append_submenu("Golang", mm_special);
 
         return;
     }
 
-    void CodeEditorCCPP::make_special_actions()
+    void CodeEditorGo::make_special_actions()
     {
         auto action_group = Gio::SimpleActionGroup::create();
         action_group->add_action(
-            "clang_format_buffer",
-            sigc::mem_fun(*this, &CodeEditorCCPP::clang_format_buffer)
+            "go_fmt_buffer",
+            sigc::mem_fun(*this, &CodeEditorGo::go_fmt_buffer)
         );
         insert_action_group("editor_window_special", action_group);
         return;
     }
 
-    void CodeEditorCCPP::make_special_hotkeys()
+    void CodeEditorGo::make_special_hotkeys()
     {
         auto controller = Gtk::ShortcutController::create();
         controller->add_shortcut(
@@ -101,7 +101,7 @@ namespace codeeditor
                         | Gdk::ModifierType::SHIFT_MASK
                 ),
                 Gtk::NamedAction::create(
-                    "editor_window_special.clang_format_buffer"
+                    "editor_window_special.go_fmt_buffer"
                 )
             )
         );
@@ -109,12 +109,12 @@ namespace codeeditor
         return;
     }
 
-    std::shared_ptr<WorkSubject> CodeEditorCCPP::getWorkSubject()
+    std::shared_ptr<WorkSubject> CodeEditorGo::getWorkSubject()
     {
         return subject;
     }
 
-    bool CodeEditorCCPP::workSubjectIs(std::shared_ptr<WorkSubject> subj)
+    bool CodeEditorGo::workSubjectIs(std::shared_ptr<WorkSubject> subj)
     {
         if (!subj || !subject)
         {
@@ -123,7 +123,7 @@ namespace codeeditor
         return subj == subject;
     }
 
-    void CodeEditorCCPP::clang_format_buffer()
+    void CodeEditorGo::go_fmt_buffer()
     {
         // todo: display error messages
         int err = 0;
@@ -189,7 +189,7 @@ namespace codeeditor
             ::close(in_pipe[1]);
             ::close(out_pipe[0]);
             ::close(out_pipe[1]);
-            execlp("clang-format", (char *)NULL);
+            execlp("gofmt", (char *)NULL);
             return;
         }
 
@@ -285,7 +285,7 @@ namespace codeeditor
     }
 
     std::vector<std::tuple<unsigned int, std::string>>
-        CodeEditorCCPP::genOutlineContents()
+        CodeEditorGo::genOutlineContents()
     {
 
         std::vector<std::tuple<unsigned int, std::string>> ret;
