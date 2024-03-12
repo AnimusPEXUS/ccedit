@@ -5,7 +5,7 @@
 
 #include "modularity.hpp"
 
-using namespace wayround_i2p::codeeditor;
+using namespace wayround_i2p::ccedit;
 
 static const std::vector<CodeEditorModule>;
 

@@ -15,7 +15,7 @@
 
 namespace wayround_i2p
 {
-namespace codeeditor
+namespace ccedit
 {
 
     FindTextWidget::FindTextWidget(FindTextWidgetMode mode) :
@@ -1055,5 +1055,5 @@ namespace codeeditor
         own_ptr.reset();
     }
 
-} // namespace codeeditor
+} // namespace ccedit
 } // namespace wayround_i2p

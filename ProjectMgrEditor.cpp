@@ -6,7 +6,7 @@
 
 #include "ProjectMgrEditor.hpp"
 
-using namespace wayround_i2p::codeeditor;
+using namespace wayround_i2p::ccedit;
 
 ProjectMgrEditor::ProjectMgrEditor(
     std::shared_ptr<Controller> controller,

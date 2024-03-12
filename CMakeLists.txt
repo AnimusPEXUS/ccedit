@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(codeedit)
+project(ccedit)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -25,7 +25,7 @@ find_package(ICU 73.0 COMPONENTS uc i18n REQUIRED)
 set(ICU_DEBUG ON)
 
 add_executable(
-	codeedit 
+	ccedit 
 	CommonEditorWindow.cpp
 	Controller.cpp
 	EditorListView.cpp
@@ -51,7 +51,7 @@ add_executable(
     )
 
 target_link_libraries(
-    codeedit 
+    ccedit 
     PUBLIC 
     # -static
     PkgConfig::gtk4 
@@ -65,7 +65,7 @@ target_link_libraries(
     )
 
 target_include_directories(
-    codeedit 
+    ccedit 
     PUBLIC 
     ${Boost_INCLUDE_DIRS}
     ${ICU_INCLUDE_DIRS}

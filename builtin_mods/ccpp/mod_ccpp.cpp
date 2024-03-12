@@ -8,7 +8,7 @@
 
 namespace wayround_i2p
 {
-namespace codeeditor
+namespace ccedit
 {
 
     CodeEditorMod mod_info_ccpp = {
@@ -24,5 +24,5 @@ namespace codeeditor
         return &mod_info_ccpp;
     }
 
-} // namespace codeeditor
+} // namespace ccedit
 } // namespace wayround_i2p

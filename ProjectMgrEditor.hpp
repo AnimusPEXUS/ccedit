@@ -9,7 +9,7 @@
 
 namespace wayround_i2p
 {
-namespace codeeditor
+namespace ccedit
 {
 
     class ProjectMgrEditor : public Gtk::Window
@@ -58,7 +58,7 @@ namespace codeeditor
 
         Glib::RefPtr<Gtk::FileDialog> select_dir_dialog;
     };
-} // namespace codeeditor
+} // namespace ccedit
 } // namespace wayround_i2p
 
 #endif

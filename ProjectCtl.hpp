@@ -16,7 +16,7 @@
 
 namespace wayround_i2p
 {
-namespace codeeditor
+namespace ccedit
 {
     class Controller;
     class FileExplorer;
@@ -128,7 +128,7 @@ namespace codeeditor
         std::shared_ptr<sigc::signal<void()>> priv_signal_updated_path;
     };
 
-} // namespace codeeditor
+} // namespace ccedit
 } // namespace wayround_i2p
 
 #endif

@@ -9,7 +9,7 @@
 
 #include "ProjectCtlWin.hpp"
 
-using namespace wayround_i2p::codeeditor;
+using namespace wayround_i2p::ccedit;
 
 ProjectCtlWin::ProjectCtlWin(std::shared_ptr<ProjectCtl> proj_ctl)
 {

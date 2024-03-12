@@ -2,7 +2,7 @@
 
 #include "Controller.hpp"
 
-using namespace wayround_i2p::codeeditor;
+using namespace wayround_i2p::ccedit;
 
 int main(int argc, char *argv[])
 {

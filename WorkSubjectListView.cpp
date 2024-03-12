@@ -1,6 +1,6 @@
 #include "WorkSubjectListView.hpp"
 
-using namespace wayround_i2p::codeeditor;
+using namespace wayround_i2p::ccedit;
 
 WorkSubjectListView::WorkSubjectListView(
     std::shared_ptr<ProjectCtl> project_ctl

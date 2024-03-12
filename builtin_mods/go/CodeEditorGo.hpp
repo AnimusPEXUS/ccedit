@@ -7,7 +7,7 @@
 
 namespace wayround_i2p
 {
-namespace codeeditor
+namespace ccedit
 {
     class CodeEditorGo : public CommonEditorWindow
     {
@@ -50,7 +50,7 @@ namespace codeeditor
         void make_special_actions() override;
         void make_special_hotkeys() override;
     };
-} // namespace codeeditor
+} // namespace ccedit
 } // namespace wayround_i2p
 
 #endif

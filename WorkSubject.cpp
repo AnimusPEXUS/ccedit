@@ -3,7 +3,7 @@
 #include "WorkSubject.hpp"
 #include "utils.hpp"
 
-using namespace wayround_i2p::codeeditor;
+using namespace wayround_i2p::ccedit;
 
 std::shared_ptr<WorkSubject> WorkSubject::create(
     std::shared_ptr<Controller> controller,

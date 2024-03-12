@@ -9,7 +9,7 @@
 
 namespace wayround_i2p
 {
-namespace codeeditor
+namespace ccedit
 {
     class FileExplorerWidget;
 
@@ -171,7 +171,7 @@ namespace codeeditor
     {
       public:
     };
-} // namespace codeeditor
+} // namespace ccedit
 } // namespace wayround_i2p
 
 #endif

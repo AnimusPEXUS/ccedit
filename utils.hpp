@@ -12,7 +12,7 @@
 
 namespace wayround_i2p
 {
-namespace codeeditor
+namespace ccedit
 {
     const size_t size2mib = 1024 * 1024 * 2;
 
@@ -111,7 +111,7 @@ namespace codeeditor
     std::string        trim_right(std::string);
     icu::UnicodeString trim_right(icu::UnicodeString s);
 
-} // namespace codeeditor
+} // namespace codeedito
 } // namespace wayround_i2p
 
 #endif

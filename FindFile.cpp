@@ -13,7 +13,7 @@
 
 namespace wayround_i2p
 {
-namespace codeeditor
+namespace ccedit
 {
 
     std::shared_ptr<FindFile> FindFile::create(std::shared_ptr<ProjectCtl> p_ctl)
@@ -845,5 +845,5 @@ namespace codeeditor
 
     // ---------------------
 
-} // namespace codeeditor
+} // namespace ccedit
 } // namespace wayround_i2p

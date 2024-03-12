@@ -8,7 +8,7 @@
 
 namespace wayround_i2p
 {
-namespace codeeditor
+namespace ccedit
 {
     class ProjectCtl;
 
@@ -18,7 +18,7 @@ namespace codeeditor
         std::string                 path;
         std::shared_ptr<ProjectCtl> project_ctl;
     };
-} // namespace codeeditor
+} // namespace ccedit
 } // namespace wayround_i2p
 
 #endif

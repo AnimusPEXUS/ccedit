@@ -11,7 +11,7 @@
 
 namespace wayround_i2p
 {
-namespace codeeditor
+namespace ccedit
 {
 
     class ProjectCtl;
@@ -165,7 +165,7 @@ namespace codeeditor
         }
     };
 
-} // namespace codeeditor
+} // namespace ccedit
 } // namespace wayround_i2p
 
 #endif

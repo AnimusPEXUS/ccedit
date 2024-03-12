@@ -9,7 +9,7 @@
 
 namespace wayround_i2p
 {
-namespace codeeditor
+namespace ccedit
 {
     class WorkSubject;
 
@@ -39,7 +39,7 @@ namespace codeeditor
         virtual void         unselect()                                            = 0;
         virtual std::string  getText()                                             = 0;
     };
-} // namespace codeeditor
+} // namespace ccedit
 } // namespace wayround_i2p
 
 #endif

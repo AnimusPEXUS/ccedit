@@ -12,7 +12,7 @@
 
 namespace wayround_i2p
 {
-namespace codeeditor
+namespace ccedit
 {
     enum FindTextSearchMethod : unsigned char
     {
@@ -96,6 +96,6 @@ STD_RE_EGREP,
         FindTextQuery find_text_query;
     };
 
-} // namespace codeeditor
+} // namespace ccedit
 } // namespace wayround_i2p
 #endif

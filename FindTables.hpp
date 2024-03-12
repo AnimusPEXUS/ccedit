@@ -7,7 +7,7 @@
 
 namespace wayround_i2p
 {
-namespace codeeditor
+namespace ccedit
 {
 
     class FindFileResultTreeItem;
@@ -125,6 +125,6 @@ namespace codeeditor
         void on_go_btn();
     };
 
-} // namespace codeeditor
+} // namespace ccedit
 } // namespace wayround_i2p
 #endif

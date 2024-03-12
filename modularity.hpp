@@ -11,7 +11,7 @@
 
 namespace wayround_i2p
 {
-namespace codeeditor
+namespace ccedit
 {
     struct CodeEditorMod
     {
@@ -39,7 +39,7 @@ namespace codeeditor
 
     void printInfoCodeEditorMod(CodeEditorMod *info);
 
-} // namespace codeeditor
+} // namespace ccedit
 } // namespace wayround_i2p
 
 #endif

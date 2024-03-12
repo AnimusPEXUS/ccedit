@@ -7,10 +7,10 @@
 
 namespace wayround_i2p
 {
-namespace codeeditor
+namespace ccedit
 {
     CodeEditorMod *get_mod_info_ccpp();
-} // namespace codeeditor
+} // namespace ccedit
 } // namespace wayround_i2p
 
 #endif

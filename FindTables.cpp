@@ -2,7 +2,7 @@
 
 namespace wayround_i2p
 {
-namespace codeeditor
+namespace ccedit
 {
     FindFileResultTreeItem::FindFileResultTreeItem(
         std::filesystem::path subpath
@@ -202,5 +202,5 @@ namespace codeeditor
             go_action(this->item);
         }
     }
-} // namespace codeeditor
+} // namespace ccedit
 } // namespace wayround_i2p

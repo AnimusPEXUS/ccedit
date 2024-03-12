@@ -7,7 +7,7 @@
 #include "ProjectCtl.hpp"
 #include "WorkSubjectListView.hpp"
 
-using namespace wayround_i2p::codeeditor;
+using namespace wayround_i2p::ccedit;
 
 ProjectCtl::ProjectCtl(std::shared_ptr<Controller> controller)
 {

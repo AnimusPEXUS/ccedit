@@ -10,7 +10,7 @@
 
 namespace wayround_i2p
 {
-namespace codeeditor
+namespace ccedit
 {
 
     int saveStringToFile(
@@ -535,5 +535,5 @@ namespace codeeditor
         return s;
     }
 
-} // namespace codeeditor
+} // namespace ccedit
 } // namespace wayround_i2p

@@ -18,7 +18,7 @@ extern "C" {
 
 namespace wayround_i2p
 {
-namespace codeeditor
+namespace ccedit
 {
 
     std::shared_ptr<CodeEditorAbstract> CodeEditorCCPP::create(
@@ -344,5 +344,5 @@ namespace codeeditor
         return ret;
     }
 
-} // namespace codeeditor
+} // namespace ccedit
 } // namespace wayround_i2p

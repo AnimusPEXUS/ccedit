@@ -13,7 +13,7 @@
 
 namespace wayround_i2p
 {
-namespace codeeditor
+namespace ccedit
 {
     class Controller;
 
@@ -75,7 +75,7 @@ namespace codeeditor
         void emit_signal_modified_changed();
     };
 
-} // namespace codeeditor
+} // namespace ccedit
 } // namespace wayround_i2p
 
 #endif

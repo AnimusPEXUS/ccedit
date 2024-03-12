@@ -13,7 +13,7 @@
 
 namespace wayround_i2p
 {
-namespace codeeditor
+namespace ccedit
 {
 
     struct CommonEditorWindowStateStorage
@@ -137,7 +137,7 @@ namespace codeeditor
         virtual void make_special_hotkeys();
     };
 
-} // namespace codeeditor
+} // namespace ccedit
 } // namespace wayround_i2p
 
 #endif

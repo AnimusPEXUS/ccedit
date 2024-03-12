@@ -17,7 +17,7 @@
 
 namespace wayround_i2p
 {
-namespace codeeditor
+namespace ccedit
 {
 
     enum FindTextWidgetMode : unsigned char
@@ -217,7 +217,7 @@ namespace codeeditor
         void on_destroy_sig();
     };
 
-} // namespace codeeditor
+} // namespace ccedit
 } // namespace wayround_i2p
 
 #endif

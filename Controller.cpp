@@ -13,7 +13,7 @@
 #include "builtin_mods/ccpp/mod_ccpp.hpp"
 #include "builtin_mods/go/mod_go.hpp"
 
-using namespace wayround_i2p::codeeditor;
+using namespace wayround_i2p::ccedit;
 
 Controller::Controller(Glib::RefPtr<Gtk::Application> app)
 {

@@ -16,7 +16,7 @@
 
 namespace wayround_i2p
 {
-namespace codeeditor
+namespace ccedit
 {
 
     class ProjectMgr;
@@ -141,7 +141,7 @@ namespace codeeditor
         int addBuiltinMods();
         int addBuiltinMod(CodeEditorMod *mod);
     };
-} // namespace codeeditor
+} // namespace ccedit
 } // namespace wayround_i2p
 
 #endif

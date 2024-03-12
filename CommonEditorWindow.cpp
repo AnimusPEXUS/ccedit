@@ -6,7 +6,7 @@
 
 #include "CommonEditorWindow.hpp"
 
-using namespace wayround_i2p::codeeditor;
+using namespace wayround_i2p::ccedit;
 
 CommonEditorWindow::CommonEditorWindow(
     std::shared_ptr<ProjectCtl>  project_ctl,

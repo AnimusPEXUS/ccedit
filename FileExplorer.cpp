@@ -9,7 +9,7 @@
 #include "FindFile.hpp"
 #include "utils.hpp"
 
-using namespace wayround_i2p::codeeditor;
+using namespace wayround_i2p::ccedit;
 
 std::shared_ptr<FileExplorer> FileExplorer::create(
     std::shared_ptr<ProjectCtl> proj_ctl

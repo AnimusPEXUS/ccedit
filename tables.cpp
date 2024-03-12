@@ -3,7 +3,7 @@
 
 namespace wayround_i2p
 {
-namespace codeeditor
+namespace ccedit
 {
 
     ProjectTableRow::ProjectTableRow() :
@@ -56,5 +56,5 @@ namespace codeeditor
         return priv_signal_proj_path_changed;
     }
 
-} // namespace codeeditor
+} // namespace ccedit
 } // namespace wayround_i2p
