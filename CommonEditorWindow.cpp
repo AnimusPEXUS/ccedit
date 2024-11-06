@@ -524,10 +524,10 @@ void CommonEditorWindow::setTransientWindow(Gtk::Window *win)
     win->set_transient_for(*(Gtk::Window *)this);
 }
 
-//void CommonEditorWindow::setTransientWindow(std::shared_ptr<Gtk::Window> win)
+// void CommonEditorWindow::setTransientWindow(std::shared_ptr<Gtk::Window> win)
 //{
-//    setTransientWindow(win.get());
-//}
+//     setTransientWindow(win.get());
+// }
 
 unsigned int CommonEditorWindow::getCursorOffsetPosition()
 {

@@ -6,9 +6,9 @@
 using namespace wayround_i2p::ccedit;
 
 WorkSubject_shared WorkSubject::create(
-    Controller_shared controller,
-    ProjectCtl_shared project_ctl,
-    std::filesystem::path       fpth
+    Controller_shared     controller,
+    ProjectCtl_shared     project_ctl,
+    std::filesystem::path fpth
 )
 {
     auto ret = WorkSubject_shared(
@@ -22,9 +22,9 @@ WorkSubject_shared WorkSubject::create(
 }
 
 WorkSubject::WorkSubject(
-    Controller_shared controller,
-    ProjectCtl_shared project_ctl,
-    std::filesystem::path       fpth
+    Controller_shared     controller,
+    ProjectCtl_shared     project_ctl,
+    std::filesystem::path fpth
 )
 {
     this->controller  = controller;

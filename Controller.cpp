@@ -10,7 +10,6 @@
 
 #include "Controller.hpp"
 
-
 namespace wayround_i2p::ccedit
 {
 
@@ -80,7 +79,6 @@ void Controller::registerWindow(Gtk::Window *win)
 {
     app->add_window(*win);
 }
-
 
 int Controller::findProjectIndex(std::string proj_name)
 {
@@ -268,7 +266,7 @@ int Controller::editProject(
     return 0;
 }
 
-std::tuple<    std::string,    int>
+std::tuple<std::string, int>
     Controller::getNameProject(ProjectCtl_shared p_ctl)
 {
     return getNameProject(p_ctl.get());

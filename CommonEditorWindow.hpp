@@ -61,8 +61,7 @@ class CommonEditorWindow : public CodeEditorAbstract
   private:
     ProjectCtl_shared  project_ctl;
     WorkSubject_shared subject;
-    CodeEditorMod               *mod;
-
+    CodeEditorMod     *mod;
 
     Gtk::ApplicationWindow win;
 

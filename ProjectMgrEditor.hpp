@@ -14,16 +14,16 @@ class ProjectMgrEditor
 {
   public:
     static ProjectMgrEditor_shared create(
-        Controller_shared controller,
-        std::string                 proj_name,
-        std::filesystem::path       proj_path
+        Controller_shared     controller,
+        std::string           proj_name,
+        std::filesystem::path proj_path
     );
 
   protected:
     ProjectMgrEditor(
-        Controller_shared controller,
-        std::string                 proj_name,
-        std::filesystem::path       proj_path
+        Controller_shared     controller,
+        std::string           proj_name,
+        std::filesystem::path proj_path
     );
 
   public:

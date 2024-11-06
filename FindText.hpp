@@ -174,7 +174,7 @@ class FindText : public Gtk::Window
     FindText_shared own_ptr;
 
     CodeEditorAbstract_weak editor_window;
-    unsigned int                      saved_cursor_line;
+    unsigned int            saved_cursor_line;
 
     Gtk::Box       main_box;
     Gtk::Expander  search_ex;

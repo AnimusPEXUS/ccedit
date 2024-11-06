@@ -12,8 +12,8 @@ class ProjectCtl;
 
 struct ProjectListItem
 {
-    std::string                 name;
-    std::string                 path;
+    std::string       name;
+    std::string       path;
     ProjectCtl_shared project_ctl;
 };
 

@@ -371,7 +371,8 @@ int FileExplorer::touchFileOrMkDir(
         try
         {
             create_directories(full_path);
-        } catch (std::exception &e)
+        }
+        catch (std::exception &e)
         {
             return 3;
         }
@@ -802,8 +803,8 @@ std::tuple<Glib::RefPtr<Gio::ListModel>, int>
 }
 
 FileExplorerMakeFileDir_shared FileExplorerMakeFileDir::create(
-    FileExplorer_shared expl,
-    std::filesystem::path         subdir
+    FileExplorer_shared   expl,
+    std::filesystem::path subdir
 )
 {
     auto ret = FileExplorerMakeFileDir_shared(
@@ -817,8 +818,8 @@ FileExplorerMakeFileDir_shared FileExplorerMakeFileDir::create(
 }
 
 FileExplorerMakeFileDir::FileExplorerMakeFileDir(
-    FileExplorer_shared expl,
-    std::filesystem::path         subdir
+    FileExplorer_shared   expl,
+    std::filesystem::path subdir
 )
 {
     this->expl   = expl;

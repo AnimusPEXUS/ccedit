@@ -10,9 +10,9 @@ namespace wayround_i2p::ccedit
 {
 
 ProjectMgrEditor_shared create(
-    Controller_shared controller,
-    std::string                 proj_name,
-    std::filesystem::path       proj_path
+    Controller_shared     controller,
+    std::string           proj_name,
+    std::filesystem::path proj_path
 )
 {
     auto ret = ProjectMgrEditor_shared(
@@ -27,9 +27,9 @@ ProjectMgrEditor_shared create(
 }
 
 ProjectMgrEditor::ProjectMgrEditor(
-    Controller_shared controller,
-    std::string                 proj_name,
-    std::filesystem::path       proj_path
+    Controller_shared     controller,
+    std::string           proj_name,
+    std::filesystem::path proj_path
 )
 {
     if (!controller)
@@ -166,7 +166,7 @@ void ProjectMgrEditor::on_browse_click_finish(
     std::shared_ptr<Gio::AsyncResult> res
 )
 {
-    #error "don't use shared_ptr for Gio::AsyncResult"
+#error "don't use shared_ptr for Gio::AsyncResult"
     if (res == NULL)
     {
         // std::cout << "res == NULL\n";

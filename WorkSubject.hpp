@@ -18,23 +18,23 @@ class WorkSubject
   public:
     // path should be always relative to project root
     static WorkSubject_shared create(
-        Controller_shared controller,
-        ProjectCtl_shared project_ctl,
-        std::filesystem::path       fpth
+        Controller_shared     controller,
+        ProjectCtl_shared     project_ctl,
+        std::filesystem::path fpth
     );
 
     ~WorkSubject();
 
-    Controller_shared getController();
-    ProjectCtl_shared getProject();
-    std::filesystem::path       getPath();
-    std::filesystem::path       getFullPath();
-    void                        createNew();
-    int                         reload();
-    int                         reload(bool allow_nonexist);
-    int                         save();
-    bool                        modified();
-    void                        modified(bool val);
+    Controller_shared     getController();
+    ProjectCtl_shared     getProject();
+    std::filesystem::path getPath();
+    std::filesystem::path getFullPath();
+    void                  createNew();
+    int                   reload();
+    int                   reload(bool allow_nonexist);
+    int                   save();
+    bool                  modified();
+    void                  modified(bool val);
 
     Glib::RefPtr<Gtk::TextBuffer> getTextBuffer();
 
@@ -51,15 +51,15 @@ class WorkSubject
 
   protected:
     WorkSubject(
-    Controller_shared controller,
-    ProjectCtl_shared project_ctl,
-        std::filesystem::path       fpth
+        Controller_shared     controller,
+        ProjectCtl_shared     project_ctl,
+        std::filesystem::path fpth
     );
 
   private:
-    Controller_shared controller;
-    ProjectCtl_shared project_ctl;
-    std::filesystem::path       fpth;
+    Controller_shared     controller;
+    ProjectCtl_shared     project_ctl;
+    std::filesystem::path fpth;
 
     Glib::RefPtr<Gtk::TextBuffer> txt_buff;
 

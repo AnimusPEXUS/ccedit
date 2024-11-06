@@ -121,21 +121,21 @@ class FileExplorerMakeFileDir : public Gtk::Window
 {
   public:
     static FileExplorerMakeFileDir_shared create(
-        FileExplorer_shared expl,
-        std::filesystem::path         subdir
+        FileExplorer_shared   expl,
+        std::filesystem::path subdir
     );
 
     ~FileExplorerMakeFileDir();
 
   protected:
     FileExplorerMakeFileDir(
-        FileExplorer_shared expl,
-        std::filesystem::path         subdir
+        FileExplorer_shared   expl,
+        std::filesystem::path subdir
     );
 
   private:
-    FileExplorer_shared expl;
-    std::filesystem::path         subdir;
+    FileExplorer_shared   expl;
+    std::filesystem::path subdir;
 
     FileExplorerMakeFileDir_shared own_ptr;
 
