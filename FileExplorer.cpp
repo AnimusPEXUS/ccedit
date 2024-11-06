@@ -11,18 +11,18 @@
 
 using namespace wayround_i2p::ccedit;
 
-std::shared_ptr<FileExplorer> FileExplorer::create(
-    std::shared_ptr<ProjectCtl> proj_ctl
+FileExplorer_shared FileExplorer::create(
+    ProjectCtl_shared proj_ctl
 )
 {
-    auto ret = std::shared_ptr<FileExplorer>(
+    auto ret = FileExplorer_shared(
         new FileExplorer(proj_ctl)
     );
     ret->own_ptr = ret;
     return ret;
 }
 
-FileExplorer::FileExplorer(std::shared_ptr<ProjectCtl> proj_ctl) :
+FileExplorer::FileExplorer(ProjectCtl_shared proj_ctl) :
     main_box(Gtk::Orientation::VERTICAL, 5)
 {
     this->proj_ctl = proj_ctl;
@@ -801,12 +801,12 @@ std::tuple<Glib::RefPtr<Gio::ListModel>, int>
     return std::tuple<Glib::RefPtr<Gio::ListModel>, int>(ret, 0);
 }
 
-std::shared_ptr<FileExplorerMakeFileDir> FileExplorerMakeFileDir::create(
-    std::shared_ptr<FileExplorer> expl,
+FileExplorerMakeFileDir_shared FileExplorerMakeFileDir::create(
+    FileExplorer_shared expl,
     std::filesystem::path         subdir
 )
 {
-    auto ret = std::shared_ptr<FileExplorerMakeFileDir>(
+    auto ret = FileExplorerMakeFileDir_shared(
         new FileExplorerMakeFileDir(
             expl,
             subdir
@@ -817,7 +817,7 @@ std::shared_ptr<FileExplorerMakeFileDir> FileExplorerMakeFileDir::create(
 }
 
 FileExplorerMakeFileDir::FileExplorerMakeFileDir(
-    std::shared_ptr<FileExplorer> expl,
+    FileExplorer_shared expl,
     std::filesystem::path         subdir
 )
 {

@@ -1,58 +1,55 @@
-#ifndef WAYROUND_I2P_20240311_144846_114637
-#define WAYROUND_I2P_20240311_144846_114637
+#ifndef WAYROUND_I2P_20241106_133730_892839
+#define WAYROUND_I2P_20241106_133730_892839
 
 #include <filesystem>
 #include <iostream>
+#include <memory>
 #include <tuple>
 
 #include <gtkmm.h>
 #include <sigc++/sigc++.h>
 
-#include "CodeEditorAbstract.hpp"
-#include "Controller.hpp"
-#include "FileExplorer.hpp"
-#include "WorkSubject.hpp"
-#include "tables.hpp"
+#include "forward_declarations.hpp"
 
-namespace wayround_i2p
+namespace wayround_i2p::ccedit
 {
-namespace ccedit
+
+class ProjectCtlWin
 {
-    class CodeEditorTableRow;
-    class Controller;
-    class FileExplorer;
-    class WorkSubjectTableRow;
+  public:
+    static ProjectCtlWin_shared create(ProjectCtl_shared proj_ctl);
+    ~ProjectCtlWin();
 
-    class ProjectCtlWin : public Gtk::Window
-    {
-      public:
-        ProjectCtlWin(std::shared_ptr<ProjectCtl> proj_ctl);
+  protected:
+    ProjectCtlWin(ProjectCtl_shared proj_ctl);
 
-        ~ProjectCtlWin();
+  public:
+    void updateTitle();
 
-        std::shared_ptr<ProjectCtlWin> own_ptr;
+  private:
+    runOnce destroyer;
 
-        void updateTitle();
+    ProjectCtlWin_shared own_ptr;
 
-      private:
-        std::shared_ptr<ProjectCtl> proj_ctl;
-        std::shared_ptr<Controller> controller;
+    ProjectCtl_shared proj_ctl;
+    Controller_shared controller;
 
-        Gtk::Box main_box;
+    Gtk::Window win;
 
-        Gtk::Button show_file_explorer_btn;
-        Gtk::Button show_new_worksubject_list_btn;
-        Gtk::Button show_new_editor_list_btn;
+    Gtk::Box main_box;
 
-        void on_show_file_explorer_btn();
-        void on_show_new_worksubject_list_btn();
-        void on_show_new_editor_list_btn();
+    Gtk::Button show_file_explorer_btn;
+    Gtk::Button show_new_worksubject_list_btn;
+    Gtk::Button show_new_editor_list_btn;
 
-        void on_hide_sig();
-        void on_destroy_sig();
-    };
+    void on_show_file_explorer_btn();
+    void on_show_new_worksubject_list_btn();
+    void on_show_new_editor_list_btn();
 
-} // namespace ccedit
-} // namespace wayround_i2p
+    void on_hide_sig();
+    void on_destroy_sig();
+};
+
+} // namespace wayround_i2p::ccedit
 
 #endif

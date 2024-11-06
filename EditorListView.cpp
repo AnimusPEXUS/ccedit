@@ -3,7 +3,7 @@
 using namespace wayround_i2p::ccedit;
 
 EditorListView::EditorListView(
-    std::shared_ptr<ProjectCtl> project_ctl
+    ProjectCtl_shared project_ctl
 ) :
     main_box(Gtk::Orientation::VERTICAL, 5),
     tools_box(Gtk::Orientation::HORIZONTAL, 5)

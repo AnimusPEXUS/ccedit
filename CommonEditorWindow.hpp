@@ -1,143 +1,135 @@
-#ifndef WAYROUND_I2P_20240311_144846_118343
-#define WAYROUND_I2P_20240311_144846_118343
+#ifndef WAYROUND_I2P_20241106_133730_894827
+#define WAYROUND_I2P_20241106_133730_894827
 
 #include <memory>
 
 #include <gtkmm.h>
-// #include <gtksourceview/gtksource.h>
 
-#include "CodeEditorAbstract.hpp"
-#include "FindText.hpp"
-#include "ProjectCtl.hpp"
-#include "WorkSubject.hpp"
+#include "forward_declarations.hpp"
 
-namespace wayround_i2p
-{
-namespace ccedit
+namespace wayround_i2p::ccedit
 {
 
-    struct CommonEditorWindowStateStorage
-    {
-        unsigned int cur_pos_iter_offset = 0;
-        double       scroll_adj          = 0;
-    };
+struct CommonEditorWindowStateStorage
+{
+    unsigned int cur_pos_iter_offset = 0;
+    double       scroll_adj          = 0;
+};
 
-    class CommonEditorWindow : public CodeEditorAbstract,
-                               public Gtk::ApplicationWindow
-    {
-      public:
-        CommonEditorWindow(
-            std::shared_ptr<ProjectCtl>  project_ctl,
-            std::shared_ptr<WorkSubject> subject
-        );
-        ~CommonEditorWindow();
+class CommonEditorWindow : public CodeEditorAbstract
+{
+  public:
+    CommonEditorWindow(
+        ProjectCtl_shared  project_ctl,
+        WorkSubject_shared subject
+    );
+    ~CommonEditorWindow();
 
-        // void saveOwnPtr(std::shared_ptr<CodeEditorAbstract>) override;
+    // void saveOwnPtr(std::shared_ptr<CodeEditorAbstract>) override;
 
-        // todo: this 'todo:' should be ok
-        // ⬇️ {CodeEditorAbstract overrides} ⬇️
-        // todo: looks like unicode causes incorrect character counting in file
-        //       search. check: use FindFile to search for 'todo:' and try to 'Go'
-        //       to this 'todo:' - if first 'todo:' not highlited - bug present
+    // todo: this 'todo:' should be ok
+    // ⬇️ {CodeEditorAbstract overrides} ⬇️
+    // todo: looks like unicode causes incorrect character counting in file
+    //       search. check: use FindFile to search for 'todo:' and try to 'Go'
+    //       to this 'todo:' - if first 'todo:' not highlited - bug present
 
-        void show() override;
-        void present() override;
-        void close() override;
-        void setTransientWindow(Gtk::Window *win) override;
-        void setTransientWindow(std::shared_ptr<Gtk::Window> win) override;
+    void show() override;
+    void present() override;
+    void close() override;
+    void setTransientWindow(Gtk::Window *win) override;
 
-        unsigned int getCursorOffsetPosition() override;
-        void         setCursorOffsetPosition(unsigned int new_pos, bool scroll = true) override;
-        unsigned int getCurrentLine() override;
-        void         setCurrentLine(unsigned int line, bool scroll = true) override;
-        void         selectSlice(unsigned int start, unsigned int end) override;
-        void         unselect() override;
-        std::string  getText() override;
+    std::size_t getCursorOffsetPosition() override;
+    void        setCursorOffsetPosition(std::size_t new_pos, bool scroll = true) override;
+    std::size_t getCurrentLine() override;
+    void        setCurrentLine(std::size_t line, bool scroll = true) override;
+    void        selectSlice(std::size_t start, std::size_t end) override;
+    void        unselect() override;
+    std::string getText() override;
 
-        // ⬆️ {CodeEditorAbstract overrides} ⬆️
+    // ⬆️ {CodeEditorAbstract overrides} ⬆️
 
-        void updateTitle(); // todo: make it private?
+    void updateTitle(); // todo: make it private?
 
-        void setOutlineContents(
-            std::vector<std::tuple<unsigned int, std::string>> val
-        );
-        void setOutlineCurrentLine(unsigned int val);
+    void setOutlineContents(
+        std::vector<std::tuple<unsigned int, std::string>> val
+    );
+    void setOutlineCurrentLine(unsigned int val);
 
-        virtual std::vector<std::tuple<unsigned int, std::string>>
-            genOutlineContents();
+    virtual std::vector<std::tuple<unsigned int, std::string>>
+        genOutlineContents();
 
-      private:
-        std::shared_ptr<ProjectCtl>  project_ctl;
-        std::shared_ptr<WorkSubject> subject;
-        CodeEditorMod               *mod;
+  private:
+    ProjectCtl_shared  project_ctl;
+    WorkSubject_shared subject;
+    CodeEditorMod               *mod;
 
-        // std::shared_ptr<CodeEditorAbstract> own_ptr;
 
-        Gtk::Box                                      main_box;
-        Gtk::Paned                                    paned;
-        Gtk::Box                                      text_view_box_upper;
-        Gtk::Box                                      text_view_box;
-        Gtk::DrawingArea                              linum_area;
-        Gtk::ScrolledWindow                           text_view_sw;
-        Gtk::TextView                                 text_view;
-        Gtk::Box                                      outline_box;
-        Gtk::ScrolledWindow                           outline_view_sw;
-        Gtk::ColumnView                               outline_view;
-        Gtk::Button                                   outline_view_refresh_btn;
-        Glib::RefPtr<Gtk::SingleSelection>            outline_view_selection;
-        Glib::RefPtr<Gio::ListStore<OutlineTableRow>> outline_list_store;
+    Gtk::ApplicationWindow win;
 
-        void setup_outline_columns();
+    Gtk::Box                                      main_box;
+    Gtk::Paned                                    paned;
+    Gtk::Box                                      text_view_box_upper;
+    Gtk::Box                                      text_view_box;
+    Gtk::DrawingArea                              linum_area;
+    Gtk::ScrolledWindow                           text_view_sw;
+    Gtk::TextView                                 text_view;
+    Gtk::Box                                      outline_box;
+    Gtk::ScrolledWindow                           outline_view_sw;
+    Gtk::ColumnView                               outline_view;
+    Gtk::Button                                   outline_view_refresh_btn;
+    Glib::RefPtr<Gtk::SingleSelection>            outline_view_selection;
+    Glib::RefPtr<Gio::ListStore<OutlineTableRow>> outline_list_store;
 
-        void make_menubar();
-        void make_actions();
-        void make_hotkeys();
+    void setup_outline_columns();
 
-        Gtk::PopoverMenuBar menu_bar;
+    void make_menubar();
+    void make_actions();
+    void make_hotkeys();
 
-        Glib::RefPtr<Gio::Menu> menu_model;
+    Gtk::PopoverMenuBar menu_bar;
 
-        Glib::RefPtr<Gio::Menu>     mm_buffer;
-        Glib::RefPtr<Gio::MenuItem> mm_buffer_reload;
-        Glib::RefPtr<Gio::MenuItem> mm_buffer_save;
-        Glib::RefPtr<Gio::MenuItem> mm_buffer_save_as;
+    Glib::RefPtr<Gio::Menu> menu_model;
 
-        Glib::RefPtr<Gio::Menu>     mm_search;
-        Glib::RefPtr<Gio::MenuItem> mm_search_search_window;
+    Glib::RefPtr<Gio::Menu>     mm_buffer;
+    Glib::RefPtr<Gio::MenuItem> mm_buffer_reload;
+    Glib::RefPtr<Gio::MenuItem> mm_buffer_save;
+    Glib::RefPtr<Gio::MenuItem> mm_buffer_save_as;
 
-        void action_buffer_reload();
-        void action_buffer_save();
-        void action_buffer_save_as();
+    Glib::RefPtr<Gio::Menu>     mm_search;
+    Glib::RefPtr<Gio::MenuItem> mm_search_search_window;
 
-        void action_search_show_window();
+    void action_buffer_reload();
+    void action_buffer_save();
+    void action_buffer_save_as();
 
-        CommonEditorWindowStateStorage saved_editor_state;
-        void                           saveState();
-        void                           restoreState();
+    void action_search_show_window();
 
-        void redraw_linum(
-            const Cairo::RefPtr<Cairo::Context> &cont,
-            int                                  width,
-            int                                  height
-        );
+    CommonEditorWindowStateStorage saved_editor_state;
+    void                           saveState();
+    void                           restoreState();
 
-        void force_redraw_linum();
+    void redraw_linum(
+        const Cairo::RefPtr<Cairo::Context> &cont,
+        int                                  width,
+        int                                  height
+    );
 
-        void on_outline_refresh_btn();
-        void on_outline_activate(guint val);
+    void force_redraw_linum();
 
-        void on_destroy_sig();
+    void on_outline_refresh_btn();
+    void on_outline_activate(guint val);
 
-      protected:
-        Glib::RefPtr<Gio::Menu> getMenuModel();
+    void on_destroy_sig();
 
-      private:
-        virtual void make_special_menu();
-        virtual void make_special_actions();
-        virtual void make_special_hotkeys();
-    };
+  protected:
+    Glib::RefPtr<Gio::Menu> getMenuModel();
 
-} // namespace ccedit
-} // namespace wayround_i2p
+  private:
+    virtual void make_special_menu();
+    virtual void make_special_actions();
+    virtual void make_special_hotkeys();
+};
+
+} // namespace wayround_i2p::ccedit
 
 #endif

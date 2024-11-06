@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.30.5)
 
 project(ccedit)
 
@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(PkgConfig REQUIRED)
 
-# set(Boost_USE_STATIC_LIBS        ON)
+# set(Boost_USE_STATIC_LIBS      ON)
 set(Boost_USE_DEBUG_LIBS        OFF)
 set(Boost_USE_RELEASE_LIBS       ON)
 set(Boost_USE_MULTITHREADED      ON)
@@ -22,52 +22,54 @@ pkg_check_modules(sigc REQUIRED IMPORTED_TARGET sigc++-3.0)
 
 find_package(ICU 73.0 COMPONENTS uc i18n REQUIRED)
 
-set(ICU_DEBUG ON)
+set(ICU_DEBUG OFF)
 
 add_executable(
-	ccedit 
-	CommonEditorWindow.cpp
-	Controller.cpp
-	EditorListView.cpp
-	FileExplorer.cpp
-	FindFile.cpp
-	FindText.cpp
-	FindTypes.cpp
-	FindTables.cpp
-	main.cpp
-	modularity.cpp
-	ProjectCtl.cpp
-	ProjectCtlWin.cpp
-	ProjectMgr.cpp
-	ProjectMgrEditor.cpp
-	tables.cpp
-	utils.cpp
-	WorkSubject.cpp
-	WorkSubjectListView.cpp
-	builtin_mods/ccpp/CodeEditorCCPP.cpp
-	builtin_mods/ccpp/mod_ccpp.cpp
-	builtin_mods/go/CodeEditorGo.cpp
-	builtin_mods/go/mod_go.cpp
-    )
+  ccedit 
+  CommonEditorWindow.cpp
+  Controller.cpp
+  EditorListView.cpp
+  FileExplorer.cpp
+  FindFile.cpp
+  FindText.cpp
+  FindTypes.cpp
+  FindTables.cpp
+  main.cpp
+  modularity.cpp
+  ProjectCtl.cpp
+  ProjectCtlWin.cpp
+  ProjectMgr.cpp
+  ProjectMgrEditor.cpp
+  tables.cpp
+  utils.cpp
+  WorkSubject.cpp
+  WorkSubjectListView.cpp
+  builtin_mods/ccpp/CodeEditorCCPP.cpp
+  builtin_mods/ccpp/mod_ccpp.cpp
+  builtin_mods/go/CodeEditorGo.cpp
+  builtin_mods/go/mod_go.cpp
+  #builtin_mods/python/CodeEditorPy.cpp
+  #builtin_mods/python/mod_py.cpp
+)
 
 target_link_libraries(
-    ccedit 
-    PUBLIC 
-    # -static
-    PkgConfig::gtk4 
-    PkgConfig::glib
-    PkgConfig::gtkmm4 
-    PkgConfig::sigc 
-    Boost::json
-    Boost::regex
-    ICU::uc 
-    ICU::i18n
-    )
+  ccedit 
+  PUBLIC 
+  # -static
+  PkgConfig::gtk4 
+  PkgConfig::glib
+  PkgConfig::gtkmm4 
+  PkgConfig::sigc 
+  Boost::json
+  Boost::regex
+  ICU::uc 
+  ICU::i18n
+)
 
 target_include_directories(
-    ccedit 
-    PUBLIC 
-    ${Boost_INCLUDE_DIRS}
-    ${ICU_INCLUDE_DIRS}
-    )
+  ccedit 
+  PUBLIC 
+  ${Boost_INCLUDE_DIRS}
+  ${ICU_INCLUDE_DIRS}
+)
 

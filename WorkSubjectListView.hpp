@@ -1,48 +1,46 @@
-#ifndef WAYROUND_I2P_20240311_144846_123889
-#define WAYROUND_I2P_20240311_144846_123889
+#ifndef WAYROUND_I2P_20241106_133730_901154
+#define WAYROUND_I2P_20241106_133730_901154
 
 #include <format>
 #include <memory>
 
 #include <gtkmm.h>
 
-#include "ProjectCtl.hpp"
+#include "forward_declarations.hpp"
 
-namespace wayround_i2p
+namespace wayround_i2p::ccedit
 {
-namespace ccedit
+
+class WorkSubjectListView : public Gtk::Window
 {
-    class WorkSubjectListView : public Gtk::Window
-    {
-      public:
-        WorkSubjectListView(std::shared_ptr<ProjectCtl> project_ctl);
-        ~WorkSubjectListView();
+  public:
+    WorkSubjectListView(ProjectCtl_shared project_ctl);
+    ~WorkSubjectListView();
 
-      private:
-        std::shared_ptr<ProjectCtl> project_ctl;
+  private:
+    ProjectCtl_shared project_ctl;
 
-        Gtk::Box main_box;
+    Gtk::Box main_box;
 
-        Gtk::Box tools_box;
+    Gtk::Box tools_box;
 
-        Gtk::ScrolledWindow               ws_view_sw;
-        Gtk::ColumnView                   ws_view;
-        Glib::RefPtr<Gtk::MultiSelection> ws_view_sel;
+    Gtk::ScrolledWindow               ws_view_sw;
+    Gtk::ColumnView                   ws_view;
+    Glib::RefPtr<Gtk::MultiSelection> ws_view_sel;
 
-        void add_columns();
+    void add_columns();
 
-        void table_cell_setup(
-            const Glib::RefPtr<Gtk::ListItem> &list_item,
-            Gtk::Align                         halign
-        );
-        void table_subject_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_item);
+    void table_cell_setup(
+        const Glib::RefPtr<Gtk::ListItem> &list_item,
+        Gtk::Align                         halign
+    );
+    void table_subject_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_item);
 
-        void updateTitle();
+    void updateTitle();
 
-        void on_destroy_sig();
-    };
+    void on_destroy_sig();
+};
 
-} // namespace ccedit
-} // namespace wayround_i2p
+} // namespace wayround_i2p::ccedit
 
 #endif

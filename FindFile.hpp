@@ -1,140 +1,129 @@
-#ifndef WAYROUND_I2P_20240311_144846_113885
-#define WAYROUND_I2P_20240311_144846_113885
+#ifndef WAYROUND_I2P_20241106_133730_892072
+#define WAYROUND_I2P_20241106_133730_892072
 
 #include <filesystem>
 #include <memory>
 
 #include <gtkmm.h>
 
-#include "FindTables.hpp"
-#include "FindTypes.hpp"
+#include "forward_declarations.hpp"
 
-#include "CodeEditorAbstract.hpp"
-#include "FindText.hpp"
-#include "ProjectCtl.hpp"
-
-namespace wayround_i2p
+namespace wayround_i2p::ccedit
 {
-namespace ccedit
+
+class FindFile : public Gtk::Window
 {
-    class FindTextWidget;
+  public:
+    static FindFile_shared create(
+        ProjectCtl_shared p_ctl
+    );
 
-    class FindFile : public Gtk::Window
-    {
-      public:
-        static std::shared_ptr<FindFile> create(
-            std::shared_ptr<ProjectCtl> p_ctl
-        );
+    ~FindFile();
 
-        ~FindFile();
+    void                      setTargetEditor(CodeEditorAbstract_shared editor);
+    void                      unsetTargetEditor();
+    CodeEditorAbstract_shared getTargetEditor();
 
-        void setTargetEditor(
-            std::shared_ptr<CodeEditorAbstract> editor
-        );
-        void                                unsetTargetEditor();
-        std::shared_ptr<CodeEditorAbstract> getTargetEditor();
+    void start();
+    void stop();
 
-        void start();
-        void stop();
+    FindFileQuery getFindFileQuery();
+    int           setFindFileQuery(FindFileQuery q);
 
-        FindFileQuery getFindFileQuery();
-        int           setFindFileQuery(FindFileQuery q);
+  protected:
+    FindFile(ProjectCtl_shared p_ctl);
 
-      protected:
-        FindFile(std::shared_ptr<ProjectCtl> p_ctl);
+  private:
+    ProjectCtl_shared       p_ctl;
+    FindFile_shared         own_ptr;
+    CodeEditorAbstract_weak target_editor;
 
-      private:
-        std::shared_ptr<ProjectCtl>       p_ctl;
-        std::shared_ptr<FindFile>         own_ptr;
-        std::weak_ptr<CodeEditorAbstract> target_editor;
+    // -----------
 
-        // -----------
+    Gtk::Box main_box;
 
-        Gtk::Box main_box;
+    // -----------
 
-        // -----------
+    Gtk::Frame editors_frame;
+    Gtk::Grid  editors_grid;
 
-        Gtk::Frame editors_frame;
-        Gtk::Grid  editors_grid;
+    // -----------
 
-        // -----------
+    Gtk::Label filemask_l;
+    Gtk::Entry filemask_w;
 
-        Gtk::Label filemask_l;
-        Gtk::Entry filemask_w;
+    Gtk::Label subpath_l;
+    Gtk::Entry subpath_w;
 
-        Gtk::Label subpath_l;
-        Gtk::Entry subpath_w;
+    // -----------
 
-        // -----------
+    Gtk::Frame   files_settings_frame;
+    Gtk::FlowBox files_settings_box;
 
-        Gtk::Frame   files_settings_frame;
-        Gtk::FlowBox files_settings_box;
+    // -----------
 
-        // -----------
+    Gtk::CheckButton use_fnmatch_on_path_part_cb;
+    Gtk::CheckButton recurcive_cb;
+    Gtk::CheckButton delve_hidden_cb;
 
-        Gtk::CheckButton use_fnmatch_on_path_part_cb;
-        Gtk::CheckButton recurcive_cb;
-        Gtk::CheckButton delve_hidden_cb;
+    Gtk::Box         max_depth_box;
+    Gtk::CheckButton max_depth_cb;
+    Gtk::SpinButton  max_depth_sb;
 
-        Gtk::Box         max_depth_box;
-        Gtk::CheckButton max_depth_cb;
-        Gtk::SpinButton  max_depth_sb;
+    Gtk::CheckButton fnmatch_cs_cb;
 
-        Gtk::CheckButton fnmatch_cs_cb;
+    // -----------
 
-        // -----------
+    Gtk::Frame       search_contents_frame;
+    Gtk::Box         search_contents_box;
+    Gtk::CheckButton search_contents_cb;
+    Gtk::Frame       find_text_widget_frame;
+    // Gtk::ScrolledWindow find_text_widget_sw;
+    FindTextWidget   find_text_widget;
+    Gtk::CheckButton dont_show_files_with_0_contents_match_cb;
 
-        Gtk::Frame       search_contents_frame;
-        Gtk::Box         search_contents_box;
-        Gtk::CheckButton search_contents_cb;
-        Gtk::Frame       find_text_widget_frame;
-        // Gtk::ScrolledWindow find_text_widget_sw;
-        FindTextWidget   find_text_widget;
-        Gtk::CheckButton dont_show_files_with_0_contents_match_cb;
+    // -----------
 
-        // -----------
+    Gtk::Frame button_frame;
+    Gtk::Box   button_box;
 
-        Gtk::Frame button_frame;
-        Gtk::Box   button_box;
+    Gtk::Button      start_btn;
+    Gtk::ProgressBar progress_bar;
+    Gtk::Button      stop_btn;
 
-        Gtk::Button      start_btn;
-        Gtk::ProgressBar progress_bar;
-        Gtk::Button      stop_btn;
+    Gtk::Paned results_pan;
 
-        Gtk::Paned results_pan;
+    Gtk::ScrolledWindow result_files_sw;
+    Gtk::ListView       result_files;
 
-        Gtk::ScrolledWindow result_files_sw;
-        Gtk::ListView       result_files;
+    Gtk::ScrolledWindow result_lines_sw;
+    Gtk::ListView       result_lines;
 
-        Gtk::ScrolledWindow result_lines_sw;
-        Gtk::ListView       result_lines;
+    void setup_result_filelist();
+    void setup_result_linelist();
 
-        void setup_result_filelist();
-        void setup_result_linelist();
+    FindFileQuery work_time_query;
+    bool          search_stop_flag = false;
+    bool          search_working   = false;
+    int           start_search_thread();
+    void          stop_search_thread();
+    void          search_thread();
+    int           search_thread_search_contents(FindFileResultTreeItemP item);
 
-        FindFileQuery work_time_query;
-        bool          search_stop_flag = false;
-        bool          search_working   = false;
-        int           start_search_thread();
-        void          stop_search_thread();
-        void          search_thread();
-        int           search_thread_search_contents(FindFileResultTreeItemP item);
+    void updateProgressbar(
+        unsigned int dirs_count,
+        unsigned int dirs_done,
+        unsigned int files_count,
+        unsigned int files_done
+    );
 
-        void updateProgressbar(
-            unsigned int dirs_count,
-            unsigned int dirs_done,
-            unsigned int files_count,
-            unsigned int files_done
-        );
+    void on_filelist_activate(gint);
 
-        void on_filelist_activate(gint);
+    void on_start_btn();
+    void on_stop_btn();
+    void on_destroy_sig();
+};
 
-        void on_start_btn();
-        void on_stop_btn();
-        void on_destroy_sig();
-    };
-
-} // namespace ccedit
-} // namespace wayround_i2p
+} // namespace wayround_i2p::ccedit
 
 #endif

@@ -16,14 +16,14 @@ namespace wayround_i2p
 namespace ccedit
 {
 
-    std::shared_ptr<FindFile> FindFile::create(std::shared_ptr<ProjectCtl> p_ctl)
+    FindFile_shared FindFile::create(ProjectCtl_shared p_ctl)
     {
-        auto ret     = std::shared_ptr<FindFile>(new FindFile(p_ctl));
+        auto ret     = FindFile_shared(new FindFile(p_ctl));
         ret->own_ptr = ret;
         return ret;
     }
 
-    FindFile::FindFile(std::shared_ptr<ProjectCtl> p_ctl)
+    FindFile::FindFile(ProjectCtl_shared p_ctl)
     {
         this->p_ctl = p_ctl;
 

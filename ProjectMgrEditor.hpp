@@ -1,64 +1,73 @@
-#ifndef WAYROUND_I2P_20240311_144846_113089
-#define WAYROUND_I2P_20240311_144846_113089
+#ifndef WAYROUND_I2P_20241106_133730_890322
+#define WAYROUND_I2P_20241106_133730_890322
 
 #include <iostream>
 
 #include <gtkmm.h>
 
-#include "Controller.hpp"
+#include "forward_declarations.hpp"
 
-namespace wayround_i2p
-{
-namespace ccedit
+namespace wayround_i2p::ccedit
 {
 
-    class ProjectMgrEditor : public Gtk::Window
-    {
+class ProjectMgrEditor
+{
+  public:
+    static ProjectMgrEditor_shared create(
+        Controller_shared controller,
+        std::string                 proj_name,
+        std::filesystem::path       proj_path
+    );
 
-      public:
-        ProjectMgrEditor(
-            std::shared_ptr<Controller> controller,
-            std::string                 proj_name,
-            std::filesystem::path       proj_path
-        );
-        ~ProjectMgrEditor();
+  protected:
+    ProjectMgrEditor(
+        Controller_shared controller,
+        std::string                 proj_name,
+        std::filesystem::path       proj_path
+    );
 
-        // std::shared_ptr<ProjectMgrEditor> own_ptr;
+  public:
+    ~ProjectMgrEditor();
 
-      private:
-        std::shared_ptr<Controller> controller;
+  private:
+    Controller_weak controller;
 
-        std::string           proj_name_orig;
-        std::filesystem::path proj_path_orig;
+    ProjectMgrEditor_weak own_ptr;
 
-        Gtk::Box main_box;
+    std::string           proj_name_orig;
+    std::filesystem::path proj_path_orig;
 
-        Gtk::Grid main_grid;
+    Gtk::Window win;
 
-        Gtk::Label name_label;
-        Gtk::Label path_label;
+    Gtk::Box main_box;
 
-        Gtk::Entry project_name;
-        Gtk::Entry project_path;
+    Gtk::Grid main_grid;
 
-        Gtk::Button btn_browse;
+    Gtk::Label name_label;
+    Gtk::Label path_label;
 
-        Gtk::Button btn_ok;
-        Gtk::Button btn_cancel;
+    Gtk::Entry project_name;
+    Gtk::Entry project_path;
 
-        Gtk::Box button_box;
+    Gtk::Button btn_browse;
 
-        void on_ok_click();
-        void on_cancel_click();
-        void on_browse_click();
+    Gtk::Button btn_ok;
+    Gtk::Button btn_cancel;
 
-        void on_browse_click_finish(std::shared_ptr<Gio::AsyncResult> res);
+    Gtk::Box button_box;
 
-        void on_destroy_sig();
+    void on_ok_click();
+    void on_cancel_click();
+    void on_browse_click();
 
-        Glib::RefPtr<Gtk::FileDialog> select_dir_dialog;
-    };
-} // namespace ccedit
-} // namespace wayround_i2p
+    // todo: rework this function
+    // void on_browse_click_finish(std::shared_ptr<Gio::AsyncResult> res);
+
+    void on_destroy_sig();
+
+    Glib::RefPtr<Gtk::FileDialog> select_dir_dialog;
+};
+
+} // namespace wayround_i2p::ccedit
 
 #endif

@@ -1,7 +1,5 @@
-#ifndef WAYROUND_I2P_20240311_144846_122785
-#define WAYROUND_I2P_20240311_144846_122785
-
-using namespace std;
+#ifndef WAYROUND_I2P_20241106_133730_900154
+#define WAYROUND_I2P_20241106_133730_900154
 
 // todo: delete this module?
 //       I don't currently use it, and

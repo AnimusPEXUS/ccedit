@@ -10,10 +10,9 @@
 
 #include "Controller.hpp"
 
-#include "builtin_mods/ccpp/mod_ccpp.hpp"
-#include "builtin_mods/go/mod_go.hpp"
 
-using namespace wayround_i2p::ccedit;
+namespace wayround_i2p::ccedit
+{
 
 Controller::Controller(Glib::RefPtr<Gtk::Application> app)
 {
@@ -57,7 +56,7 @@ void Controller::showProjectMgr()
 {
     if (!project_mgr)
     {
-        project_mgr = std::shared_ptr<ProjectMgr>(
+        project_mgr = ProjectMgr_shared(
             new ProjectMgr(own_ptr)
         );
         registerWindow(project_mgr);
@@ -82,10 +81,6 @@ void Controller::registerWindow(Gtk::Window *win)
     app->add_window(*win);
 }
 
-void Controller::registerWindow(std::shared_ptr<Gtk::Window> win)
-{
-    registerWindow(win.get());
-}
 
 int Controller::findProjectIndex(std::string proj_name)
 {
@@ -119,7 +114,7 @@ int Controller::findProjectIndex(ProjectCtl *p_ctl)
     return -1;
 }
 
-int Controller::findProjectIndex(std::shared_ptr<ProjectCtl> p_ctl)
+int Controller::findProjectIndex(ProjectCtl_shared p_ctl)
 {
     return findProjectIndex(p_ctl.get());
 }
@@ -273,10 +268,8 @@ int Controller::editProject(
     return 0;
 }
 
-std::tuple<
-    std::string,
-    int>
-    Controller::getNameProject(std::shared_ptr<ProjectCtl> p_ctl)
+std::tuple<    std::string,    int>
+    Controller::getNameProject(ProjectCtl_shared p_ctl)
 {
     return getNameProject(p_ctl.get());
 }
@@ -317,7 +310,7 @@ std::tuple<std::filesystem::path, int> Controller::getPathProject(std::string na
 std::tuple<
     std::filesystem::path,
     int>
-    Controller::getPathProject(std::shared_ptr<ProjectCtl> p_ctl)
+    Controller::getPathProject(ProjectCtl_shared p_ctl)
 {
     return getPathProject(p_ctl.get());
 }
@@ -372,7 +365,7 @@ int Controller::addBuiltinMods()
     return 0;
 }
 
-bool Controller::isGlobalProjCtl(std::shared_ptr<ProjectCtl> p_ctl)
+bool Controller::isGlobalProjCtl(ProjectCtl_shared p_ctl)
 {
     return isGlobalProjCtl(p_ctl.get());
 }
@@ -382,11 +375,11 @@ bool Controller::isGlobalProjCtl(ProjectCtl *p_ctl)
     return global_proj_ctl && p_ctl == global_proj_ctl.get();
 }
 
-std::shared_ptr<ProjectCtl> Controller::createGlobalProjCtl()
+ProjectCtl_shared Controller::createGlobalProjCtl()
 {
     if (!global_proj_ctl)
     {
-        global_proj_ctl = std::shared_ptr<ProjectCtl>(
+        global_proj_ctl = ProjectCtl_shared(
             new ProjectCtl(own_ptr)
         );
         global_proj_ctl->own_ptr = global_proj_ctl;
@@ -396,7 +389,7 @@ std::shared_ptr<ProjectCtl> Controller::createGlobalProjCtl()
     return global_proj_ctl;
 }
 
-std::shared_ptr<ProjectCtl> Controller::getGlobalProjCtl()
+ProjectCtl_shared Controller::getGlobalProjCtl()
 {
     return global_proj_ctl;
 }
@@ -429,7 +422,7 @@ void Controller::closeGlobalProjCtlWin()
     }
 }
 
-std::tuple<std::shared_ptr<ProjectCtl>, int> Controller::createProjCtl(std::string name)
+std::tuple<ProjectCtl_shared, int> Controller::createProjCtl(std::string name)
 {
     auto p_ind = findProjectIndex(name);
     if (p_ind != -1)
@@ -437,7 +430,7 @@ std::tuple<std::shared_ptr<ProjectCtl>, int> Controller::createProjCtl(std::stri
         auto x = project_list_store->get_item(p_ind);
         if (!(x->proj_ctl))
         {
-            auto new_ctl = std::shared_ptr<ProjectCtl>(
+            auto new_ctl = ProjectCtl_shared(
                 new ProjectCtl(own_ptr)
             );
             x->proj_ctl      = new_ctl;
@@ -446,10 +439,10 @@ std::tuple<std::shared_ptr<ProjectCtl>, int> Controller::createProjCtl(std::stri
         }
         return std::tuple(x->proj_ctl, 0);
     }
-    return std::tuple(std::shared_ptr<ProjectCtl>(), 1);
+    return std::tuple(nullptr, 1);
 }
 
-std::tuple<std::shared_ptr<ProjectCtl>, int> Controller::getProjCtl(std::string name)
+std::tuple<ProjectCtl_shared, int> Controller::getProjCtl(std::string name)
 {
     auto p_ind = findProjectIndex(name);
     if (p_ind != -1)
@@ -460,7 +453,7 @@ std::tuple<std::shared_ptr<ProjectCtl>, int> Controller::getProjCtl(std::string 
             return std::tuple(x->proj_ctl, 0);
         }
     }
-    return std::tuple(std::shared_ptr<ProjectCtl>(), 1);
+    return std::tuple(nullptr, 1);
 }
 
 int Controller::closeProjCtl(std::string name)
@@ -500,7 +493,7 @@ void Controller::closeProjCtlWin(std::string name)
     }
 }
 
-void Controller::closeProjCtl(std::shared_ptr<ProjectCtl> p_ctl)
+void Controller::closeProjCtl(ProjectCtl_shared p_ctl)
 {
     return closeProjCtl(p_ctl.get());
 }
@@ -531,7 +524,7 @@ void Controller::emitProjectListStoreItemsChanged()
 }
 */
 
-const std::string CODEEDIT_CFG = "codeedit.cfg";
+const std::string CODEEDIT_CFG = "ccedit.cfg";
 
 // ----------------------------------
 
@@ -552,7 +545,7 @@ std::tuple<std::filesystem::path, int> Controller::getConfigDir()
 
     auto dir = std::filesystem::path(std::string(wordexp_res.we_wordv[0]));
 
-    dir = dir / ".config" / "codeeditor";
+    dir = dir / ".config" / "ccedit";
 
     return std::tuple(dir, 0);
 }
@@ -588,3 +581,5 @@ int Controller::ensureConfigDirExists()
 #else
     #error "only __unix__ target supported now"
 #endif
+
+} // namespace wayround_i2p::ccedit

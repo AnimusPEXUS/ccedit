@@ -741,16 +741,16 @@ namespace ccedit
 
     // ---------------
 
-    std::shared_ptr<FindText> FindText::create(
-        std::weak_ptr<CodeEditorAbstract> editor_window
+    FindText_shared FindText::create(
+        CodeEditorAbstract_shared editor_window
     )
     {
-        auto n     = std::shared_ptr<FindText>(new FindText(editor_window));
+        auto n     = FindText_shared(new FindText(editor_window));
         n->own_ptr = n;
         return n;
     }
 
-    FindText::FindText(std::weak_ptr<CodeEditorAbstract> editor_window) :
+    FindText::FindText(CodeEditorAbstract_weak editor_window) :
         main_box(Gtk::Orientation::VERTICAL, 5),
         search_box(Gtk::Orientation::VERTICAL, 5),
         text_search_btn_box(Gtk::Orientation::HORIZONTAL, 5),

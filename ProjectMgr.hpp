@@ -1,71 +1,81 @@
-#ifndef WAYROUND_I2P_20240311_144846_107477
-#define WAYROUND_I2P_20240311_144846_107477
+#ifndef WAYROUND_I2P_20241106_133730_883847
+#define WAYROUND_I2P_20241106_133730_883847
+
+#include <memory>
 
 #include <gtkmm.h>
 
-#include "Controller.hpp"
+#include "forward_declarations.hpp"
 
-namespace wayround_i2p
-{
-namespace ccedit
+namespace wayround_i2p::ccedit
 {
 
-    class Controller;
+class ProjectMgr
+{
+  public:
+    static ProjectMgr_weak create(Controller_shared controller);
 
-    class ProjectMgr : public Gtk::Window
-    {
-      public:
-        ProjectMgr(std::shared_ptr<Controller> controller);
+    void destroy();
 
-      private:
-        std::shared_ptr<Controller> controller;
+  protected:
+    ProjectMgr(Controller_shared controller);
 
-        // ProjectMgrTableRow ProjectMgrTableRow;
+  private:
+    ProjectMgr_shared own_ptr;
 
-        Gtk::ScrolledWindow               project_list_sw;
-        Gtk::ColumnView                   project_list_view;
-        Glib::RefPtr<Gtk::MultiSelection> project_list_view_selection;
+    runOnce united_destroy_routines;
 
-        Gtk::Box main_box;
-        Gtk::Box button_box;
-        Gtk::Box button_box_sec;
+    // controller should not possibly be destroyed before any other window
+    // of ccedit, so it is always shared inside of ccedit windows
+    Controller_shared controller;
 
-        Gtk::Button    add_proj;
-        Gtk::Button    rm_proj;
-        Gtk::Button    edit_proj;
-        Gtk::Separator sep0;
-        Gtk::Button    open_proj;
-        Gtk::Separator sep1;
-        Gtk::Button    open_global;
+    Gtk::Window win;
 
-        Gtk::Button modules_info_print;
-        Gtk::Button save_cfg;
+    Gtk::ScrolledWindow project_list_sw;
+    Gtk::ColumnView     project_list_view;
 
-        void add_columns();
+    Glib::RefPtr<Gtk::MultiSelection>
+        project_list_view_selection;
 
-        void table_cell_setup(
-            const Glib::RefPtr<Gtk::ListItem> &list_item,
-            Gtk::Align                         halign
-        );
-        void table_name_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_item);
-        void table_name_cell_unbind(const Glib::RefPtr<Gtk::ListItem> &list_item);
+    Gtk::Box main_box;
+    Gtk::Box button_box;
+    Gtk::Box button_box_sec;
 
-        void table_path_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_item);
-        void table_path_cell_unbind(const Glib::RefPtr<Gtk::ListItem> &list_item);
+    Gtk::Button    add_proj;
+    Gtk::Button    rm_proj;
+    Gtk::Button    edit_proj;
+    Gtk::Separator sep0;
+    Gtk::Button    open_proj;
+    Gtk::Separator sep1;
+    Gtk::Button    open_global;
 
-        void on_add_click();
-        void on_rm_click();
-        void on_edit_click();
-        void on_open_click();
-        void on_open_global_click();
+    Gtk::Button modules_info_print;
+    Gtk::Button save_cfg;
 
-        void on_modules_info_print();
-        void on_save_cfg();
+    void add_columns();
 
-        void on_destroy_sig();
-    };
+    void table_cell_setup(
+        const Glib::RefPtr<Gtk::ListItem> &list_item,
+        Gtk::Align                         halign
+    );
+    void table_name_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_item);
+    void table_name_cell_unbind(const Glib::RefPtr<Gtk::ListItem> &list_item);
 
-} // namespace ccedit
-} // namespace wayround_i2p
+    void table_path_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_item);
+    void table_path_cell_unbind(const Glib::RefPtr<Gtk::ListItem> &list_item);
+
+    void on_add_click();
+    void on_rm_click();
+    void on_edit_click();
+    void on_open_click();
+    void on_open_global_click();
+
+    void on_modules_info_print();
+    void on_save_cfg();
+
+    void on_destroy_sig();
+};
+
+} // namespace wayround_i2p::ccedit
 
 #endif

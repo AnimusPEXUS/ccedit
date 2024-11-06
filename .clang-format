@@ -57,7 +57,7 @@ BraceWrapping:
   AfterNamespace: true
   AfterStruct: true
   AfterUnion: true
-  BeforeCatch: false
+  BeforeCatch: true
   BeforeElse: true
   BeforeLambdaBody: true
   BeforeWhile: false
@@ -90,3 +90,8 @@ NamespaceIndentation: Inner
 #   InCStyleCasts: false
 #   InEmptyParentheses: false
 #   Other: false
+AllowShortCompoundRequirementOnASingleLine: true
+BreakBeforeConceptDeclarations: Allowed
+RequiresExpressionIndentation: OuterScope
+SpaceBeforeParensOptions:
+   AfterRequiresInExpression: true

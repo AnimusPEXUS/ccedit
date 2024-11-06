@@ -1,5 +1,5 @@
-#ifndef WAYROUND_I2P_20240311_144846_114162
-#define WAYROUND_I2P_20240311_144846_114162
+#ifndef WAYROUND_I2P_20241106_133730_892452
+#define WAYROUND_I2P_20241106_133730_892452
 
 #include <filesystem>
 #include <iostream>
@@ -8,127 +8,118 @@
 #include <gtkmm.h>
 #include <sigc++/sigc++.h>
 
-#include "Controller.hpp"
-#include "FileExplorer.hpp"
-#include "ProjectCtlWin.hpp"
-#include "WorkSubject.hpp"
+#include "forward_declarations.hpp"
+
 #include "tables.hpp"
 
-namespace wayround_i2p
+namespace wayround_i2p::ccedit
 {
-namespace ccedit
+
+class ProjectCtl
 {
-    class Controller;
-    class FileExplorer;
-    class WorkSubjectTableRow;
-    class CodeEditorTableRow;
+  public:
+    ProjectCtl(Controller_shared controller);
 
-    class ProjectCtl
-    {
-      public:
-        ProjectCtl(std::shared_ptr<Controller> controller);
+    ~ProjectCtl();
 
-        ~ProjectCtl();
+    ProjectCtl_shared own_ptr;
 
-        std::shared_ptr<ProjectCtl> own_ptr;
+    Controller_shared getController();
 
-        std::shared_ptr<Controller> getController();
+    bool                  isGlobalProject();
+    std::string           getProjectName();
+    std::filesystem::path getProjectPath();
 
-        bool                  isGlobalProject();
-        std::string           getProjectName();
-        std::filesystem::path getProjectPath();
+    // ----------
 
-        // ----------
+    bool workSubjectExists(std::filesystem::path fpth);
 
-        bool workSubjectExists(std::filesystem::path fpth);
+    // tries to find and return existing WorkSubject. result is empty if
+    // there's no existing WS for fpath
 
-        // tries to find and return existing WorkSubject. result is empty if
-        // there's no existing WS for fpath
+    WorkSubject_shared getWorkSubject(std::filesystem::path fpth);
 
-        std::shared_ptr<WorkSubject> getWorkSubject(std::filesystem::path fpth);
+    // tries to find and return existing WorkSubject. if WS not exists already -
+    // creates and returns new one
 
-        // tries to find and return existing WorkSubject. if WS not exists already -
-        // creates and returns new one
+    WorkSubject_shared workSubjectEnsureExistance(
+        std::filesystem::path fpth
+    );
 
-        std::shared_ptr<WorkSubject> workSubjectEnsureExistance(
-            std::filesystem::path fpth
-        );
+    // ----------
 
-        // ----------
+    // if subject not exists - create.
+    // tries to find and return existing editor.
 
-        // if subject not exists - create.
-        // tries to find and return existing editor.
+    CodeEditorAbstract_shared workSubjectExistingOrNewEditor(
+        std::filesystem::path fpth
+    );
 
-        std::shared_ptr<CodeEditorAbstract> workSubjectExistingOrNewEditor(
-            std::filesystem::path fpth
-        );
+    // if subject not exists - create.
+    // allways create new editor for resulting subject
 
-        // if subject not exists - create.
-        // allways create new editor for resulting subject
+    CodeEditorAbstract_shared workSubjectNewEditor(
+        std::filesystem::path fpth
+    );
 
-        std::shared_ptr<CodeEditorAbstract> workSubjectNewEditor(
-            std::filesystem::path fpth
-        );
+    // ----------
 
-        // ----------
+    // tries to find and return existing editor.
 
-        // tries to find and return existing editor.
+    CodeEditorAbstract_shared workSubjectExistingOrNewEditor(
+        WorkSubject_shared
+    );
 
-        std::shared_ptr<CodeEditorAbstract> workSubjectExistingOrNewEditor(
-            std::shared_ptr<WorkSubject>
-        );
+    // allways create new editor for subject
 
-        // allways create new editor for subject
+    CodeEditorAbstract_shared workSubjectNewEditor(
+        WorkSubject_shared
+    );
 
-        std::shared_ptr<CodeEditorAbstract> workSubjectNewEditor(
-            std::shared_ptr<WorkSubject>
-        );
+    // ----------
 
-        // ----------
+    void destroyEditor(CodeEditorAbstract_shared);
 
-        void destroyEditor(std::shared_ptr<CodeEditorAbstract>);
+    Glib::RefPtr<Gio::ListStore<WorkSubjectTableRow>> getWorkSubjectListStore();
+    Glib::RefPtr<Gio::ListStore<CodeEditorTableRow>>  getCodeEditorListStore();
 
-        Glib::RefPtr<Gio::ListStore<WorkSubjectTableRow>> getWorkSubjectListStore();
-        Glib::RefPtr<Gio::ListStore<CodeEditorTableRow>>  getCodeEditorListStore();
+    void projectControllerRegisteredInController();
 
-        void projectControllerRegisteredInController();
+    void updatedName();
+    void updatedPath();
 
-        void updatedName();
-        void updatedPath();
+    void showWindow();
+    void closeWindow();
 
-        void showWindow();
-        void closeWindow();
+    void showNewFileExplorer();
+    void showNewWorkSubjectList();
+    void showNewEditorList();
 
-        void showNewFileExplorer();
-        void showNewWorkSubjectList();
-        void showNewEditorList();
+    void close();
 
-        void close();
+    std::shared_ptr<sigc::signal<void()>> signal_updated_name();
+    std::shared_ptr<sigc::signal<void()>> signal_updated_path();
 
-        std::shared_ptr<sigc::signal<void()>> signal_updated_name();
-        std::shared_ptr<sigc::signal<void()>> signal_updated_path();
+  private:
+    Controller_shared controller;
 
-      private:
-        std::shared_ptr<Controller> controller;
+    ProjectCtlWin_shared proj_ctl_win;
 
-        std::shared_ptr<ProjectCtlWin> proj_ctl_win;
+    CodeEditorAbstract_shared createBestEditorForWorkSubject(
+        WorkSubject_shared
+    );
 
-        std::shared_ptr<CodeEditorAbstract> createBestEditorForWorkSubject(
-            std::shared_ptr<WorkSubject>
-        );
+    void registerEditor(CodeEditorAbstract_shared);
+    void unregisterEditor(CodeEditorAbstract_shared);
 
-        void registerEditor(std::shared_ptr<CodeEditorAbstract>);
-        void unregisterEditor(std::shared_ptr<CodeEditorAbstract>);
+    Glib::RefPtr<Gio::ListStore<WorkSubjectTableRow>> work_subj_list_store;
+    Glib::RefPtr<Gio::ListStore<CodeEditorTableRow>>  editors_list_store;
 
-        Glib::RefPtr<Gio::ListStore<WorkSubjectTableRow>> work_subj_list_store;
-        Glib::RefPtr<Gio::ListStore<CodeEditorTableRow>>  editors_list_store;
+    // todo: cant remember why I did those signals in form of ptr
+    std::shared_ptr<sigc::signal<void()>> priv_signal_updated_name;
+    std::shared_ptr<sigc::signal<void()>> priv_signal_updated_path;
+};
 
-        // todo: cant remember why I did those signals in form of ptr
-        std::shared_ptr<sigc::signal<void()>> priv_signal_updated_name;
-        std::shared_ptr<sigc::signal<void()>> priv_signal_updated_path;
-    };
-
-} // namespace ccedit
-} // namespace wayround_i2p
+} // namespace wayround_i2p::ccedit
 
 #endif

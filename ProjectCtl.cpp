@@ -9,7 +9,7 @@
 
 using namespace wayround_i2p::ccedit;
 
-ProjectCtl::ProjectCtl(std::shared_ptr<Controller> controller)
+ProjectCtl::ProjectCtl(Controller_shared controller)
 {
     this->controller = controller;
 
@@ -30,7 +30,7 @@ ProjectCtl::~ProjectCtl()
     std::cout << "~ProjectCtl()" << std::endl;
 }
 
-std::shared_ptr<Controller> ProjectCtl::getController()
+Controller_shared ProjectCtl::getController()
 {
     return controller;
 }
@@ -71,7 +71,7 @@ bool ProjectCtl::workSubjectExists(
     return bool(getWorkSubject(fpth));
 }
 
-std::shared_ptr<WorkSubject> ProjectCtl::getWorkSubject(
+WorkSubject_shared ProjectCtl::getWorkSubject(
     std::filesystem::path fpth
 )
 {
@@ -89,12 +89,12 @@ std::shared_ptr<WorkSubject> ProjectCtl::getWorkSubject(
     return nullptr;
 }
 
-std::shared_ptr<WorkSubject> ProjectCtl::workSubjectEnsureExistance(
+WorkSubject_shared ProjectCtl::workSubjectEnsureExistance(
     std::filesystem::path fpth
 )
 {
     // todo: fpth value checks
-    std::shared_ptr<WorkSubject> ret;
+    WorkSubject_shared ret;
 
     if (ret = getWorkSubject(fpth))
     {
@@ -115,7 +115,7 @@ std::shared_ptr<WorkSubject> ProjectCtl::workSubjectEnsureExistance(
     }
 }
 
-std::shared_ptr<CodeEditorAbstract> ProjectCtl::workSubjectExistingOrNewEditor(
+CodeEditorAbstract_shared ProjectCtl::workSubjectExistingOrNewEditor(
     std::filesystem::path fpth
 )
 {
@@ -129,7 +129,7 @@ std::shared_ptr<CodeEditorAbstract> ProjectCtl::workSubjectExistingOrNewEditor(
     return workSubjectExistingOrNewEditor(subj);
 }
 
-std::shared_ptr<CodeEditorAbstract> ProjectCtl::workSubjectNewEditor(
+CodeEditorAbstract_shared ProjectCtl::workSubjectNewEditor(
     std::filesystem::path fpth
 )
 {
@@ -144,8 +144,8 @@ std::shared_ptr<CodeEditorAbstract> ProjectCtl::workSubjectNewEditor(
     return workSubjectNewEditor(subj);
 }
 
-std::shared_ptr<CodeEditorAbstract> ProjectCtl::workSubjectExistingOrNewEditor(
-    std::shared_ptr<WorkSubject> val
+CodeEditorAbstract_shared ProjectCtl::workSubjectExistingOrNewEditor(
+    WorkSubject_shared val
 )
 {
     std::cout << "workSubjectExistingOrNewEditor(" << val << ")" << std::endl;
@@ -170,8 +170,8 @@ std::shared_ptr<CodeEditorAbstract> ProjectCtl::workSubjectExistingOrNewEditor(
     return workSubjectNewEditor(val);
 }
 
-std::shared_ptr<CodeEditorAbstract> ProjectCtl::workSubjectNewEditor(
-    std::shared_ptr<WorkSubject> val
+CodeEditorAbstract_shared ProjectCtl::workSubjectNewEditor(
+    WorkSubject_shared val
 )
 {
     std::cout << "workSubjectNewEditor(" << val << ")" << std::endl;
@@ -187,8 +187,8 @@ std::shared_ptr<CodeEditorAbstract> ProjectCtl::workSubjectNewEditor(
     return ed;
 }
 
-std::shared_ptr<CodeEditorAbstract> ProjectCtl::createBestEditorForWorkSubject(
-    std::shared_ptr<WorkSubject> subj
+CodeEditorAbstract_shared ProjectCtl::createBestEditorForWorkSubject(
+    WorkSubject_ptr subj
 )
 {
     std::cout << "createBestEditorForWorkSubject(" << subj << ")" << std::endl;
@@ -214,7 +214,7 @@ std::shared_ptr<CodeEditorAbstract> ProjectCtl::createBestEditorForWorkSubject(
     return editor;
 }
 
-void ProjectCtl::registerEditor(std::shared_ptr<CodeEditorAbstract> val)
+void ProjectCtl::registerEditor(CodeEditorAbstract_shared val)
 {
     // todo: register in Application?
     // todo: check is already exists
@@ -225,11 +225,11 @@ void ProjectCtl::registerEditor(std::shared_ptr<CodeEditorAbstract> val)
     controller->registerWindow(std::dynamic_pointer_cast<Gtk::Window>(val));
 }
 
-void ProjectCtl::unregisterEditor(std::shared_ptr<CodeEditorAbstract> val)
+void ProjectCtl::unregisterEditor(CodeEditorAbstract_shared val)
 {
     // todo: redo or maybe even remove this function
 
-    std::vector<std::shared_ptr<CodeEditorAbstract>> vec;
+    std::vector<CodeEditorAbstract_shared> vec;
 
     for (int i = (editors_list_store->get_n_items() - 1); i > -1; i--)
     {
@@ -250,7 +250,7 @@ void ProjectCtl::unregisterEditor(std::shared_ptr<CodeEditorAbstract> val)
     }
 }
 
-void ProjectCtl::destroyEditor(std::shared_ptr<CodeEditorAbstract> val)
+void ProjectCtl::destroyEditor(CodeEditorAbstract_shared val)
 {
     // todo: redo
     unregisterEditor(val);
@@ -294,7 +294,7 @@ void ProjectCtl::showWindow()
 {
     if (!proj_ctl_win)
     {
-        proj_ctl_win = std::shared_ptr<ProjectCtlWin>(
+        proj_ctl_win = ProjectCtlWin_shared(
             new ProjectCtlWin(own_ptr)
         );
         proj_ctl_win->own_ptr = proj_ctl_win;

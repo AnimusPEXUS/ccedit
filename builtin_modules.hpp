@@ -1,12 +1,15 @@
-#ifndef WAYROUND_I2P_20240311_144846_111644
-#define WAYROUND_I2P_20240311_144846_111644
+#ifndef WAYROUND_I2P_20241106_133730_887295
+#define WAYROUND_I2P_20241106_133730_887295
 
 #include <vector>
 
 #include "modularity.hpp"
+// #include "builtin_mods/ccpp/mod_ccpp.hpp"
+// #include "builtin_mods/go/mod_go.hpp"
 
-using namespace wayround_i2p::ccedit;
+namespace wayround_i2p::ccedit
+{
 
-static const std::vector<CodeEditorModule>;
+}
 
 #endif

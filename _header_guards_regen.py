@@ -64,7 +64,6 @@ def edit_file(fullpath_first, fullpath):
 def walk_dir(fullpath_first, fullpath):
 
     relp = os.path.relpath(fullpath, fullpath_first)
-    print("working in: {}".format(relp))
 
     names = os.listdir(fullpath)
 

@@ -1,5 +1,5 @@
-#ifndef WAYROUND_I2P_20240311_144846_113370
-#define WAYROUND_I2P_20240311_144846_113370
+#ifndef WAYROUND_I2P_20241106_133730_890875
+#define WAYROUND_I2P_20241106_133730_890875
 
 #include <filesystem>
 #include <format>
@@ -10,17 +10,18 @@
 #include <unicode/stringpiece.h>
 #include <unicode/unistr.h>
 
-namespace wayround_i2p
-{
-namespace ccedit
-{
-    enum FindTextSearchMethod : unsigned char
-    {
-        INVALID, // this is for error reporting
+#include "forward_declarations.hpp"
 
-        PLAIN,
+namespace wayround_i2p::ccedit
+{
 
-        /* disabling, because as far as I know, std c++ re doesnt support unicode
+enum FindTextSearchMethod : unsigned char
+{
+    INVALID, // this is for error reporting
+
+    PLAIN,
+
+    /* disabling, because as far as I know, std c++ re doesnt support unicode
 STD_RE_ECMAScript,
 STD_RE_BASIC,
 STD_RE_EXTENDED,
@@ -29,73 +30,73 @@ STD_RE_GREP,
 STD_RE_EGREP,
 */
 
-        BOOST_RE_ECMAScript,
-        BOOST_RE_BASIC,
-        BOOST_RE_EXTENDED,
-        BOOST_RE_AWK,
-        BOOST_RE_GREP,
-        BOOST_RE_EGREP,
-        BOOST_RE_SED,
-        BOOST_RE_PERL,
-        BOOST_RE_LITERAL
-    };
+    BOOST_RE_ECMAScript,
+    BOOST_RE_BASIC,
+    BOOST_RE_EXTENDED,
+    BOOST_RE_AWK,
+    BOOST_RE_GREP,
+    BOOST_RE_EGREP,
+    BOOST_RE_SED,
+    BOOST_RE_PERL,
+    BOOST_RE_LITERAL
+};
 
-    struct FindTextQuery
-    {
-        bool replace_visible = false;
+struct FindTextQuery
+{
+    bool replace_visible = false;
 
-        icu::UnicodeString query   = "";
-        icu::UnicodeString replace = "";
+    icu::UnicodeString query   = "";
+    icu::UnicodeString replace = "";
 
-        FindTextSearchMethod search_method          = PLAIN;
-        bool                 stop_after_first_match = false;
-        bool                 casesensitive          = false;
+    FindTextSearchMethod search_method          = PLAIN;
+    bool                 stop_after_first_match = false;
+    bool                 casesensitive          = false;
 
-        // ----------
-        bool std_re_mod_icase;
-        bool std_re_mod_nosubs;
-        bool std_re_mod_optimize;
-        bool std_re_mod_collate;
-        bool std_re_mod_multiline;
+    // ----------
+    bool std_re_mod_icase;
+    bool std_re_mod_nosubs;
+    bool std_re_mod_optimize;
+    bool std_re_mod_collate;
+    bool std_re_mod_multiline;
 
-        // ----------
-        bool boost_re_perl_mod_no_mod_m;
-        bool boost_re_perl_mod_no_mod_s;
-        bool boost_re_perl_mod_mod_s;
-        bool boost_re_perl_mod_mod_x;
+    // ----------
+    bool boost_re_perl_mod_no_mod_m;
+    bool boost_re_perl_mod_no_mod_s;
+    bool boost_re_perl_mod_mod_s;
+    bool boost_re_perl_mod_mod_x;
 
-        // ----------
-        bool boost_re_posix_mod_bk_plus_qm;
-        bool boost_re_posix_mod_bk_vbar;
-        bool boost_re_posix_mod_no_char_classes;
-        bool boost_re_posix_mod_no_intervals;
+    // ----------
+    bool boost_re_posix_mod_bk_plus_qm;
+    bool boost_re_posix_mod_bk_vbar;
+    bool boost_re_posix_mod_no_char_classes;
+    bool boost_re_posix_mod_no_intervals;
 
-        // ----------
-        bool boost_re_common_mod_nosubs;
-        bool boost_re_common_mod_optimize;
-        bool boost_re_common_mod_collate;
-        bool boost_re_common_mod_newline_alt;
-        // bool boost_re_common_mod_no_except;
-    };
+    // ----------
+    bool boost_re_common_mod_nosubs;
+    bool boost_re_common_mod_optimize;
+    bool boost_re_common_mod_collate;
+    bool boost_re_common_mod_newline_alt;
+    // bool boost_re_common_mod_no_except;
+};
 
-    struct FindFileQuery
-    {
-        icu::UnicodeString    fnmatch_pattern          = "*";
-        bool                  fnmatch_cs               = false;
-        bool                  use_fnmatch_on_path_part = true;
-        bool                  recurcive                = true;
-        bool                  delve_into_hidden_dirs   = false;
-        std::filesystem::path subpath                  = "/";
-        bool                  use_max_depth            = false;
-        unsigned short        max_depth                = 1;
+struct FindFileQuery
+{
+    icu::UnicodeString    fnmatch_pattern          = "*";
+    bool                  fnmatch_cs               = false;
+    bool                  use_fnmatch_on_path_part = true;
+    bool                  recurcive                = true;
+    bool                  delve_into_hidden_dirs   = false;
+    std::filesystem::path subpath                  = "/";
+    bool                  use_max_depth            = false;
+    unsigned short        max_depth                = 1;
 
-        bool contents_search_enabled               = false;
-        bool contents_search_cs                    = false;
-        bool dont_show_files_with_0_contents_match = true;
+    bool contents_search_enabled               = false;
+    bool contents_search_cs                    = false;
+    bool dont_show_files_with_0_contents_match = true;
 
-        FindTextQuery find_text_query;
-    };
+    FindTextQuery find_text_query;
+};
 
-} // namespace ccedit
-} // namespace wayround_i2p
+} // namespace wayround_i2p::ccedit
+
 #endif

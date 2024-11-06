@@ -1,45 +1,37 @@
-#ifndef WAYROUND_I2P_20240311_144846_122231
-#define WAYROUND_I2P_20240311_144846_122231
+#ifndef WAYROUND_I2P_20241106_133730_899470
+#define WAYROUND_I2P_20241106_133730_899470
 
+#include <deque>
 #include <memory>
 #include <string>
 #include <tuple>
 #include <vector>
 
-#include "CodeEditorAbstract.hpp"
-#include "WorkSubject.hpp"
+#include "forward_declarations.hpp"
 
-namespace wayround_i2p
+namespace wayround_i2p::ccedit
 {
-namespace ccedit
+struct CodeEditorMod
 {
-    struct CodeEditorMod
-    {
-        std::string              name;
-        std::string              title;
-        std::string              description;
-        std::vector<std::string> tags;
-        std::vector<std::string> supported_extensions;
+    std::string             name;
+    std::string             title;
+    std::string             description;
+    std::deque<std::string> tags;
+    std::deque<std::string> supported_extensions;
 
-        bool feature_text_editor;
-        bool feature_binary_editor;
+    bool feature_text_editor;
+    bool feature_binary_editor;
 
-        std::function<
-            std::shared_ptr<CodeEditorAbstract>(
-                std::shared_ptr<ProjectCtl>  proj_ctl,
-                std::shared_ptr<WorkSubject> subj
-            )>
-            newEditorForSubject;
+    std::function<
+        CodeEditorAbstract_shared(
+            ProjectCtl_shared  proj_ctl,
+            WorkSubject_shared subj
+        )>
+        newEditorForSubject;
+};
 
-        /*     std::tuple<std::shared_ptr<CodeEditorAbstract>, int> (*newEditorForSubject)(
-                 std::shared_ptr<ProjectCtl>  proj_ctl,
-                 std::shared_ptr<WorkSubject> subj
-             );*/
-    };
+void printInfoCodeEditorMod(CodeEditorMod *info);
 
-    void printInfoCodeEditorMod(CodeEditorMod *info);
-
-} // namespace ccedit
-} // namespace wayround_i2p
+} // namespace wayround_i2p::ccedit
 
 #endif

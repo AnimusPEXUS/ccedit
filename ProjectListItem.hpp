@@ -1,24 +1,22 @@
-#ifndef WAYROUND_I2P_20240311_144846_112522
-#define WAYROUND_I2P_20240311_144846_112522
-
-#include "ProjectCtl.hpp"
+#ifndef WAYROUND_I2P_20241106_133730_888883
+#define WAYROUND_I2P_20241106_133730_888883
 
 // todo: is this file used at all?
 //       merge it to Controller.hpp?
 
-namespace wayround_i2p
-{
-namespace ccedit
-{
-    class ProjectCtl;
+#include "forward_declarations.hpp"
 
-    struct ProjectListItem
-    {
-        std::string                 name;
-        std::string                 path;
-        std::shared_ptr<ProjectCtl> project_ctl;
-    };
-} // namespace ccedit
-} // namespace wayround_i2p
+namespace wayround_i2p::ccedit
+{
+class ProjectCtl;
+
+struct ProjectListItem
+{
+    std::string                 name;
+    std::string                 path;
+    ProjectCtl_shared project_ctl;
+};
+
+} // namespace wayround_i2p::ccedit
 
 #endif

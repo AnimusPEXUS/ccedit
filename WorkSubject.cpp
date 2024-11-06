@@ -5,13 +5,13 @@
 
 using namespace wayround_i2p::ccedit;
 
-std::shared_ptr<WorkSubject> WorkSubject::create(
-    std::shared_ptr<Controller> controller,
-    std::shared_ptr<ProjectCtl> project_ctl,
+WorkSubject_shared WorkSubject::create(
+    Controller_shared controller,
+    ProjectCtl_shared project_ctl,
     std::filesystem::path       fpth
 )
 {
-    auto ret = std::shared_ptr<WorkSubject>(
+    auto ret = WorkSubject_shared(
         new WorkSubject(
             controller,
             project_ctl,
@@ -22,8 +22,8 @@ std::shared_ptr<WorkSubject> WorkSubject::create(
 }
 
 WorkSubject::WorkSubject(
-    std::shared_ptr<Controller> controller,
-    std::shared_ptr<ProjectCtl> project_ctl,
+    Controller_shared controller,
+    ProjectCtl_shared project_ctl,
     std::filesystem::path       fpth
 )
 {
@@ -51,12 +51,12 @@ WorkSubject::~WorkSubject()
     std::cout << "~WorkSubject()" << std::endl;
 }
 
-std::shared_ptr<Controller> WorkSubject::getController()
+Controller_shared WorkSubject::getController()
 {
     return controller;
 }
 
-std::shared_ptr<ProjectCtl> WorkSubject::getProject()
+ProjectCtl_shared WorkSubject::getProject()
 {
     return project_ctl;
 }

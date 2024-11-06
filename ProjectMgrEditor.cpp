@@ -6,29 +6,51 @@
 
 #include "ProjectMgrEditor.hpp"
 
-using namespace wayround_i2p::ccedit;
+namespace wayround_i2p::ccedit
+{
 
-ProjectMgrEditor::ProjectMgrEditor(
-    std::shared_ptr<Controller> controller,
+ProjectMgrEditor_shared create(
+    Controller_shared controller,
     std::string                 proj_name,
     std::filesystem::path       proj_path
 )
 {
+    auto ret = ProjectMgrEditor_shared(
+        new ProjectMgrEditor(
+            controller,
+            proj_name,
+            proj_path
+        )
+    );
+    ret->own_ptr = ret;
+    return ret;
+}
+
+ProjectMgrEditor::ProjectMgrEditor(
+    Controller_shared controller,
+    std::string                 proj_name,
+    std::filesystem::path       proj_path
+)
+{
+    if (!controller)
+    {
+        throw "controller is required";
+    }
 
     // TODO: use set_titlebar and put buttons to title
-    assert(controller != NULL);
+
     this->controller = controller;
 
-    if (proj_name.length() == 0)
     {
-        set_title("adding new project - Code Editor");
-    }
-    else
-    {
-        set_title(std::format("rename project {} - Code Editor", proj_name));
+        auto wt = "adding new project - Code Editor";
+        if (proj_name.length() != 0)
+        {
+            wt = std::format("rename project {} - Code Editor", proj_name);
+        }
+        win.set_title(wt);
     }
 
-    set_child(main_box);
+    win.set_child(main_box);
 
     main_box.set_vexpand(true);
     main_box.set_hexpand(true);
@@ -144,6 +166,7 @@ void ProjectMgrEditor::on_browse_click_finish(
     std::shared_ptr<Gio::AsyncResult> res
 )
 {
+    #error "don't use shared_ptr for Gio::AsyncResult"
     if (res == NULL)
     {
         // std::cout << "res == NULL\n";
@@ -174,3 +197,5 @@ void ProjectMgrEditor::on_destroy_sig()
 {
     delete (this);
 }
+
+} // namespace wayround_i2p::ccedit

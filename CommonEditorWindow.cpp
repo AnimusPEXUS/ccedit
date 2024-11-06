@@ -6,11 +6,12 @@
 
 #include "CommonEditorWindow.hpp"
 
-using namespace wayround_i2p::ccedit;
+namespace wayround_i2p::ccedit
+{
 
 CommonEditorWindow::CommonEditorWindow(
-    std::shared_ptr<ProjectCtl>  project_ctl,
-    std::shared_ptr<WorkSubject> subject
+    ProjectCtl_shared  project_ctl,
+    WorkSubject_shared subject
 ) :
     main_box(Gtk::Orientation::VERTICAL, 0),
     outline_box(Gtk::Orientation::VERTICAL, 5),
@@ -20,7 +21,7 @@ CommonEditorWindow::CommonEditorWindow(
     this->project_ctl = project_ctl;
     this->subject     = subject;
 
-    set_hide_on_close(false);
+    win.set_hide_on_close(false);
 
     outline_list_store = Gio::ListStore<OutlineTableRow>::create();
 
@@ -32,7 +33,7 @@ CommonEditorWindow::CommonEditorWindow(
 
     // maximize();
 
-    set_child(main_box);
+    win.set_child(main_box);
 
     outline_view_refresh_btn.set_label("Refresh");
 
@@ -126,7 +127,7 @@ CommonEditorWindow::CommonEditorWindow(
         sigc::mem_fun(*this, &CommonEditorWindow::on_outline_activate)
     );
 
-    signal_destroy().connect(
+    win.signal_destroy().connect(
         sigc::mem_fun(*this, &CommonEditorWindow::on_destroy_sig)
     );
 
@@ -523,10 +524,10 @@ void CommonEditorWindow::setTransientWindow(Gtk::Window *win)
     win->set_transient_for(*(Gtk::Window *)this);
 }
 
-void CommonEditorWindow::setTransientWindow(std::shared_ptr<Gtk::Window> win)
-{
-    setTransientWindow(win.get());
-}
+//void CommonEditorWindow::setTransientWindow(std::shared_ptr<Gtk::Window> win)
+//{
+//    setTransientWindow(win.get());
+//}
 
 unsigned int CommonEditorWindow::getCursorOffsetPosition()
 {
@@ -627,7 +628,7 @@ void CommonEditorWindow::action_buffer_save_as()
 void CommonEditorWindow::action_search_show_window()
 {
     auto ed1 = dynamic_cast<CodeEditorAbstract *>(this);
-    auto w   = FindText::create(ed1->getOwnPtr());
+    auto w   = FindText::create(ed1->getAbstractEditorPointer());
     w->show();
     project_ctl->getController()->registerWindow(w);
     setTransientWindow(w);
@@ -655,6 +656,8 @@ void CommonEditorWindow::on_outline_activate(guint val)
 void CommonEditorWindow::on_destroy_sig()
 {
     auto ed1 = dynamic_cast<CodeEditorAbstract *>(this);
-    project_ctl->destroyEditor(ed1->getOwnPtr());
+    project_ctl->destroyEditor(ed1->getAbstractEditorPointer());
     ed1->resetOwnPtr();
 }
+
+} // namespace wayround_i2p::ccedit
