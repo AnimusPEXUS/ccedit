@@ -13,6 +13,8 @@
 
 #include "utils.hpp"
 
+#include "FindTypes.hpp"
+
 namespace wayround_i2p::ccedit
 {
 

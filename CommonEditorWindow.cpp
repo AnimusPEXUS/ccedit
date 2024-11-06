@@ -6,6 +6,9 @@
 
 #include "CommonEditorWindow.hpp"
 
+#include "Controller.hpp"
+#include "FindText.hpp"
+
 namespace wayround_i2p::ccedit
 {
 
@@ -292,7 +295,7 @@ void CommonEditorWindow::make_actions()
         sigc::mem_fun(*this, &CommonEditorWindow::action_search_show_window)
     );
 
-    insert_action_group("editor_window", action_group);
+    win.insert_action_group("editor_window", action_group);
 }
 
 void CommonEditorWindow::make_special_actions()
@@ -335,7 +338,7 @@ void CommonEditorWindow::make_hotkeys()
         ),
         Gtk::NamedAction::create("editor_window.search_show_window")
     ));
-    add_controller(controller);
+    win.add_controller(controller);
 }
 
 void CommonEditorWindow::make_special_hotkeys()
@@ -377,7 +380,7 @@ void CommonEditorWindow::updateTitle()
         proj_name
     );
 
-    set_title(new_title);
+    win.set_title(new_title);
 }
 
 void CommonEditorWindow::saveState()
@@ -529,7 +532,7 @@ void CommonEditorWindow::setTransientWindow(Gtk::Window *win)
 //     setTransientWindow(win.get());
 // }
 
-unsigned int CommonEditorWindow::getCursorOffsetPosition()
+std::size_t CommonEditorWindow::getCursorOffsetPosition()
 {
     auto tb = subject->getTextBuffer();
 
@@ -540,8 +543,8 @@ unsigned int CommonEditorWindow::getCursorOffsetPosition()
 }
 
 void CommonEditorWindow::setCursorOffsetPosition(
-    unsigned int new_pos,
-    bool         scroll
+    std::size_t new_pos,
+    bool        scroll
 )
 {
     auto tb = subject->getTextBuffer();
@@ -554,7 +557,7 @@ void CommonEditorWindow::setCursorOffsetPosition(
     }
 }
 
-unsigned int CommonEditorWindow::getCurrentLine()
+std::size_t CommonEditorWindow::getCurrentLine()
 {
     auto tb = subject->getTextBuffer();
 
@@ -568,7 +571,7 @@ unsigned int CommonEditorWindow::getCurrentLine()
     return line;
 }
 
-void CommonEditorWindow::setCurrentLine(unsigned int line, bool scroll)
+void CommonEditorWindow::setCurrentLine(std::size_t line, bool scroll)
 {
     if (line != std::numeric_limits<typeof(line)>::min())
     {
@@ -587,7 +590,7 @@ void CommonEditorWindow::setCurrentLine(unsigned int line, bool scroll)
     }
 }
 
-void CommonEditorWindow::selectSlice(unsigned int start, unsigned int end)
+void CommonEditorWindow::selectSlice(std::size_t start, std::size_t end)
 {
     auto tb = subject->getTextBuffer();
 
@@ -630,9 +633,11 @@ void CommonEditorWindow::action_search_show_window()
     auto ed1 = dynamic_cast<CodeEditorAbstract *>(this);
     auto w   = FindText::create(ed1->getAbstractEditorPointer());
     w->show();
-    project_ctl->getController()->registerWindow(w);
-    setTransientWindow(w);
-    w->set_destroy_with_parent(true);
+
+    // todo: move registration inside of FindText constructor
+    // project_ctl->getController()->registerWindow(w);
+    // setTransientWindow(w);
+    // w->set_destroy_with_parent(true);
 }
 
 void CommonEditorWindow::on_outline_refresh_btn()
@@ -657,7 +662,7 @@ void CommonEditorWindow::on_destroy_sig()
 {
     auto ed1 = dynamic_cast<CodeEditorAbstract *>(this);
     project_ctl->destroyEditor(ed1->getAbstractEditorPointer());
-    ed1->resetOwnPtr();
+    own_ptr = nullptr;
 }
 
 } // namespace wayround_i2p::ccedit

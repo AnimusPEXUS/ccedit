@@ -8,19 +8,20 @@ namespace wayround_i2p::ccedit
 
 // #include "forward_declarations.hpp"
 
-#define GEN_FORV_DECL(NAME)                      \
-    class NAME;                                  \
-    using NAME##_shared = std::shared_ptr<NAME>; \
-    using NAME##_weak   = std::weak_ptr<NAME>;
+#define GEN_FORV_DECL(name01)                        \
+    class name01;                                    \
+    using name01##_shared = std::shared_ptr<name01>; \
+    using name01##_weak   = std::weak_ptr<name01>;
 
 GEN_FORV_DECL(CodeEditorAbstract);
 GEN_FORV_DECL(CommonEditorWindow);
 GEN_FORV_DECL(Controller);
 GEN_FORV_DECL(EditorListView);
-GEN_FORV_DECL(FindTextWidget);
 GEN_FORV_DECL(FileExplorer);
 GEN_FORV_DECL(FileExplorerWidget);
 GEN_FORV_DECL(FindFile);
+GEN_FORV_DECL(FindText);
+GEN_FORV_DECL(FindTextWidget);
 GEN_FORV_DECL(ProjectCtl);
 GEN_FORV_DECL(ProjectCtlWin);
 GEN_FORV_DECL(ProjectMgr);

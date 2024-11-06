@@ -7,6 +7,13 @@
 
 #include "forward_declarations.hpp"
 
+#include "modularity.hpp"
+#include "tables.hpp"
+
+#include "CodeEditorAbstract.hpp"
+#include "ProjectCtl.hpp"
+#include "WorkSubject.hpp"
+
 namespace wayround_i2p::ccedit
 {
 
@@ -51,11 +58,11 @@ class CommonEditorWindow : public CodeEditorAbstract
     void updateTitle(); // todo: make it private?
 
     void setOutlineContents(
-        std::vector<std::tuple<unsigned int, std::string>> val
+        std::vector<std::tuple<std::size_t, std::string>> val
     );
-    void setOutlineCurrentLine(unsigned int val);
+    void setOutlineCurrentLine(std::size_t val);
 
-    virtual std::vector<std::tuple<unsigned int, std::string>>
+    virtual std::vector<std::tuple<std::size_t, std::string>>
         genOutlineContents();
 
   private:
