@@ -18,11 +18,18 @@ namespace wayround_i2p::ccedit
 class ProjectCtl
 {
   public:
-    ProjectCtl(Controller_shared controller);
+    static ProjectCtl_shared create(Controller_shared controller);
 
     ~ProjectCtl();
 
+  protected:
+    ProjectCtl(Controller_shared controller);
+
+  private:
     ProjectCtl_shared own_ptr;
+
+  public:
+    void destroy();
 
     Controller_shared getController();
 
@@ -89,7 +96,7 @@ class ProjectCtl
     void updatedPath();
 
     void showWindow();
-    void closeWindow();
+    void destroyWindow();
 
     void showNewFileExplorer();
     void showNewWorkSubjectList();

@@ -25,7 +25,7 @@ class Controller
     Controller(Glib::RefPtr<Gtk::Application> app);
 
   private:
-    Controller_weak own_ptr;
+    Controller_shared own_ptr;
 
   public:
     ~Controller();
@@ -33,7 +33,7 @@ class Controller
     int run(int argc, char *argv[]);
 
     void showProjectMgr();
-    void destroyProjectMgr();
+    void closeProjectMgr();
 
     // todo: use error type
 
@@ -74,6 +74,7 @@ class Controller
     Glib::RefPtr<Gtk::Application> getGtkApp();
 
     void registerWindow(Gtk::Window *win);
+    void unregisterWindow(Gtk::Window *win);
 
     int saveConfig();
     int loadConfig();
@@ -120,8 +121,8 @@ class Controller
   private:
     Glib::RefPtr<Gtk::Application> app;
 
-    ProjectMgr_shared project_mgr;
-    ProjectCtl_shared global_proj_ctl;
+    ProjectMgr_weak project_mgr;
+    ProjectCtl_weak global_proj_ctl;
 
     // todo: use mutex on all project_list methods?
     Glib::RefPtr<Gio::ListStore<ProjectTableRow>> project_list_store;

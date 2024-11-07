@@ -8,11 +8,16 @@
 namespace wayround_i2p::ccedit
 {
 
-ProjectMgr_weak ProjectMgr::create(Controller_shared controller)
+ProjectMgr_shared ProjectMgr::create(Controller_shared controller)
 {
-    ProjectMgr_weak ret = ProjectMgr_shared(new ProjectMgr(controller));
-    ret->own_ptr        = ret;
+    ProjectMgr_shared ret = ProjectMgr_shared(new ProjectMgr(controller));
+    ret->own_ptr          = ret;
     return ret;
+}
+
+void ProjectMgr::show()
+{
+    win.show();
 }
 
 void ProjectMgr::destroy()

@@ -7,14 +7,17 @@
 
 #include "forward_declarations.hpp"
 
+#include "utils.hpp"
+
 namespace wayround_i2p::ccedit
 {
 
 class ProjectMgr
 {
   public:
-    static ProjectMgr_weak create(Controller_shared controller);
+    static ProjectMgr_shared create(Controller_shared controller);
 
+    void show();
     void destroy();
 
   protected:
