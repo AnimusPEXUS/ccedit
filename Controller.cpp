@@ -14,6 +14,13 @@
 namespace wayround_i2p::ccedit
 {
 
+Controller_shared Controller::create(Glib::RefPtr<Gtk::Application> app)
+{
+    auto ret     = Controller_shared(new Controller(app));
+    ret->own_ptr = ret;
+    return ret;
+}
+
 Controller::Controller(Glib::RefPtr<Gtk::Application> app)
 {
     this->app          = app;
@@ -27,7 +34,6 @@ Controller::~Controller()
 
 int Controller::run(int argc, char *argv[])
 {
-
     ensureConfigDirExists();
     // if (ensureConfigDirExists()!= 0) {
     //     // std::cout << format("couldn't ensure directory existance: {}")
@@ -47,31 +53,7 @@ int Controller::run(int argc, char *argv[])
     return app->run(argc, argv);
 }
 
-void Controller::on_app_startup()
-{
-    showProjectMgr();
-}
-
-void Controller::showProjectMgr()
-{
-    if (project_mgr.expired())
-    {
-        auto x      = ProjectMgr::create(own_ptr);
-        project_mgr = x;
-    }
-    project_mgr.lock()->show();
-}
-
-void Controller::closeProjectMgr()
-{
-    if (auto x = project_mgr.lock(); x)
-    {
-        x->destroy();
-    }
-}
-
-Glib::RefPtr<Gtk::Application>
-    Controller::getGtkApp()
+Glib::RefPtr<Gtk::Application> Controller::getGtkApp()
 {
     return app;
 }
@@ -81,36 +63,9 @@ void Controller::registerWindow(Gtk::Window *win)
     app->add_window(*win);
 }
 
-int Controller::findProjectIndex(std::string proj_name)
+void Controller::unregisterWindow(Gtk::Window *win)
 {
-    for (
-        int i = 0;
-        i != project_list_store->get_n_items();
-        i++
-    )
-    {
-        if (project_list_store->get_item(i)->proj_name() == proj_name)
-        {
-            return i;
-        }
-    }
-    return -1;
-}
-
-int Controller::findProjectIndex(ProjectCtl_shared p_ctl)
-{
-    for (
-        int i = 0;
-        i != project_list_store->get_n_items();
-        i++
-    )
-    {
-        if (project_list_store->get_item(i)->proj_ctl == p_ctl)
-        {
-            return i;
-        }
-    }
-    return -1;
+    app->remove_window(*win);
 }
 
 int Controller::saveConfig()
@@ -194,6 +149,24 @@ int Controller::loadConfig()
     }
 
     return 0;
+}
+
+void Controller::showProjectMgr()
+{
+    if (project_mgr.expired())
+    {
+        auto x      = ProjectMgr::create(own_ptr);
+        project_mgr = x;
+    }
+    project_mgr.lock()->show();
+}
+
+void Controller::closeProjectMgr()
+{
+    if (auto x = project_mgr.lock(); x)
+    {
+        x->destroy();
+    }
 }
 
 int Controller::createProject(
@@ -325,19 +298,6 @@ Glib::RefPtr<Gio::ListStore<ProjectTableRow>> Controller::getProjectListStore()
 std::vector<CodeEditorMod *> Controller::getBuiltinMods()
 {
     return builtin_mods;
-}
-
-int Controller::addBuiltinMod(CodeEditorMod *mod)
-{
-    builtin_mods.push_back(mod);
-    return 0;
-}
-
-int Controller::addBuiltinMods()
-{
-    // addBuiltinMod(get_mod_info_ccpp());
-    // addBuiltinMod(get_mod_info_go());
-    return 0;
 }
 
 bool Controller::isGlobalProjCtl(ProjectCtl_shared p_ctl)
@@ -485,14 +445,42 @@ void Controller::closeProjCtl(ProjectCtl_shared p_ctl)
     }
 }
 
-/*
-void Controller::emitProjectListStoreItemsChanged()
+int Controller::findProjectIndex(std::string proj_name)
 {
-    project_list_store->signal_items_changed().emit(0, 0, 0);
+    for (
+        int i = 0;
+        i != project_list_store->get_n_items();
+        i++
+    )
+    {
+        if (project_list_store->get_item(i)->proj_name() == proj_name)
+        {
+            return i;
+        }
+    }
+    return -1;
 }
-*/
 
-const std::string CODEEDIT_CFG = "ccedit.cfg";
+int Controller::findProjectIndex(ProjectCtl_shared p_ctl)
+{
+    for (
+        int i = 0;
+        i != project_list_store->get_n_items();
+        i++
+    )
+    {
+        if (project_list_store->get_item(i)->proj_ctl == p_ctl)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void Controller::on_app_startup()
+{
+    showProjectMgr();
+}
 
 // ----------------------------------
 
@@ -549,5 +537,18 @@ int Controller::ensureConfigDirExists()
 #else
     #error "only __unix__ target supported now"
 #endif
+
+int Controller::addBuiltinMods()
+{
+    // addBuiltinMod(get_mod_info_ccpp());
+    // addBuiltinMod(get_mod_info_go());
+    return 0;
+}
+
+int Controller::addBuiltinMod(CodeEditorMod *mod)
+{
+    builtin_mods.push_back(mod);
+    return 0;
+}
 
 } // namespace wayround_i2p::ccedit
