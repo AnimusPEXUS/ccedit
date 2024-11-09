@@ -12,6 +12,8 @@
 
 #include "tables.hpp"
 
+#include "utils.hpp"
+
 namespace wayround_i2p::ccedit
 {
 
@@ -28,9 +30,9 @@ class ProjectCtl
   private:
     ProjectCtl_shared own_ptr;
 
-  public:
-    void destroy();
+    runOnce runOnceOnDestroy;
 
+  public:
     Controller_shared getController();
 
     bool                  isGlobalProject();
@@ -102,7 +104,7 @@ class ProjectCtl
     void showNewWorkSubjectList();
     void showNewEditorList();
 
-    void close();
+    void destroy();
 
     std::shared_ptr<sigc::signal<void()>> signal_updated_name();
     std::shared_ptr<sigc::signal<void()>> signal_updated_path();
@@ -118,6 +120,9 @@ class ProjectCtl
 
     void registerEditor(CodeEditorAbstract_shared);
     void unregisterEditor(CodeEditorAbstract_shared);
+
+    void destroyAllEditors();
+    void destroyAllBuffers();
 
     Glib::RefPtr<Gio::ListStore<WorkSubjectTableRow>> work_subj_list_store;
     Glib::RefPtr<Gio::ListStore<CodeEditorTableRow>>  editors_list_store;

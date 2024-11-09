@@ -1,15 +1,35 @@
 
 #include <format>
 
+#include "CodeEditorAbstract.hpp"
 #include "Controller.hpp"
 #include "EditorListView.hpp"
 #include "FileExplorer.hpp"
 #include "ProjectCtl.hpp"
+#include "ProjectCtlWin.hpp"
+#include "WorkSubject.hpp"
 #include "WorkSubjectListView.hpp"
 
 using namespace wayround_i2p::ccedit;
 
-ProjectCtl::ProjectCtl(Controller_shared controller)
+ProjectCtl_shared ProjectCtl::create(Controller_shared controller)
+{
+    auto ret     = ProjectCtl_shared(new ProjectCtl(controller));
+    ret->own_ptr = ret;
+    return ret;
+}
+
+ProjectCtl::ProjectCtl(Controller_shared controller) :
+    runOnceOnDestroy(
+        [this]()
+        {
+            this->controller->destroyProjCtl(this->own_ptr);
+            this->destroyAllEditors();
+            this->destroyAllBuffers();
+
+            this->own_ptr.reset();
+        }
+    )
 {
     this->controller = controller;
 
@@ -37,16 +57,16 @@ Controller_shared ProjectCtl::getController()
 
 bool ProjectCtl::isGlobalProject()
 {
-    return controller->isGlobalProjCtl(this);
+    return controller->isGlobalProjCtl(own_ptr);
 }
 
 std::string ProjectCtl::getProjectName()
 {
-    auto [name, err] = controller->getNameProject(this);
+    auto [name, err] = controller->getNameProject(own_ptr);
     if (err != 0)
     {
         // todo: better action needed. atlease message to user
-        close();
+        destroy();
     }
 
     return name;
@@ -54,11 +74,12 @@ std::string ProjectCtl::getProjectName()
 
 std::filesystem::path ProjectCtl::getProjectPath()
 {
-    auto [pth, err] = controller->getPathProject(this);
+    auto [pth, err] = controller->getPathProject(own_ptr);
     if (err != 0)
     {
-        // todo: better action needed. atlease message to user
-        close();
+        // todo: better action needed. at least message to user
+        // close();
+        destroy();
     }
 
     return pth;
@@ -76,7 +97,11 @@ WorkSubject_shared ProjectCtl::getWorkSubject(
 )
 {
     // todo: fpth value checks here and for WorkSubject
-    for (unsigned int i = 0; i < work_subj_list_store->get_n_items(); i++)
+    for (
+        std::size_t i = 0;
+        i < work_subj_list_store->get_n_items();
+        i++
+    )
     {
         auto x    = work_subj_list_store->get_item(i);
         auto sbj  = x->work_subj;
@@ -187,9 +212,8 @@ CodeEditorAbstract_shared ProjectCtl::workSubjectNewEditor(
     return ed;
 }
 
-CodeEditorAbstract_shared ProjectCtl::createBestEditorForWorkSubject(
-    WorkSubject_ptr subj
-)
+CodeEditorAbstract_shared
+    ProjectCtl::createBestEditorForWorkSubject(WorkSubject_shared subj)
 {
     std::cout << "createBestEditorForWorkSubject(" << subj << ")" << std::endl;
 
@@ -222,7 +246,7 @@ void ProjectCtl::registerEditor(CodeEditorAbstract_shared val)
     auto v    = CodeEditorTableRow::create();
     v->editor = val;
     editors_list_store->append(v);
-    controller->registerWindow(std::dynamic_pointer_cast<Gtk::Window>(val));
+    controller->registerWindow(val->getGtkWindowPointer());
 }
 
 void ProjectCtl::unregisterEditor(CodeEditorAbstract_shared val)
@@ -250,6 +274,16 @@ void ProjectCtl::unregisterEditor(CodeEditorAbstract_shared val)
     }
 }
 
+void ProjectCtl::destroyAllEditors()
+{
+    // todo: todo
+}
+
+void ProjectCtl::destroyAllBuffers()
+{
+    // todo: todo
+}
+
 void ProjectCtl::destroyEditor(CodeEditorAbstract_shared val)
 {
     // todo: redo
@@ -266,10 +300,10 @@ Glib::RefPtr<Gio::ListStore<CodeEditorTableRow>> ProjectCtl::getCodeEditorListSt
     return editors_list_store;
 }
 
-void ProjectCtl::close()
+void ProjectCtl::destroy()
 {
     // todo: close and destroy all subwindows and work subjects
-    controller->closeProjCtl(this);
+    runOnceOnDestroy.run();
 }
 
 void ProjectCtl::projectControllerRegisteredInController()
@@ -294,10 +328,7 @@ void ProjectCtl::showWindow()
 {
     if (!proj_ctl_win)
     {
-        proj_ctl_win = ProjectCtlWin_shared(
-            new ProjectCtlWin(own_ptr)
-        );
-        proj_ctl_win->own_ptr = proj_ctl_win;
+        proj_ctl_win = ProjectCtlWin::create(own_ptr);
     }
 
     proj_ctl_win->show();
@@ -305,13 +336,13 @@ void ProjectCtl::showWindow()
     return;
 }
 
-void ProjectCtl::closeWindow()
+void ProjectCtl::destroyWindow()
 {
     if (proj_ctl_win)
     {
-        proj_ctl_win->close();
-        proj_ctl_win->own_ptr.reset();
-        proj_ctl_win.reset();
+        proj_ctl_win->destroy();
+        // todo: try moving this inside ProjectCtlWin
+        // proj_ctl_win.reset();
     }
 }
 
@@ -319,7 +350,7 @@ void ProjectCtl::showNewFileExplorer()
 {
     auto x = FileExplorer::create(own_ptr);
     x->show();
-    controller->registerWindow(x);
+    // controller->registerWindow(x);
 }
 
 void ProjectCtl::showNewWorkSubjectList()

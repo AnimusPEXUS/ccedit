@@ -18,6 +18,8 @@ class CodeEditorAbstract
     virtual WorkSubject_shared getWorkSubject()                  = 0;
     virtual bool               workSubjectIs(WorkSubject_shared) = 0;
 
+    virtual Gtk::Window *getGtkWindowPointer() = 0;
+
     virtual void        show()                               = 0;
     virtual void        present()                            = 0;
     virtual void        close()                              = 0;

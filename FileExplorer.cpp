@@ -15,9 +15,7 @@ FileExplorer_shared FileExplorer::create(
     ProjectCtl_shared proj_ctl
 )
 {
-    auto ret = FileExplorer_shared(
-        new FileExplorer(proj_ctl)
-    );
+    auto ret     = FileExplorer_shared(new FileExplorer(proj_ctl));
     ret->own_ptr = ret;
     return ret;
 }

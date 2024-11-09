@@ -26,6 +26,9 @@ class ProjectCtlWin
   public:
     void updateTitle();
 
+    void show();
+    void destroy();
+
   private:
     runOnce destroyer;
 

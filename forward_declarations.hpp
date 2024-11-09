@@ -18,6 +18,7 @@ GEN_FORV_DECL(CommonEditorWindow);
 GEN_FORV_DECL(Controller);
 GEN_FORV_DECL(EditorListView);
 GEN_FORV_DECL(FileExplorer);
+GEN_FORV_DECL(FileExplorerMakeFileDir);
 GEN_FORV_DECL(FileExplorerWidget);
 GEN_FORV_DECL(FindFile);
 GEN_FORV_DECL(FindText);

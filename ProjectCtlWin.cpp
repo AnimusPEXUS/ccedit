@@ -116,4 +116,15 @@ void ProjectCtlWin::updateTitle()
 
     set_title(new_title);
 }
+
+void ProjectCtlWin::show()
+{
+    win.show();
+}
+
+void ProjectCtlWin::destroy()
+{
+    destroyer.run();
+}
+
 } // namespace wayround_i2p::ccedit

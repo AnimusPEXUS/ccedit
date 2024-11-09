@@ -19,6 +19,12 @@ class FileExplorer : public Gtk::Window
 
     ~FileExplorer();
 
+  protected:
+    FileExplorer(
+        ProjectCtl_shared proj_ctl
+    );
+
+  public:
     int touchFileOrMkDirRelToProject(
         std::filesystem::path subpath,
         bool                  file
@@ -39,11 +45,6 @@ class FileExplorer : public Gtk::Window
 
     int fileListNavigateTo(std::filesystem::path subpath);
     int fileListRefresh();
-
-  protected:
-    FileExplorer(
-        ProjectCtl_shared proj_ctl
-    );
 
   private:
     ProjectCtl_shared proj_ctl;

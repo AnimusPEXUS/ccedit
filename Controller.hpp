@@ -48,7 +48,7 @@ class Controller
     void
         showProjectMgr();
     void
-        closeProjectMgr();
+        destroyProjectMgr();
 
     // todo: use error type
 
@@ -100,13 +100,13 @@ class Controller
 
     // this leads to closing global proj children windows
     void
-        closeGlobalProjCtl();
+        destroyGlobalProjCtl();
 
     // this will call createGlobalProjCtl() if not created yet
     void
         showGlobalProjCtlWin();
     void
-        closeGlobalProjCtlWin();
+        destroyGlobalProjCtlWin();
 
     std::tuple<ProjectCtl_shared, int>
         createProjCtl(std::string name);
@@ -116,17 +116,17 @@ class Controller
         getProjCtl(std::string name);
 
     int
-        closeProjCtl(std::string name);
+        destroyProjCtl(std::string name);
 
     // error if not found
     int
         showProjCtlWin(std::string name);
     void
-        closeProjCtlWin(std::string name);
+        destroyProjCtlWin(std::string name);
 
     // this also calls closeGlobalProjCtl if global ProjectCtl passed
     void
-        closeProjCtl(ProjectCtl_shared p_ctl);
+        destroyProjCtl(ProjectCtl_shared p_ctl);
 
     Glib::RefPtr<Gtk::IconTheme> icon_theme;
 
