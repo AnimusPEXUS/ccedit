@@ -12,22 +12,22 @@
 namespace wayround_i2p::ccedit
 {
 
-ProjectCtlWin_shared create(ProjectCtl_shared proj_ctl)
+ProjectCtlWin_shared ProjectCtlWin::create(ProjectCtl_shared proj_ctl)
 {
     auto ret     = ProjectCtlWin_shared(new ProjectCtlWin(proj_ctl));
     ret->own_ptr = ret;
     return ret;
 }
 
-ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared proj_ctl)
-{
+ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared proj_ctl) :
     destroyer(
-        []()
+        [this]()
         {
             std::cout << "ProjectCtlWin: destroyer.run()" << std::endl;
-            this->controller->unregisterWindow(own_ptr.lock());
+            controller->unregisterWindow(&win);
         }
-    );
+    )
+{
 
     this->proj_ctl   = proj_ctl;
     this->controller = proj_ctl->getController();
@@ -68,6 +68,8 @@ ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared proj_ctl)
     win.signal_destroy().connect(
         sigc::mem_fun(*this, &ProjectCtlWin::on_destroy_sig)
     );
+
+    controller->registerWindow(&win);
 
     updateTitle();
 }
@@ -114,7 +116,7 @@ void ProjectCtlWin::updateTitle()
         proj_name
     );
 
-    set_title(new_title);
+    win.set_title(new_title);
 }
 
 void ProjectCtlWin::show()

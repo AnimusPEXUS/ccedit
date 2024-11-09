@@ -8,16 +8,25 @@
 
 #include "forward_declarations.hpp"
 
+#include "utils.hpp"
+
 namespace wayround_i2p::ccedit
 {
 
 class EditorListView : public Gtk::Window
 {
   public:
-    EditorListView(ProjectCtl_shared project_ctl);
+    static EditorListView_shared create(ProjectCtl_shared project_ctl);
+
     ~EditorListView();
 
+  protected:
+    EditorListView(ProjectCtl_shared project_ctl);
+
   private:
+    EditorListView_shared own_ptr;
+    RunOnce               destroyer;
+
     ProjectCtl_shared project_ctl;
 
     Gtk::Box main_box;

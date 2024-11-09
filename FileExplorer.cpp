@@ -5,8 +5,11 @@
 
 #include <experimental/scope>
 
+#include "Controller.hpp"
 #include "FileExplorer.hpp"
 #include "FindFile.hpp"
+#include "ProjectCtl.hpp"
+
 #include "utils.hpp"
 
 using namespace wayround_i2p::ccedit;
@@ -511,14 +514,12 @@ void FileExplorer::on_find_file_btn()
 {
     auto x = FindFile::create(proj_ctl);
     x->show();
-    proj_ctl->getController()->registerWindow(x);
 }
 
 void FileExplorer::on_make_file_or_directory_btn()
 {
     auto x = FileExplorerMakeFileDir::create(own_ptr, opened_subdir);
     x->show();
-    proj_ctl->getController()->registerWindow(x);
 }
 
 void FileExplorer::on_destroy_sig()

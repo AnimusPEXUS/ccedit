@@ -19,7 +19,17 @@ CommonEditorWindow::CommonEditorWindow(
     main_box(Gtk::Orientation::VERTICAL, 0),
     outline_box(Gtk::Orientation::VERTICAL, 5),
     text_view_box(Gtk::Orientation::HORIZONTAL, 5),
-    text_view_box_upper(Gtk::Orientation::VERTICAL, 0)
+    text_view_box_upper(Gtk::Orientation::VERTICAL, 0),
+    destroyer(
+        [this]()
+        {
+            this->destroy();
+            this->project_ctl->destroyEditor(this->own_ptr);
+            this->win.destroy();
+
+            this->own_ptr.reset();
+        }
+    )
 {
     this->project_ctl = project_ctl;
     this->subject     = subject;
@@ -419,7 +429,7 @@ void CommonEditorWindow::restoreState()
 }
 
 void CommonEditorWindow::setOutlineContents(
-    std::vector<std::tuple<unsigned int, std::string>> val
+    std::vector<std::tuple<std::size_t, std::string>> val
 )
 {
     // todo: save and restore current view
@@ -462,10 +472,10 @@ void CommonEditorWindow::setOutlineContents(
     );
 }
 
-std::vector<std::tuple<unsigned int, std::string>>
+std::vector<std::tuple<std::size_t, std::string>>
     CommonEditorWindow::genOutlineContents()
 {
-    return std::vector<std::tuple<unsigned int, std::string>>();
+    return {};
 }
 
 void CommonEditorWindow::redraw_linum(
@@ -516,10 +526,9 @@ void CommonEditorWindow::present()
     x->present();
 }
 
-void CommonEditorWindow::close()
+void CommonEditorWindow::destroy()
 {
-    auto x = (Gtk::Window *)this;
-    x->close();
+    destroyer.run();
 }
 
 void CommonEditorWindow::setTransientWindow(Gtk::Window *win)
@@ -660,9 +669,7 @@ void CommonEditorWindow::on_outline_activate(guint val)
 
 void CommonEditorWindow::on_destroy_sig()
 {
-    auto ed1 = dynamic_cast<CodeEditorAbstract *>(this);
-    project_ctl->destroyEditor(ed1->getAbstractEditorPointer());
-    own_ptr = nullptr;
+    destroyer.run();
 }
 
 } // namespace wayround_i2p::ccedit

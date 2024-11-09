@@ -1,8 +1,8 @@
+#include <iostream>
+
 #include <gtkmm.h>
 
 #include "Controller.hpp"
-
-// using namespace wayround_i2p::ccedit;
 
 int main(int argc, char *argv[])
 {
@@ -12,15 +12,10 @@ int main(int argc, char *argv[])
     int ret = 0;
 
     {
-        auto controller = std::shared_ptr<wayround_i2p::ccedit::Controller>(
-            new wayround_i2p::ccedit::Controller(app)
-        );
-
-        controller->own_ptr = controller;
+        auto controller = wayround_i2p::ccedit::Controller::create(app);
 
         ret = controller->run(argc, argv);
 
-        controller->own_ptr.reset();
         controller.reset();
     }
 

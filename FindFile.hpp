@@ -7,11 +7,16 @@
 #include <gtkmm.h>
 
 #include "forward_declarations.hpp"
+#include "utils.hpp"
+
+#include "FindTables.hpp"
+#include "FindText.hpp"
+#include "FindTypes.hpp"
 
 namespace wayround_i2p::ccedit
 {
 
-class FindFile : public Gtk::Window
+class FindFile
 {
   public:
     static FindFile_shared create(
@@ -27,6 +32,9 @@ class FindFile : public Gtk::Window
     void start();
     void stop();
 
+    void show();
+    void destroy();
+
     FindFileQuery getFindFileQuery();
     int           setFindFileQuery(FindFileQuery q);
 
@@ -34,9 +42,13 @@ class FindFile : public Gtk::Window
     FindFile(ProjectCtl_shared p_ctl);
 
   private:
+    RunOnce         destroyer;
+    FindFile_shared own_ptr;
+
     ProjectCtl_shared       p_ctl;
-    FindFile_shared         own_ptr;
     CodeEditorAbstract_weak target_editor;
+
+    Gtk::Window win;
 
     // -----------
 

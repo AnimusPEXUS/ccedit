@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include "Controller.hpp"
 #include "ProjectMgr.hpp"
 #include "ProjectMgrEditor.hpp"
 
@@ -23,23 +24,23 @@ void ProjectMgr::show()
 void ProjectMgr::destroy()
 {
     std::cout << "ProjectMgr::destroy()" << std::endl;
-    united_destroy_routines.run();
+    destroyer.run();
 }
 
-ProjectMgr::ProjectMgr(Controller_shared controller)
-{
-    united_destroy_routines(
-        []()
+ProjectMgr::ProjectMgr(Controller_shared controller) :
+    destroyer(
+        [this]()
         {
             std::cout
                 << "ProjectMgr::united_destroy_routines.run()"
                 << std::endl;
 
-            win.destroy();
+            this->win.destroy();
 
-            controller->cleanupProjectMgr();
+            this->controller->destroyProjectMgr();
         }
-    );
+    )
+{
 
     if (!controller)
     {
@@ -149,7 +150,7 @@ ProjectMgr::ProjectMgr(Controller_shared controller)
         sigc::mem_fun(*this, &ProjectMgr::on_modules_info_print)
     );
 
-    signal_destroy().connect(
+    win.signal_destroy().connect(
         sigc::mem_fun(*this, &ProjectMgr::on_destroy_sig)
     );
 
@@ -262,31 +263,15 @@ void ProjectMgr::table_path_cell_unbind(const Glib::RefPtr<Gtk::ListItem> &list_
 
 void ProjectMgr::on_add_click()
 {
-    auto c = controller.lock();
-    if (!c)
-    {
-        throw "controller is null";
-    }
-
-    // todo: mem leak? update: looks like fixed - check needed
-    auto w = new ProjectMgrEditor(c, "", "");
-    w->set_transient_for(*this);
-    w->set_destroy_with_parent(true);
-    w->show();
-    c->registerWindow(w);
+    auto w = ProjectMgrEditor::create(controller, "", "");
+    w->destroy();
 }
 
 void ProjectMgr::on_rm_click()
 {
-    auto c = controller.lock();
-    if (!c)
-    {
-        throw "controller is null";
-    }
-
     auto x = project_list_view_selection->get_selection();
 
-    auto list = c->getProjectListStore();
+    auto list = controller->getProjectListStore();
 
     while (!(x->is_empty()))
     {
@@ -297,104 +282,68 @@ void ProjectMgr::on_rm_click()
 
 void ProjectMgr::on_edit_click()
 {
-    auto c = controller.lock();
-    if (!c)
-    {
-        throw "controller is null";
-    }
-
     std::cout << "edited" << std::endl;
     auto x = project_list_view_selection->get_selection();
     auto i = x->begin();
 
-    auto list = c->getProjectListStore();
+    auto list = controller->getProjectListStore();
 
     while (i != x->end())
     {
         auto item = list->get_item(*i);
 
-        // todo: mem leak? update: looks like fixed - check needed
-        auto w = new ProjectMgrEditor(
-            c,
+        auto w = ProjectMgrEditor::create(
+            controller,
             item->proj_name(),
             item->proj_path()
         );
 
-        w->set_transient_for(*this);
-        w->set_destroy_with_parent(true);
         w->show();
-        c->registerWindow(w);
+
         ++i;
     }
 }
 
 void ProjectMgr::on_open_click()
 {
-    auto c = controller.lock();
-    if (!c)
-    {
-        throw "controller is null";
-    }
-
     auto x    = project_list_view_selection->get_selection();
     auto i    = x->begin();
-    auto list = c->getProjectListStore();
+    auto list = controller->getProjectListStore();
     while (i != x->end())
     {
         auto item = list->get_item(*i);
         // todo: error check?
-        c->showProjCtlWin(item->proj_name());
+        controller->showProjCtlWin(item->proj_name());
         ++i;
     }
 }
 
 void ProjectMgr::on_open_global_click()
 {
-    auto c = controller.lock();
-    if (!c)
-    {
-        throw "controller is null";
-    }
-
-    c->showGlobalProjCtlWin();
+    controller->showGlobalProjCtlWin();
 }
 
 void ProjectMgr::on_save_cfg()
 {
-    auto c = controller.lock();
-    if (!c)
-    {
-        throw "controller is null";
-    }
-
-    c->saveConfig();
+    controller->saveConfig();
 }
 
 void ProjectMgr::on_modules_info_print()
 {
-    auto c = controller.lock();
-    if (!c)
+    auto mods = controller->getBuiltinMods();
+
+    std::cout << "mod count: " << mods.size() << std::endl;
+
+    for (auto x : mods)
     {
-        throw "controller is null";
-    }
-
-    if (auto c = controller.lock(); c)
-    {
-        auto mods = c->getBuiltinMods();
-
-        std::cout << "mod count: " << mods.size() << std::endl;
-
-        for (auto x : mods)
-        {
-            printInfoCodeEditorMod(x);
-        }
+        printInfoCodeEditorMod(x);
     }
 }
 
 void ProjectMgr::on_destroy_sig()
 {
     std::cout << "ProjectMgr sig destroy" << std::endl;
-    united_destroy_routines.run();
+    destroyer.run();
 }
 
 } // namespace wayround_i2p::ccedit

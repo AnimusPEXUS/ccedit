@@ -155,17 +155,20 @@ class TextSearchMethodListItemWidget : public Gtk::Label
     void bind(const Glib::RefPtr<Gtk::ListItem> &list_item);
 };
 
-class FindText : public Gtk::Window
+class FindText
 {
   public:
     static FindText_shared create(
-        CodeEditorAbstract_weak editor_window
+        CodeEditorAbstract_shared editor_window
     );
 
     ~FindText();
 
     FindTextQuery getFindTextQuery();
     int           setFindTextQuery(FindTextQuery q);
+
+    void show();
+    void destroy();
 
   protected:
     FindText(
@@ -175,8 +178,12 @@ class FindText : public Gtk::Window
   private:
     FindText_shared own_ptr;
 
+    RunOnce destroyer;
+
     CodeEditorAbstract_weak editor_window;
     unsigned int            saved_cursor_line;
+
+    Gtk::Window win;
 
     Gtk::Box       main_box;
     Gtk::Expander  search_ex;

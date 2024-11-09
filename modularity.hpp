@@ -1,9 +1,12 @@
 #ifndef WAYROUND_I2P_20241106_133730_899470
 #define WAYROUND_I2P_20241106_133730_899470
 
-#include <deque>
+#include <functional>
+
 #include <memory>
 #include <string>
+
+#include <deque>
 #include <tuple>
 #include <vector>
 

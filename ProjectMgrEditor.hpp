@@ -29,6 +29,9 @@ class ProjectMgrEditor
   public:
     ~ProjectMgrEditor();
 
+    void show();
+    void destroy();
+
   private:
     Controller_weak controller;
 

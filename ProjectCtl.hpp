@@ -30,7 +30,7 @@ class ProjectCtl
   private:
     ProjectCtl_shared own_ptr;
 
-    runOnce runOnceOnDestroy;
+    RunOnce destroyer;
 
   public:
     Controller_shared getController();

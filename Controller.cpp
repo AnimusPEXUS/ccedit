@@ -161,7 +161,7 @@ void Controller::showProjectMgr()
     project_mgr.lock()->show();
 }
 
-void Controller::closeProjectMgr()
+void Controller::destroyProjectMgr()
 {
     if (auto x = project_mgr.lock(); x)
     {
@@ -332,11 +332,11 @@ ProjectCtl_shared Controller::getGlobalProjCtl()
     return global_proj_ctl.lock();
 }
 
-void Controller::closeGlobalProjCtl()
+void Controller::destroyGlobalProjCtl()
 {
     if (auto x = global_proj_ctl.lock(); x)
     {
-        closeGlobalProjCtlWin();
+        destroyGlobalProjCtlWin();
         x->destroy();
         global_proj_ctl.reset();
     }
@@ -348,7 +348,7 @@ void Controller::showGlobalProjCtlWin()
     x->showWindow();
 }
 
-void Controller::closeGlobalProjCtlWin()
+void Controller::destroyGlobalProjCtlWin()
 {
     if (auto x = global_proj_ctl.lock(); x)
     {
@@ -387,14 +387,14 @@ std::tuple<ProjectCtl_shared, int> Controller::getProjCtl(std::string name)
     return std::tuple(nullptr, 1);
 }
 
-int Controller::closeProjCtl(std::string name)
+int Controller::destroyProjCtl(std::string name)
 {
     auto p_ind = findProjectIndex(name);
     if (p_ind != -1)
     {
         auto x = project_list_store->get_item(p_ind);
 
-        closeProjCtl(x->proj_ctl);
+        destroyProjCtl(x->proj_ctl);
         return 0;
     }
     return -1;
@@ -414,7 +414,7 @@ int Controller::showProjCtlWin(std::string name)
     return -1;
 }
 
-void Controller::closeProjCtlWin(std::string name)
+void Controller::destroyProjCtlWin(std::string name)
 {
     auto p_ind = findProjectIndex(name);
     if (p_ind != -1)
@@ -424,11 +424,11 @@ void Controller::closeProjCtlWin(std::string name)
     }
 }
 
-void Controller::closeProjCtl(ProjectCtl_shared p_ctl)
+void Controller::destroyProjCtl(ProjectCtl_shared p_ctl)
 {
     if (isGlobalProjCtl(p_ctl))
     {
-        closeGlobalProjCtl();
+        destroyGlobalProjCtl();
         return;
     }
 

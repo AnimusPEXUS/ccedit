@@ -116,11 +116,11 @@ icu::UnicodeString trim_right(icu::UnicodeString s);
 
 // todo: add mutex?
 // todo: move this to ccutils
-struct runOnce
+struct RunOnce
 {
   public:
-    runOnce(std::function<void()> f);
-    ~runOnce();
+    RunOnce(std::function<void()> f);
+    ~RunOnce();
 
     void run();
 

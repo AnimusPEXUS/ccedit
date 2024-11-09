@@ -9,6 +9,7 @@
 
 #include "modularity.hpp"
 #include "tables.hpp"
+#include "utils.hpp"
 
 #include "CodeEditorAbstract.hpp"
 #include "ProjectCtl.hpp"
@@ -42,7 +43,7 @@ class CommonEditorWindow : public CodeEditorAbstract
 
     void show() override;
     void present() override;
-    void close() override;
+    void destroy() override;
     void setTransientWindow(Gtk::Window *win) override;
 
     std::size_t getCursorOffsetPosition() override;
@@ -66,9 +67,13 @@ class CommonEditorWindow : public CodeEditorAbstract
         genOutlineContents();
 
   private:
+    CommonEditorWindow_shared own_ptr;
+
     ProjectCtl_shared  project_ctl;
     WorkSubject_shared subject;
     CodeEditorMod     *mod;
+
+    RunOnce destroyer;
 
     Gtk::ApplicationWindow win;
 

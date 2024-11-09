@@ -1,12 +1,21 @@
 #include "EditorListView.hpp"
 
-using namespace wayround_i2p::ccedit;
+#include "ProjectCtl.hpp"
 
-EditorListView::EditorListView(
-    ProjectCtl_shared project_ctl
-) :
+namespace wayround_i2p::ccedit
+{
+
+EditorListView_shared EditorListView::create(ProjectCtl_shared project_ctl)
+{
+    auto ret     = EditorListView_shared(new EditorListView(project_ctl));
+    ret->own_ptr = ret;
+    return ret;
+}
+
+EditorListView::EditorListView(ProjectCtl_shared project_ctl) :
     main_box(Gtk::Orientation::VERTICAL, 5),
-    tools_box(Gtk::Orientation::HORIZONTAL, 5)
+    tools_box(Gtk::Orientation::HORIZONTAL, 5),
+    destroyer([this]() {})
 {
     this->project_ctl = project_ctl;
 
@@ -121,5 +130,7 @@ void EditorListView::updateTitle()
 
 void EditorListView::on_destroy_sig()
 {
-    delete this;
+    destroyer.run();
 }
+
+} // namespace wayround_i2p::ccedit

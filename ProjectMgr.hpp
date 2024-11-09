@@ -26,7 +26,7 @@ class ProjectMgr
   private:
     ProjectMgr_shared own_ptr;
 
-    runOnce united_destroy_routines;
+    RunOnce destroyer;
 
     // controller should not possibly be destroyed before any other window
     // of ccedit, so it is always shared inside of ccedit windows

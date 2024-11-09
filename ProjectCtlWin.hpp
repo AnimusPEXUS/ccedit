@@ -30,7 +30,7 @@ class ProjectCtlWin
     void destroy();
 
   private:
-    runOnce destroyer;
+    RunOnce destroyer;
 
     ProjectCtlWin_shared own_ptr;
 

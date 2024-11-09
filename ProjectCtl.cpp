@@ -20,7 +20,7 @@ ProjectCtl_shared ProjectCtl::create(Controller_shared controller)
 }
 
 ProjectCtl::ProjectCtl(Controller_shared controller) :
-    runOnceOnDestroy(
+    destroyer(
         [this]()
         {
             this->controller->destroyProjCtl(this->own_ptr);
@@ -269,7 +269,7 @@ void ProjectCtl::unregisterEditor(CodeEditorAbstract_shared val)
     while (!vec.empty())
     {
         auto z = vec.begin();
-        ((*z).get())->close();
+        ((*z).get())->destroy();
         vec.erase(z);
     }
 }
@@ -303,7 +303,7 @@ Glib::RefPtr<Gio::ListStore<CodeEditorTableRow>> ProjectCtl::getCodeEditorListSt
 void ProjectCtl::destroy()
 {
     // todo: close and destroy all subwindows and work subjects
-    runOnceOnDestroy.run();
+    destroyer.run();
 }
 
 void ProjectCtl::projectControllerRegisteredInController()
@@ -362,9 +362,8 @@ void ProjectCtl::showNewWorkSubjectList()
 
 void ProjectCtl::showNewEditorList()
 {
-    auto x = new EditorListView(this->own_ptr);
+    auto x = EditorListView::create(this->own_ptr);
     x->show();
-    controller->registerWindow(x);
 }
 
 std::shared_ptr<sigc::signal<void()>> ProjectCtl::signal_updated_name()

@@ -37,6 +37,11 @@ ProjectMgrEditor::ProjectMgrEditor(
         throw "controller is required";
     }
 
+    w->set_transient_for(*this);
+    w->set_destroy_with_parent(true);
+    controller->registerWindow(w);
+
+
     // TODO: use set_titlebar and put buttons to title
 
     this->controller = controller;
