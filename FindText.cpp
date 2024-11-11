@@ -874,6 +874,16 @@ int FindText::setFindTextQuery(FindTextQuery q)
     return find_text_widget.setFindTextQuery(q);
 }
 
+void FindText::show()
+{
+    win.show();
+}
+
+void FindText::destroy()
+{
+    destroyer.run();
+}
+
 void FindText::saveEditorLine()
 {
     if (auto p = editor_window.lock())

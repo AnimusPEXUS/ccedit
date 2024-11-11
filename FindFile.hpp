@@ -25,6 +25,10 @@ class FindFile
 
     ~FindFile();
 
+  protected:
+    FindFile(ProjectCtl_shared p_ctl);
+
+  public:
     void                      setTargetEditor(CodeEditorAbstract_shared editor);
     void                      unsetTargetEditor();
     CodeEditorAbstract_shared getTargetEditor();
@@ -37,9 +41,6 @@ class FindFile
 
     FindFileQuery getFindFileQuery();
     int           setFindFileQuery(FindFileQuery q);
-
-  protected:
-    FindFile(ProjectCtl_shared p_ctl);
 
   private:
     RunOnce         destroyer;

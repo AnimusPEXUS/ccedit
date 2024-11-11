@@ -1,11 +1,14 @@
 #ifndef WAYROUND_I2P_20241106_133730_890322
 #define WAYROUND_I2P_20241106_133730_890322
 
+#include <filesystem>
 #include <iostream>
 
 #include <gtkmm.h>
 
 #include "forward_declarations.hpp"
+
+#include "utils.hpp"
 
 namespace wayround_i2p::ccedit
 {
@@ -14,14 +17,14 @@ class ProjectMgrEditor
 {
   public:
     static ProjectMgrEditor_shared create(
-        Controller_shared     controller,
+        ProjectMgr_shared     p_mgr,
         std::string           proj_name,
         std::filesystem::path proj_path
     );
 
   protected:
     ProjectMgrEditor(
-        Controller_shared     controller,
+        ProjectMgr_shared     p_mgr,
         std::string           proj_name,
         std::filesystem::path proj_path
     );
@@ -33,9 +36,12 @@ class ProjectMgrEditor
     void destroy();
 
   private:
-    Controller_weak controller;
+    ProjectMgr_shared p_mgr;
+    Controller_shared controller;
 
-    ProjectMgrEditor_weak own_ptr;
+    RunOnce destroyer;
+
+    ProjectMgrEditor_shared own_ptr;
 
     std::string           proj_name_orig;
     std::filesystem::path proj_path_orig;
@@ -63,8 +69,7 @@ class ProjectMgrEditor
     void on_cancel_click();
     void on_browse_click();
 
-    // todo: rework this function
-    // void on_browse_click_finish(std::shared_ptr<Gio::AsyncResult> res);
+    void on_browse_click_finish(std::shared_ptr<Gio::AsyncResult> res);
 
     void on_destroy_sig();
 

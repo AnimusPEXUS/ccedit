@@ -1,6 +1,9 @@
 #include <cstdio>
 
 #include "WorkSubject.hpp"
+
+#include "ProjectCtl.hpp"
+
 #include "utils.hpp"
 
 using namespace wayround_i2p::ccedit;

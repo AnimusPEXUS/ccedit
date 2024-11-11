@@ -4,20 +4,22 @@
 #include <format>
 #include <iostream>
 
+#include "Controller.hpp"
+#include "ProjectMgr.hpp"
 #include "ProjectMgrEditor.hpp"
 
 namespace wayround_i2p::ccedit
 {
 
-ProjectMgrEditor_shared create(
-    Controller_shared     controller,
+ProjectMgrEditor_shared ProjectMgrEditor::create(
+    ProjectMgr_shared     p_mgr,
     std::string           proj_name,
     std::filesystem::path proj_path
 )
 {
     auto ret = ProjectMgrEditor_shared(
         new ProjectMgrEditor(
-            controller,
+            p_mgr,
             proj_name,
             proj_path
         )
@@ -27,27 +29,36 @@ ProjectMgrEditor_shared create(
 }
 
 ProjectMgrEditor::ProjectMgrEditor(
-    Controller_shared     controller,
+    ProjectMgr_shared     p_mgr,
     std::string           proj_name,
     std::filesystem::path proj_path
-)
+) :
+    destroyer(
+        [this]()
+        {
+            win.destroy();
+            destroy();
+            own_ptr.reset();
+        }
+    )
 {
-    if (!controller)
+    if (!p_mgr)
     {
-        throw "controller is required";
+        throw "p_mgr is required";
     }
 
-    w->set_transient_for(*this);
-    w->set_destroy_with_parent(true);
-    controller->registerWindow(w);
+    this->p_mgr      = p_mgr;
+    this->controller = this->p_mgr->getController();
 
+    win.set_transient_for(this->p_mgr->getWindowRef());
+    win.set_destroy_with_parent(true);
+
+    this->controller->registerWindow(&win);
 
     // TODO: use set_titlebar and put buttons to title
 
-    this->controller = controller;
-
     {
-        auto wt = "adding new project - Code Editor";
+        std::string wt = "adding new project - Code Editor";
         if (proj_name.length() != 0)
         {
             wt = std::format("rename project {} - Code Editor", proj_name);
@@ -115,7 +126,7 @@ ProjectMgrEditor::ProjectMgrEditor(
         sigc::mem_fun(*this, &ProjectMgrEditor::on_browse_click)
     );
 
-    signal_destroy().connect(
+    win.signal_destroy().connect(
         sigc::mem_fun(*this, &ProjectMgrEditor::on_destroy_sig)
     );
 }
@@ -123,6 +134,16 @@ ProjectMgrEditor::ProjectMgrEditor(
 ProjectMgrEditor::~ProjectMgrEditor()
 {
     std::cout << "~ProjectMgrEditor()" << std::endl;
+}
+
+void ProjectMgrEditor::show()
+{
+    win.show();
+}
+
+void ProjectMgrEditor::destroy()
+{
+    destroyer.run();
 }
 
 void ProjectMgrEditor::on_ok_click()
@@ -149,12 +170,12 @@ void ProjectMgrEditor::on_ok_click()
         );
     }
 
-    close();
+    destroy();
 }
 
 void ProjectMgrEditor::on_cancel_click()
 {
-    close();
+    destroy();
 }
 
 void ProjectMgrEditor::on_browse_click()
@@ -162,7 +183,7 @@ void ProjectMgrEditor::on_browse_click()
     select_dir_dialog = Gtk::FileDialog::create();
     select_dir_dialog->set_title("select a project directory");
     select_dir_dialog->select_folder(
-        *this,
+        win,
         sigc::mem_fun(*this, &ProjectMgrEditor::on_browse_click_finish)
     );
 }
@@ -171,7 +192,6 @@ void ProjectMgrEditor::on_browse_click_finish(
     std::shared_ptr<Gio::AsyncResult> res
 )
 {
-#error "don't use shared_ptr for Gio::AsyncResult"
     if (res == NULL)
     {
         // std::cout << "res == NULL\n";

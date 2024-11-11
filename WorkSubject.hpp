@@ -2,6 +2,7 @@
 #define WAYROUND_I2P_20241106_133730_889735
 
 #include <filesystem>
+#include <iostream>
 #include <memory>
 #include <string>
 

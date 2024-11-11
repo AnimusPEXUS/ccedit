@@ -28,6 +28,7 @@ GEN_FORV_DECL(ProjectCtlWin);
 GEN_FORV_DECL(ProjectMgr);
 GEN_FORV_DECL(ProjectMgrEditor);
 GEN_FORV_DECL(WorkSubject);
+GEN_FORV_DECL(WorkSubjectListView);
 
 #undef GEN_FORV_DECL
 

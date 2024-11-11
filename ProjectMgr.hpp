@@ -17,8 +17,13 @@ class ProjectMgr
   public:
     static ProjectMgr_shared create(Controller_shared controller);
 
+    Controller_shared getController();
+
     void show();
     void destroy();
+
+    Gtk::Window *getWindowPtr();
+    Gtk::Window &getWindowRef();
 
   protected:
     ProjectMgr(Controller_shared controller);

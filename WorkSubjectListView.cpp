@@ -1,12 +1,33 @@
 #include "WorkSubjectListView.hpp"
 
-using namespace wayround_i2p::ccedit;
+#include "ProjectCtl.hpp"
+
+namespace wayround_i2p::ccedit
+{
+
+WorkSubjectListView_shared
+    WorkSubjectListView::create(ProjectCtl_shared project_ctl)
+{
+    auto ret = WorkSubjectListView_shared(
+        new WorkSubjectListView(project_ctl)
+    );
+
+    ret->own_ptr = ret;
+    return ret;
+}
 
 WorkSubjectListView::WorkSubjectListView(
     ProjectCtl_shared project_ctl
 ) :
     main_box(Gtk::Orientation::VERTICAL, 5),
-    tools_box(Gtk::Orientation::HORIZONTAL, 5)
+    tools_box(Gtk::Orientation::HORIZONTAL, 5),
+    destroyer(
+        [this]()
+        {
+            win.destroy();
+            own_ptr.reset();
+        }
+    )
 {
     this->project_ctl = project_ctl;
 
@@ -30,13 +51,13 @@ WorkSubjectListView::WorkSubjectListView(
 
     ws_view.set_model(ws_view_sel);
 
-    set_child(main_box);
+    win.set_child(main_box);
 
     project_ctl->signal_updated_name()->connect(
         sigc::mem_fun(*this, &WorkSubjectListView::updateTitle)
     );
 
-    signal_destroy().connect(
+    win.signal_destroy().connect(
         sigc::mem_fun(*this, &WorkSubjectListView::on_destroy_sig)
     );
 
@@ -46,6 +67,16 @@ WorkSubjectListView::WorkSubjectListView(
 WorkSubjectListView::~WorkSubjectListView()
 {
     std::cout << "~WorkSubjectListView()" << std::endl;
+}
+
+void WorkSubjectListView::show()
+{
+    win.show();
+}
+
+void WorkSubjectListView::destroy()
+{
+    destroyer.run();
 }
 
 void WorkSubjectListView::add_columns()
@@ -120,10 +151,12 @@ void WorkSubjectListView::updateTitle()
         );
     }
 
-    set_title(new_title);
+    win.set_title(new_title);
 }
 
 void WorkSubjectListView::on_destroy_sig()
 {
-    delete this;
+    destroyer.run();
 }
+
+} // namespace wayround_i2p::ccedit

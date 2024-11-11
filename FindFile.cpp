@@ -28,7 +28,10 @@ FindFile_shared FindFile::create(ProjectCtl_shared p_ctl)
 FindFile::FindFile(ProjectCtl_shared p_ctl) :
     destroyer(
         [this]()
-        { this->own_ptr.reset(); }
+        {
+            win.destroy();
+            own_ptr.reset();
+        }
     )
 {
     this->p_ctl = p_ctl;
@@ -257,6 +260,26 @@ void FindFile::setup_result_linelist()
 FindFile::~FindFile()
 {
     std::cout << "~FindFile()" << std::endl;
+}
+
+void FindFile::start()
+{
+    // todo: todo
+}
+
+void FindFile::stop()
+{
+    // todo: todo
+}
+
+void FindFile::show()
+{
+    win.show();
+}
+
+void FindFile::destroy()
+{
+    destroyer.run();
 }
 
 FindFileQuery FindFile::getFindFileQuery()

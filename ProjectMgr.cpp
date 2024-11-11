@@ -27,6 +27,21 @@ void ProjectMgr::destroy()
     destroyer.run();
 }
 
+Gtk::Window *ProjectMgr::getWindowPtr()
+{
+    return &win;
+}
+
+Gtk::Window &ProjectMgr::getWindowRef()
+{
+    return win;
+}
+
+Controller_shared ProjectMgr::getController()
+{
+    return controller;
+}
+
 ProjectMgr::ProjectMgr(Controller_shared controller) :
     destroyer(
         [this]()
@@ -263,7 +278,7 @@ void ProjectMgr::table_path_cell_unbind(const Glib::RefPtr<Gtk::ListItem> &list_
 
 void ProjectMgr::on_add_click()
 {
-    auto w = ProjectMgrEditor::create(controller, "", "");
+    auto w = ProjectMgrEditor::create(own_ptr, "", "");
     w->destroy();
 }
 
@@ -293,7 +308,7 @@ void ProjectMgr::on_edit_click()
         auto item = list->get_item(*i);
 
         auto w = ProjectMgrEditor::create(
-            controller,
+            own_ptr,
             item->proj_name(),
             item->proj_path()
         );

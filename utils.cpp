@@ -532,16 +532,16 @@ icu::UnicodeString trim_right(icu::UnicodeString s)
     return s;
 }
 
-runOnce::runOnce(std::function<void()> f)
+RunOnce::RunOnce(std::function<void()> f)
 {
-    this.f = f;
+    this->f = f;
 }
 
-runOnce::~runOnce()
+RunOnce::~RunOnce()
 {
 }
 
-runOnce::run()
+void RunOnce::run()
 {
     if (!runned)
     {

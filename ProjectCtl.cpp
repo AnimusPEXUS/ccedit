@@ -355,9 +355,8 @@ void ProjectCtl::showNewFileExplorer()
 
 void ProjectCtl::showNewWorkSubjectList()
 {
-    auto x = new WorkSubjectListView(this->own_ptr);
+    auto x = WorkSubjectListView::create(own_ptr);
     x->show();
-    controller->registerWindow(x);
 }
 
 void ProjectCtl::showNewEditorList()
