@@ -3,12 +3,10 @@
 
 #include "CodeEditorAbstract.hpp"
 #include "Controller.hpp"
-#include "EditorListView.hpp"
 #include "FileExplorer.hpp"
 #include "ProjectCtl.hpp"
 #include "ProjectCtlWin.hpp"
 #include "WorkSubject.hpp"
-#include "WorkSubjectListView.hpp"
 
 using namespace wayround_i2p::ccedit;
 
@@ -359,18 +357,6 @@ void ProjectCtl::showNewFileExplorer()
     auto x = FileExplorer::create(own_ptr);
     x->show();
     // controller->registerWindow(x);
-}
-
-void ProjectCtl::showNewWorkSubjectList()
-{
-    auto x = WorkSubjectListView::create(own_ptr);
-    x->show();
-}
-
-void ProjectCtl::showNewEditorList()
-{
-    auto x = EditorListView::create(this->own_ptr);
-    x->show();
 }
 
 std::shared_ptr<sigc::signal<void()>> ProjectCtl::signal_updated_name()

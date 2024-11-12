@@ -2,43 +2,39 @@
 #include <format>
 
 #include "Controller.hpp"
-#include "EditorListView.hpp"
 #include "FileExplorer.hpp"
 #include "ProjectCtl.hpp"
-#include "WorkSubjectListView.hpp"
 
 #include "ProjectCtlWin.hpp"
 
 namespace wayround_i2p::ccedit
 {
 
-ProjectCtlWin_shared ProjectCtlWin::create(ProjectCtl_shared proj_ctl)
+ProjectCtlWin_shared ProjectCtlWin::create(ProjectCtl_shared project_ctl)
 {
-    auto ret     = ProjectCtlWin_shared(new ProjectCtlWin(proj_ctl));
+    auto ret     = ProjectCtlWin_shared(new ProjectCtlWin(project_ctl));
     ret->own_ptr = ret;
     return ret;
 }
 
-ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared proj_ctl) :
+ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared project_ctl) :
     destroyer(
         [this]()
         {
             std::cout << "ProjectCtlWin: destroyer.run()" << std::endl;
-            controller->unregisterWindow(&win);
+            win.destroy();
+            own_ptr.reset();
         }
-    )
+    ),
+    main_box(Gtk::Orientation::VERTICAL, 5)
 {
 
-    this->proj_ctl   = proj_ctl;
-    this->controller = proj_ctl->getController();
+    this->project_ctl = project_ctl;
+    this->controller  = project_ctl->getController();
 
     show_file_explorer_btn.set_label("File Explorer");
-    show_new_worksubject_list_btn.set_label("Work Subject List");
-    show_new_editor_list_btn.set_label("Editor List");
 
     win.set_child(main_box);
-
-    main_box.set_spacing(5);
 
     main_box.set_margin_top(5);
     main_box.set_margin_start(5);
@@ -46,22 +42,70 @@ ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared proj_ctl) :
     main_box.set_margin_bottom(5);
 
     main_box.append(show_file_explorer_btn);
-    main_box.append(show_new_worksubject_list_btn);
-    main_box.append(show_new_editor_list_btn);
+
+    main_box.append(ws_ed_paned);
+
+    // ws_ed_paned.set_margin_top(5);
+    // ws_ed_paned.set_margin_start(5);
+    // ws_ed_paned.set_margin_end(5);
+    // ws_ed_paned.set_margin_bottom(5);
+
+    ws_ed_paned.set_start_child(ws_main_box);
+    ws_ed_paned.set_end_child(eds_main_box);
+
+    // ------- work subjects -------
+
+    ws_view_sel = Gtk::MultiSelection::create(
+        this->project_ctl->getWorkSubjectListStore()
+    );
+
+    // ws_main_box.set_margin_top(5);
+    // ws_main_box.set_margin_start(5);
+    // ws_main_box.set_margin_end(5);
+    // ws_main_box.set_margin_bottom(5);
+
+    ws_main_box.append(ws_tools_box);
+    ws_main_box.append(ws_view_sw);
+
+    ws_view_sw.set_child(ws_view);
+    ws_view_sw.set_hexpand(true);
+    ws_view_sw.set_vexpand(true);
+    ws_view_sw.set_has_frame(true);
+
+    ws_add_columns();
+
+    ws_view.set_model(ws_view_sel);
+
+    // ------- editors -------
+
+    eds_view_sel = Gtk::MultiSelection::create(
+        this->project_ctl->getCodeEditorListStore()
+    );
+
+    // eds_main_box.set_margin_top(5);
+    // eds_main_box.set_margin_start(5);
+    // eds_main_box.set_margin_end(5);
+    // eds_main_box.set_margin_bottom(5);
+
+    eds_main_box.append(eds_tools_box);
+    eds_main_box.append(eds_view_sw);
+
+    eds_view_sw.set_child(eds_view);
+    eds_view_sw.set_hexpand(true);
+    eds_view_sw.set_vexpand(true);
+    eds_view_sw.set_has_frame(true);
+
+    eds_add_columns();
+
+    eds_view.set_model(eds_view_sel);
+
+    // -------------------------
 
     show_file_explorer_btn.signal_clicked().connect(
         sigc::mem_fun(*this, &ProjectCtlWin::on_show_file_explorer_btn)
     );
 
-    show_new_worksubject_list_btn.signal_clicked().connect(
-        sigc::mem_fun(*this, &ProjectCtlWin::on_show_new_worksubject_list_btn)
-    );
-
-    show_new_editor_list_btn.signal_clicked().connect(
-        sigc::mem_fun(*this, &ProjectCtlWin::on_show_new_editor_list_btn)
-    );
-
-    proj_ctl->signal_updated_name()->connect(
+    project_ctl->signal_updated_name()->connect(
         sigc::mem_fun(*this, &ProjectCtlWin::updateTitle)
     );
 
@@ -80,19 +124,95 @@ ProjectCtlWin::~ProjectCtlWin()
     destroyer.run();
 }
 
+void ProjectCtlWin::ws_add_columns()
+{
+    auto factory = Gtk::SignalListItemFactory::create();
+    factory->signal_setup().connect(
+        sigc::bind(
+            sigc::mem_fun(*this, &ProjectCtlWin::ws_table_cell_setup),
+            Gtk::Align::START
+        )
+    );
+    factory->signal_bind().connect(
+        sigc::bind(
+            sigc::mem_fun(*this, &ProjectCtlWin::ws_table_subject_cell_bind)
+        )
+    );
+
+    auto column = Gtk::ColumnViewColumn::create("Subject", factory);
+    // column->set_fixed_width(200);
+    // column->set_resizable(true);
+    column->set_expand(true);
+    ws_view.append_column(column);
+}
+
+void ProjectCtlWin::ws_table_cell_setup(
+    const Glib::RefPtr<Gtk::ListItem> &list_item, Gtk::Align halign
+)
+{
+    list_item->set_child(*Gtk::make_managed<Gtk::Label>("", halign));
+}
+
+void ProjectCtlWin::ws_table_subject_cell_bind(
+    const Glib::RefPtr<Gtk::ListItem> &list_item
+)
+{
+    auto col = std::dynamic_pointer_cast<WorkSubjectTableRow>(
+        list_item->get_item()
+    );
+    if (!col)
+        return;
+    auto label = dynamic_cast<Gtk::Label *>(list_item->get_child());
+    if (!label)
+        return;
+    label->set_text("todo");
+}
+
+void ProjectCtlWin::eds_add_columns()
+{
+    auto factory = Gtk::SignalListItemFactory::create();
+    factory->signal_setup().connect(
+        sigc::bind(
+            sigc::mem_fun(*this, &ProjectCtlWin::eds_table_cell_setup),
+            Gtk::Align::START
+        )
+    );
+    factory->signal_bind().connect(
+        sigc::bind(
+            sigc::mem_fun(*this, &ProjectCtlWin::eds_table_subject_cell_bind)
+        )
+    );
+
+    auto column = Gtk::ColumnViewColumn::create("FN", factory);
+    // column->set_fixed_width(200);
+    // column->set_resizable(true);
+    column->set_expand(true);
+    eds_view.append_column(column);
+}
+
+void ProjectCtlWin::eds_table_cell_setup(
+    const Glib::RefPtr<Gtk::ListItem> &list_item, Gtk::Align halign
+)
+{
+    list_item->set_child(*Gtk::make_managed<Gtk::Label>("", halign));
+}
+
+void ProjectCtlWin::eds_table_subject_cell_bind(
+    const Glib::RefPtr<Gtk::ListItem> &list_item
+)
+{
+    auto col = std::dynamic_pointer_cast<CodeEditorTableRow>(list_item->get_item());
+    if (!col)
+        return;
+    auto label = dynamic_cast<Gtk::Label *>(list_item->get_child());
+    if (!label)
+        return;
+    label->set_text("todo");
+}
+
 void ProjectCtlWin::on_show_file_explorer_btn()
 {
-    proj_ctl->showNewFileExplorer();
-}
-
-void ProjectCtlWin::on_show_new_worksubject_list_btn()
-{
-    proj_ctl->showNewWorkSubjectList();
-}
-
-void ProjectCtlWin::on_show_new_editor_list_btn()
-{
-    proj_ctl->showNewEditorList();
+    project_ctl->showNewFileExplorer();
 }
 
 void ProjectCtlWin::on_destroy_sig()
@@ -106,13 +226,13 @@ void ProjectCtlWin::updateTitle()
     std::string new_title;
 
     std::string proj_name("(global)");
-    if (!proj_ctl->isGlobalProject())
+    if (!project_ctl->isGlobalProject())
     {
-        proj_name = proj_ctl->getProjectName();
+        proj_name = project_ctl->getProjectName();
     }
 
     new_title = std::format(
-        "{} - ProjCtl - Code Editor",
+        "{} - (Project) - Code Editor",
         proj_name
     );
 

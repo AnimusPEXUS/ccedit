@@ -16,7 +16,6 @@ namespace wayround_i2p::ccedit
 GEN_FORV_DECL(CodeEditorAbstract);
 GEN_FORV_DECL(CommonEditorWindow);
 GEN_FORV_DECL(Controller);
-GEN_FORV_DECL(EditorListView);
 GEN_FORV_DECL(FileExplorer);
 GEN_FORV_DECL(FileExplorerMakeFileDir);
 GEN_FORV_DECL(FileExplorerWidget);
@@ -28,7 +27,6 @@ GEN_FORV_DECL(ProjectCtlWin);
 GEN_FORV_DECL(ProjectMgr);
 GEN_FORV_DECL(ProjectMgrEditor);
 GEN_FORV_DECL(WorkSubject);
-GEN_FORV_DECL(WorkSubjectListView);
 
 #undef GEN_FORV_DECL
 

@@ -101,8 +101,6 @@ class ProjectCtl
     void destroyWindow();
 
     void showNewFileExplorer();
-    void showNewWorkSubjectList();
-    void showNewEditorList();
 
     void destroy();
 
