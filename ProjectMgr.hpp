@@ -49,16 +49,22 @@ class ProjectMgr
     Gtk::Box button_box;
     Gtk::Box button_box_sec;
 
-    Gtk::Button    add_proj;
-    Gtk::Button    rm_proj;
-    Gtk::Button    edit_proj;
-    Gtk::Separator sep0;
-    Gtk::Button    open_proj;
-    Gtk::Separator sep1;
-    Gtk::Button    open_global;
+    // todo: better names for buttons
 
-    Gtk::Button modules_info_print;
-    Gtk::Button save_cfg;
+    Gtk::Button    btn_add_proj;
+    Gtk::Button    btn_rm_proj;
+    Gtk::Button    btn_edit_proj;
+    Gtk::Separator sep0;
+    Gtk::Button    btn_open_proj;
+    Gtk::Separator sep1;
+    Gtk::Button    btn_open_global;
+
+    Gtk::Separator sep2;
+    Gtk::Button    btn_modules_info_print;
+    Gtk::Button    btn_save_cfg;
+
+    Gtk::Separator sep3;
+    Gtk::Button    btn_quit;
 
     void add_columns();
 
@@ -72,14 +78,16 @@ class ProjectMgr
     void table_path_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_item);
     void table_path_cell_unbind(const Glib::RefPtr<Gtk::ListItem> &list_item);
 
-    void on_add_click();
-    void on_rm_click();
-    void on_edit_click();
-    void on_open_click();
-    void on_open_global_click();
+    void on_btn_add_click();
+    void on_btn_rm_click();
+    void on_btn_edit_click();
+    void on_btn_open_click();
+    void on_btn_open_global_click();
 
-    void on_modules_info_print();
-    void on_save_cfg();
+    void on_btn_modules_info_print();
+    void on_btn_save_cfg_click();
+
+    void on_btn_quit_click();
 
     void on_destroy_sig();
 };

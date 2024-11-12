@@ -109,60 +109,70 @@ ProjectMgr::ProjectMgr(Controller_shared controller) :
 
     // separ.set_orientation(Gtk::Orientation::VERTICAL);
 
-    button_box.append(add_proj);
-    button_box.append(rm_proj);
-    button_box.append(edit_proj);
+    button_box.append(btn_add_proj);
+    button_box.append(btn_rm_proj);
+    button_box.append(btn_edit_proj);
 
     button_box.append(sep0);
-    button_box.append(open_proj);
+    button_box.append(btn_open_proj);
 
     button_box.append(sep1);
-    button_box.append(open_global);
+    button_box.append(btn_open_global);
 
     button_box.append(button_box_sec);
 
-    button_box_sec.append(modules_info_print);
-    button_box_sec.append(save_cfg);
+    button_box.append(sep2);
+    button_box_sec.append(btn_modules_info_print);
+    button_box_sec.append(btn_save_cfg);
 
-    add_proj.set_label("add");
-    rm_proj.set_label("rm");
-    edit_proj.set_label("edit");
-    open_proj.set_label("open proj ctrl");
+    button_box.append(sep3);
+    button_box.append(btn_quit);
 
-    open_global.set_label("open global ctrl");
+    btn_add_proj.set_label("add");
+    btn_rm_proj.set_label("rm");
+    btn_edit_proj.set_label("edit");
+    btn_open_proj.set_label("open proj ctrl");
 
-    modules_info_print.set_label("print mods");
-    save_cfg.set_label("rewrite config");
+    btn_open_global.set_label("open global ctrl");
+
+    btn_modules_info_print.set_label("print mods");
+    btn_save_cfg.set_label("rewrite config");
+
+    btn_quit.set_label("quit");
 
     // save_cfg.set_hexpand(true);
     // save_cfg.set_halign(Gtk::Align::END);
 
-    add_proj.signal_clicked().connect(
-        sigc::mem_fun(*this, &ProjectMgr::on_add_click)
+    btn_add_proj.signal_clicked().connect(
+        sigc::mem_fun(*this, &ProjectMgr::on_btn_add_click)
     );
 
-    rm_proj.signal_clicked().connect(
-        sigc::mem_fun(*this, &ProjectMgr::on_rm_click)
+    btn_rm_proj.signal_clicked().connect(
+        sigc::mem_fun(*this, &ProjectMgr::on_btn_rm_click)
     );
 
-    edit_proj.signal_clicked().connect(
-        sigc::mem_fun(*this, &ProjectMgr::on_edit_click)
+    btn_edit_proj.signal_clicked().connect(
+        sigc::mem_fun(*this, &ProjectMgr::on_btn_edit_click)
     );
 
-    open_proj.signal_clicked().connect(
-        sigc::mem_fun(*this, &ProjectMgr::on_open_click)
+    btn_open_proj.signal_clicked().connect(
+        sigc::mem_fun(*this, &ProjectMgr::on_btn_open_click)
     );
 
-    open_global.signal_clicked().connect(
-        sigc::mem_fun(*this, &ProjectMgr::on_open_global_click)
+    btn_open_global.signal_clicked().connect(
+        sigc::mem_fun(*this, &ProjectMgr::on_btn_open_global_click)
     );
 
-    save_cfg.signal_clicked().connect(
-        sigc::mem_fun(*this, &ProjectMgr::on_save_cfg)
+    btn_save_cfg.signal_clicked().connect(
+        sigc::mem_fun(*this, &ProjectMgr::on_btn_save_cfg_click)
     );
 
-    modules_info_print.signal_clicked().connect(
-        sigc::mem_fun(*this, &ProjectMgr::on_modules_info_print)
+    btn_quit.signal_clicked().connect(
+        sigc::mem_fun(*this, &ProjectMgr::on_btn_quit_click)
+    );
+
+    btn_modules_info_print.signal_clicked().connect(
+        sigc::mem_fun(*this, &ProjectMgr::on_btn_modules_info_print)
     );
 
     win.signal_destroy().connect(
@@ -276,13 +286,13 @@ void ProjectMgr::table_path_cell_unbind(const Glib::RefPtr<Gtk::ListItem> &list_
     col->signal_proj_path_changed()->clear();
 }
 
-void ProjectMgr::on_add_click()
+void ProjectMgr::on_btn_add_click()
 {
     auto w = ProjectMgrEditor::create(own_ptr, "", "");
     w->destroy();
 }
 
-void ProjectMgr::on_rm_click()
+void ProjectMgr::on_btn_rm_click()
 {
     auto x = project_list_view_selection->get_selection();
 
@@ -295,7 +305,7 @@ void ProjectMgr::on_rm_click()
     }
 }
 
-void ProjectMgr::on_edit_click()
+void ProjectMgr::on_btn_edit_click()
 {
     std::cout << "edited" << std::endl;
     auto x = project_list_view_selection->get_selection();
@@ -319,7 +329,7 @@ void ProjectMgr::on_edit_click()
     }
 }
 
-void ProjectMgr::on_open_click()
+void ProjectMgr::on_btn_open_click()
 {
     auto x    = project_list_view_selection->get_selection();
     auto i    = x->begin();
@@ -333,17 +343,17 @@ void ProjectMgr::on_open_click()
     }
 }
 
-void ProjectMgr::on_open_global_click()
+void ProjectMgr::on_btn_open_global_click()
 {
     controller->showGlobalProjCtlWin();
 }
 
-void ProjectMgr::on_save_cfg()
+void ProjectMgr::on_btn_save_cfg_click()
 {
     controller->saveConfig();
 }
 
-void ProjectMgr::on_modules_info_print()
+void ProjectMgr::on_btn_modules_info_print()
 {
     auto mods = controller->getBuiltinMods();
 
@@ -353,6 +363,11 @@ void ProjectMgr::on_modules_info_print()
     {
         printInfoCodeEditorMod(x);
     }
+}
+
+void ProjectMgr::on_btn_quit_click()
+{
+    controller->quit();
 }
 
 void ProjectMgr::on_destroy_sig()

@@ -21,7 +21,15 @@ Controller_shared Controller::create(Glib::RefPtr<Gtk::Application> app)
     return ret;
 }
 
-Controller::Controller(Glib::RefPtr<Gtk::Application> app)
+Controller::Controller(Glib::RefPtr<Gtk::Application> app) :
+    destroyer(
+        [this]()
+        {
+            this->app->release();
+            this->app->quit();
+            own_ptr.reset();
+        }
+    )
 {
     this->app          = app;
     project_list_store = Gio::ListStore<ProjectTableRow>::create();
@@ -30,7 +38,13 @@ Controller::Controller(Glib::RefPtr<Gtk::Application> app)
 Controller::~Controller()
 {
     std::cout << "~Controller()" << std::endl;
+    destroyer.run();
 };
+
+void Controller::destroy()
+{
+    destroyer.run();
+}
 
 int Controller::run(int argc, char *argv[])
 {
@@ -50,7 +64,14 @@ int Controller::run(int argc, char *argv[])
             sigc::mem_fun(*this, &Controller::on_app_startup)
         );
 
+    app->hold();
+
     return app->run(argc, argv);
+}
+
+void Controller::quit()
+{
+    destroyer.run();
 }
 
 Glib::RefPtr<Gtk::Application> Controller::getGtkApp()
@@ -153,19 +174,19 @@ int Controller::loadConfig()
 
 void Controller::showProjectMgr()
 {
-    if (project_mgr.expired())
+    if (!project_mgr)
     {
         auto x      = ProjectMgr::create(own_ptr);
         project_mgr = x;
     }
-    project_mgr.lock()->show();
+    project_mgr->show();
 }
 
 void Controller::destroyProjectMgr()
 {
-    if (auto x = project_mgr.lock(); x)
+    if (project_mgr)
     {
-        x->destroy();
+        project_mgr->destroy();
     }
 }
 
@@ -272,9 +293,9 @@ std::tuple<std::filesystem::path, int>
 {
     std::filesystem::path root("/");
 
-    if (auto x = global_proj_ctl.lock(); x)
+    if (global_proj_ctl)
     {
-        if (p_ctl == x)
+        if (p_ctl == global_proj_ctl)
         {
             return std::tuple(root, 0);
         }
@@ -306,14 +327,14 @@ bool Controller::isGlobalProjCtl(ProjectCtl_shared p_ctl)
     {
         throw "p_ctl is nullptr";
     }
-    return (!global_proj_ctl.expired()) && p_ctl == global_proj_ctl.lock();
+    return (global_proj_ctl) && p_ctl == global_proj_ctl;
 }
 
 ProjectCtl_shared Controller::createGlobalProjCtl()
 {
     ProjectCtl_shared ret;
 
-    if (global_proj_ctl.expired())
+    if (!global_proj_ctl)
     {
         ret             = ProjectCtl::create(own_ptr);
         global_proj_ctl = ret;
@@ -321,7 +342,7 @@ ProjectCtl_shared Controller::createGlobalProjCtl()
     }
     else
     {
-        ret = global_proj_ctl.lock();
+        ret = global_proj_ctl;
     }
 
     return ret;
@@ -329,15 +350,15 @@ ProjectCtl_shared Controller::createGlobalProjCtl()
 
 ProjectCtl_shared Controller::getGlobalProjCtl()
 {
-    return global_proj_ctl.lock();
+    return global_proj_ctl;
 }
 
 void Controller::destroyGlobalProjCtl()
 {
-    if (auto x = global_proj_ctl.lock(); x)
+    if (global_proj_ctl)
     {
         destroyGlobalProjCtlWin();
-        x->destroy();
+        global_proj_ctl->destroy();
         global_proj_ctl.reset();
     }
 }
@@ -350,9 +371,9 @@ void Controller::showGlobalProjCtlWin()
 
 void Controller::destroyGlobalProjCtlWin()
 {
-    if (auto x = global_proj_ctl.lock(); x)
+    if (global_proj_ctl)
     {
-        x->destroyWindow();
+        global_proj_ctl->destroyWindow();
     }
 }
 

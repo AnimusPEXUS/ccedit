@@ -13,6 +13,8 @@
 
 #include "tables.hpp"
 
+#include "utils.hpp"
+
 namespace wayround_i2p::ccedit
 {
 
@@ -29,49 +31,42 @@ class Controller
   public:
     ~Controller();
 
-    int
-        run(int argc, char *argv[]);
+    void destroy();
 
-    Glib::RefPtr<Gtk::Application>
-        getGtkApp();
+    int  run(int argc, char *argv[]);
+    void quit();
 
-    void
-        registerWindow(Gtk::Window *win);
-    void
-        unregisterWindow(Gtk::Window *win);
+    Glib::RefPtr<Gtk::Application> getGtkApp();
 
-    int
-        saveConfig();
-    int
-        loadConfig();
+    void registerWindow(Gtk::Window *win);
+    void unregisterWindow(Gtk::Window *win);
 
-    void
-        showProjectMgr();
-    void
-        destroyProjectMgr();
+    int saveConfig();
+    int loadConfig();
+
+    void showProjectMgr();
+    void destroyProjectMgr();
 
     // todo: use error type
 
     // function fails if
     //   project with such name already exists
-    int
-        createProject(
-            std::string           name,
-            std::filesystem::path path,
-            bool                  save_to_config
-        );
+    int createProject(
+        std::string           name,
+        std::filesystem::path path,
+        bool                  save_to_config
+    );
 
     // project name will not be changed if
     //   (new_name == "" || new_name == name)
     // can't be edited project which name not exists
     // if trying to change name - function fails if
     //   project with such name already exists
-    int
-        editProject(
-            std::string           name,
-            std::string           new_name,
-            std::filesystem::path new_path
-        );
+    int editProject(
+        std::string           name,
+        std::string           new_name,
+        std::filesystem::path new_path
+    );
 
     std::tuple<std::string, int>
         getNameProject(ProjectCtl_shared p_ctl);
@@ -88,33 +83,22 @@ class Controller
     std::vector<CodeEditorMod *>
         getBuiltinMods();
 
-    bool
-        isGlobalProjCtl(ProjectCtl_shared p_ctl);
+    bool isGlobalProjCtl(ProjectCtl_shared p_ctl);
 
-    ProjectCtl_shared
-        createGlobalProjCtl();
-
+    ProjectCtl_shared createGlobalProjCtl();
     // resulting pointer is empty if function failed
-    ProjectCtl_shared
-        getGlobalProjCtl();
-
+    ProjectCtl_shared getGlobalProjCtl();
     // this leads to closing global proj children windows
-    void
-        destroyGlobalProjCtl();
-
+    void              destroyGlobalProjCtl();
     // this will call createGlobalProjCtl() if not created yet
-    void
-        showGlobalProjCtlWin();
-    void
-        destroyGlobalProjCtlWin();
+    void              showGlobalProjCtlWin();
+    void              destroyGlobalProjCtlWin();
 
     std::tuple<ProjectCtl_shared, int>
         createProjCtl(std::string name);
-
     // resulting pointer is empty if function failed
     std::tuple<ProjectCtl_shared, int>
         getProjCtl(std::string name);
-
     int
         destroyProjCtl(std::string name);
 
@@ -131,14 +115,16 @@ class Controller
     Glib::RefPtr<Gtk::IconTheme> icon_theme;
 
   private:
+    RunOnce destroyer;
+
     Controller_shared own_ptr;
 
     std::vector<CodeEditorMod *> builtin_mods;
 
     Glib::RefPtr<Gtk::Application> app;
 
-    ProjectMgr_weak project_mgr;
-    ProjectCtl_weak global_proj_ctl;
+    ProjectMgr_shared project_mgr;
+    ProjectCtl_shared global_proj_ctl;
 
     // todo: use mutex on all project_list methods?
     int findProjectIndex(std::string name);

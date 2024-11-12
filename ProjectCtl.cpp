@@ -195,13 +195,12 @@ CodeEditorAbstract_shared ProjectCtl::workSubjectExistingOrNewEditor(
     return workSubjectNewEditor(val);
 }
 
-CodeEditorAbstract_shared ProjectCtl::workSubjectNewEditor(
-    WorkSubject_shared val
-)
+CodeEditorAbstract_shared
+    ProjectCtl::workSubjectNewEditor(WorkSubject_shared val)
 {
     std::cout << "workSubjectNewEditor(" << val << ")" << std::endl;
     auto ed = createBestEditorForWorkSubject(val);
-    std::cout << "createBestEditorForWorkSubject res: " << ed << std::endl;
+    std::cout << "  createBestEditorForWorkSubject res: " << ed << std::endl;
     if (!ed)
     {
         return nullptr;
@@ -218,7 +217,7 @@ CodeEditorAbstract_shared
     std::cout << "createBestEditorForWorkSubject(" << subj << ")" << std::endl;
 
     // todo: plain text or hex viewver should be used by default
-    CodeEditorMod *best_editor_mod = controller->getBuiltinMods()[0];
+    CodeEditorMod *best_editor_mod = nullptr;
 
     auto subj_pth = subj->getPath().string();
 
@@ -234,8 +233,17 @@ CodeEditorAbstract_shared
         }
     }
 
-    auto editor = best_editor_mod->newEditorForSubject(own_ptr, subj);
-    return editor;
+    CodeEditorAbstract_shared ret;
+    if (best_editor_mod)
+    {
+        ret = best_editor_mod->newEditorForSubject(own_ptr, subj);
+    }
+    else
+    {
+        // todo: here and/or before
+    }
+
+    return ret;
 }
 
 void ProjectCtl::registerEditor(CodeEditorAbstract_shared val)
