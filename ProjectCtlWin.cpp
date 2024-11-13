@@ -45,24 +45,15 @@ ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared project_ctl) :
 
     main_box.append(ws_ed_paned);
 
-    // ws_ed_paned.set_margin_top(5);
-    // ws_ed_paned.set_margin_start(5);
-    // ws_ed_paned.set_margin_end(5);
-    // ws_ed_paned.set_margin_bottom(5);
-
     ws_ed_paned.set_start_child(ws_main_box);
     ws_ed_paned.set_end_child(eds_main_box);
+    ws_ed_paned.set_wide_handle(true);
 
     // ------- work subjects -------
 
     ws_view_sel = Gtk::MultiSelection::create(
         this->project_ctl->getWorkSubjectListStore()
     );
-
-    // ws_main_box.set_margin_top(5);
-    // ws_main_box.set_margin_start(5);
-    // ws_main_box.set_margin_end(5);
-    // ws_main_box.set_margin_bottom(5);
 
     ws_main_box.append(ws_tools_box);
     ws_main_box.append(ws_view_sw);
@@ -81,11 +72,6 @@ ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared project_ctl) :
     eds_view_sel = Gtk::MultiSelection::create(
         this->project_ctl->getCodeEditorListStore()
     );
-
-    // eds_main_box.set_margin_top(5);
-    // eds_main_box.set_margin_start(5);
-    // eds_main_box.set_margin_end(5);
-    // eds_main_box.set_margin_bottom(5);
 
     eds_main_box.append(eds_tools_box);
     eds_main_box.append(eds_view_sw);

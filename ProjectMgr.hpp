@@ -59,11 +59,10 @@ class ProjectMgr
     Gtk::Separator sep1;
     Gtk::Button    btn_open_global;
 
-    Gtk::Separator sep2;
-    Gtk::Button    btn_modules_info_print;
-    Gtk::Button    btn_save_cfg;
+    Gtk::Button btn_modules_info_print;
+    Gtk::Button btn_save_cfg;
 
-    Gtk::Separator sep3;
+    Gtk::Separator sep2;
     Gtk::Button    btn_quit;
 
     void add_columns();

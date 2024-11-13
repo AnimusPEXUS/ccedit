@@ -121,12 +121,11 @@ ProjectMgr::ProjectMgr(Controller_shared controller) :
 
     button_box.append(button_box_sec);
 
-    button_box.append(sep2);
     button_box_sec.append(btn_modules_info_print);
     button_box_sec.append(btn_save_cfg);
 
-    button_box.append(sep3);
-    button_box.append(btn_quit);
+    button_box_sec.append(sep2);
+    button_box_sec.append(btn_quit);
 
     btn_add_proj.set_label("add");
     btn_rm_proj.set_label("rm");
