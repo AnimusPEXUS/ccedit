@@ -5,12 +5,11 @@
 
 #include "../../modularity.hpp"
 
-namespace wayround_i2p
+namespace wayround_i2p::ccedit
 {
-namespace ccedit
-{
-    CodeEditorMod *get_mod_info_ccpp();
-} // namespace ccedit
-} // namespace wayround_i2p
+
+CodeEditorMod *get_mod_info_ccpp();
+
+} // namespace wayround_i2p::ccedit
 
 #endif

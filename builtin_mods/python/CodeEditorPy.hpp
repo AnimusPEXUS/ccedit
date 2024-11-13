@@ -7,6 +7,7 @@
 
 namespace wayround_i2p::ccedit
 {
+
 class CodeEditorPy : public CommonEditorWindow
 {
   public:
@@ -48,6 +49,7 @@ class CodeEditorPy : public CommonEditorWindow
     void make_special_actions() override;
     void make_special_hotkeys() override;
 };
+
 } // namespace wayround_i2p::ccedit
 
 #endif

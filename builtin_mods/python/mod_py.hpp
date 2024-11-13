@@ -7,7 +7,9 @@
 
 namespace wayround_i2p::ccedit
 {
+
 CodeEditorMod *get_mod_info_py();
+
 } // namespace wayround_i2p::ccedit
 
 #endif
