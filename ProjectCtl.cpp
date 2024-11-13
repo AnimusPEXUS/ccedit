@@ -292,8 +292,7 @@ void ProjectCtl::destroyAllBuffers()
 
 void ProjectCtl::destroyEditor(CodeEditorAbstract_shared val)
 {
-    // todo: redo
-    unregisterEditor(val);
+    val->destroy();
 }
 
 Glib::RefPtr<Gio::ListStore<WorkSubjectTableRow>> ProjectCtl::getWorkSubjectListStore()

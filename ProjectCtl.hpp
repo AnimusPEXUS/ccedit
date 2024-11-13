@@ -104,6 +104,9 @@ class ProjectCtl
 
     void destroy();
 
+    void registerEditor(CodeEditorAbstract_shared);
+    void unregisterEditor(CodeEditorAbstract_shared);
+
     std::shared_ptr<sigc::signal<void()>> signal_updated_name();
     std::shared_ptr<sigc::signal<void()>> signal_updated_path();
 
@@ -115,9 +118,6 @@ class ProjectCtl
     CodeEditorAbstract_shared createBestEditorForWorkSubject(
         WorkSubject_shared
     );
-
-    void registerEditor(CodeEditorAbstract_shared);
-    void unregisterEditor(CodeEditorAbstract_shared);
 
     void destroyAllEditors();
     void destroyAllBuffers();

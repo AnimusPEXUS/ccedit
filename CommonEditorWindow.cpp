@@ -23,9 +23,13 @@ CommonEditorWindow::CommonEditorWindow(
     destroyer(
         [this]()
         {
-            this->destroy();
-            this->project_ctl->destroyEditor(this->own_ptr);
+            this->project_ctl->unregisterEditor(
+                this->own_ptr
+            );
             this->win.destroy();
+
+            // note: this is probably overkill
+            // this->destroy();
 
             this->own_ptr.reset();
         }
