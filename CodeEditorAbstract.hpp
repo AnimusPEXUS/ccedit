@@ -13,12 +13,13 @@ namespace wayround_i2p::ccedit
 class CodeEditorAbstract
 {
   public:
-    virtual CodeEditorAbstract_shared getAbstractEditorPointer() = 0;
+    virtual CodeEditorAbstract_shared getOwnPtr() = 0;
 
     virtual WorkSubject_shared getWorkSubject()                  = 0;
     virtual bool               workSubjectIs(WorkSubject_shared) = 0;
 
-    virtual Gtk::Window *getGtkWindowPointer() = 0;
+    virtual Gtk::Window *getWindowPtr() = 0;
+    virtual Gtk::Window &getWindowRef() = 0;
 
     virtual void        show()                               = 0;
     virtual void        present()                            = 0;

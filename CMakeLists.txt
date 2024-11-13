@@ -28,7 +28,6 @@ add_executable(
   ccedit 
   CommonEditorWindow.cpp
   Controller.cpp
-  #EditorListView.cpp
   FileExplorer.cpp
   FindFile.cpp
   FindText.cpp
@@ -43,7 +42,6 @@ add_executable(
   tables.cpp
   utils.cpp
   WorkSubject.cpp
-  #WorkSubjectListView.cpp
   #builtin_mods/ccpp/CodeEditorCCPP.cpp
   #builtin_mods/ccpp/mod_ccpp.cpp
   #builtin_mods/go/CodeEditorGo.cpp

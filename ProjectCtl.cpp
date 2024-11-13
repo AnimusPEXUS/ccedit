@@ -252,7 +252,7 @@ void ProjectCtl::registerEditor(CodeEditorAbstract_shared val)
     auto v    = CodeEditorTableRow::create();
     v->editor = val;
     editors_list_store->append(v);
-    controller->registerWindow(val->getGtkWindowPointer());
+    controller->registerWindow(val->getWindowPtr());
 }
 
 void ProjectCtl::unregisterEditor(CodeEditorAbstract_shared val)

@@ -640,7 +640,7 @@ void CommonEditorWindow::action_buffer_save_as()
 void CommonEditorWindow::action_search_show_window()
 {
     auto ed1 = dynamic_cast<CodeEditorAbstract *>(this);
-    auto w   = FindText::create(ed1->getAbstractEditorPointer());
+    auto w   = FindText::create(ed1->getOwnPtr());
     w->show();
 
     // todo: move registration inside of FindText constructor
