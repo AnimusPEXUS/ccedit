@@ -11,8 +11,20 @@
 
 #include "Controller.hpp"
 
+#include "builtin_mods/ccpp/mod_ccpp.hpp"
+// #include "builtin_mods/go/mod_go.hpp"
+
 namespace wayround_i2p::ccedit
 {
+
+// note: this function intentionally moved to start of the file,
+//       so it would be easier to find
+int Controller::addBuiltinMods()
+{
+    addBuiltinMod(get_mod_info_ccpp());
+    // addBuiltinMod(get_mod_info_go());
+    return 0;
+}
 
 Controller_shared Controller::create(Glib::RefPtr<Gtk::Application> app)
 {
@@ -558,13 +570,6 @@ int Controller::ensureConfigDirExists()
 #else
     #error "only __unix__ target supported now"
 #endif
-
-int Controller::addBuiltinMods()
-{
-    // addBuiltinMod(get_mod_info_ccpp());
-    // addBuiltinMod(get_mod_info_go());
-    return 0;
-}
 
 int Controller::addBuiltinMod(CodeEditorMod *mod)
 {

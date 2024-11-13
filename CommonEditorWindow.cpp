@@ -516,14 +516,12 @@ void CommonEditorWindow::force_redraw_linum()
 
 void CommonEditorWindow::show()
 {
-    auto x = (Gtk::Window *)this;
-    x->show();
+    win.show();
 }
 
 void CommonEditorWindow::present()
 {
-    auto x = (Gtk::Window *)this;
-    x->present();
+    win.present();
 }
 
 void CommonEditorWindow::destroy()
@@ -531,15 +529,25 @@ void CommonEditorWindow::destroy()
     destroyer.run();
 }
 
-void CommonEditorWindow::setTransientWindow(Gtk::Window *win)
-{
-    win->set_transient_for(*(Gtk::Window *)this);
-}
+// void CommonEditorWindow::setTransientWindow(Gtk::Window &win)
+//{
+//     win->set_transient_for(win);
+// }
 
 // void CommonEditorWindow::setTransientWindow(std::shared_ptr<Gtk::Window> win)
 //{
 //     setTransientWindow(win.get());
 // }
+
+Gtk::Window *CommonEditorWindow::getWindowPtr()
+{
+    return &win;
+}
+
+Gtk::Window &CommonEditorWindow::getWindowRef()
+{
+    return win;
+}
 
 std::size_t CommonEditorWindow::getCursorOffsetPosition()
 {

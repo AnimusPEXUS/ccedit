@@ -5,52 +5,51 @@
 
 #include "../../CommonEditorWindow.hpp"
 
-namespace wayround_i2p
+namespace wayround_i2p::ccedit
 {
-namespace ccedit
+
+class CodeEditorCCPP : public CommonEditorWindow
 {
-    class CodeEditorCCPP : public CommonEditorWindow
-    {
-      public:
-        static std::shared_ptr<CodeEditorAbstract> create(
-            std::shared_ptr<ProjectCtl>  proj_ctl,
-            std::shared_ptr<WorkSubject> subj
-        );
+  public:
+    static CodeEditorAbstract_shared create(
+        ProjectCtl_shared  proj_ctl,
+        WorkSubject_shared subj
+    );
 
-        ~CodeEditorCCPP();
+    ~CodeEditorCCPP();
 
-        std::shared_ptr<CodeEditorAbstract> getOwnPtr() override;
-        void                                resetOwnPtr() override;
+    // void destroy();
 
-        std::shared_ptr<WorkSubject> getWorkSubject() override;
-        bool                         workSubjectIs(std::shared_ptr<WorkSubject>) override;
+    CodeEditorAbstract_shared getOwnPtr() override;
 
-        // todo: is this good place for this?
-        std::vector<std::tuple<unsigned int, std::string>>
-            genOutlineContents() override;
+    WorkSubject_shared getWorkSubject() override;
+    bool               workSubjectIs(WorkSubject_shared) override;
 
-      protected:
-        CodeEditorCCPP(
-            std::shared_ptr<ProjectCtl>  project_ctl,
-            std::shared_ptr<WorkSubject> subject
-        );
+    std::vector<std::tuple<std::size_t, std::string>>
+        genOutlineContents() override;
 
-      private:
-        std::shared_ptr<ProjectCtl>  project_ctl;
-        std::shared_ptr<WorkSubject> subject;
+  protected:
+    CodeEditorCCPP(
+        ProjectCtl_shared  project_ctl,
+        WorkSubject_shared subject
+    );
 
-        std::shared_ptr<CodeEditorCCPP> own_ptr;
+  private:
+    ProjectCtl_shared  project_ctl;
+    WorkSubject_shared subject;
 
-        Glib::RefPtr<Gio::Menu>     mm_special;
-        Glib::RefPtr<Gio::MenuItem> mm_special_clang_format;
+    std::shared_ptr<CodeEditorCCPP> own_ptr;
 
-        void clang_format_buffer();
+    Glib::RefPtr<Gio::Menu>     mm_special;
+    Glib::RefPtr<Gio::MenuItem> mm_special_clang_format;
 
-        void make_special_menu() override;
-        void make_special_actions() override;
-        void make_special_hotkeys() override;
-    };
-} // namespace ccedit
-} // namespace wayround_i2p
+    void clang_format_buffer();
+
+    void make_special_menu() override;
+    void make_special_actions() override;
+    void make_special_hotkeys() override;
+};
+
+} // namespace wayround_i2p::ccedit
 
 #endif

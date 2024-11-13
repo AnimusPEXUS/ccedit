@@ -15,20 +15,27 @@
 using namespace wayround_i2p::ccedit;
 
 FileExplorer_shared FileExplorer::create(
-    ProjectCtl_shared proj_ctl
+    ProjectCtl_shared project_ctl
 )
 {
-    auto ret     = FileExplorer_shared(new FileExplorer(proj_ctl));
+    auto ret     = FileExplorer_shared(new FileExplorer(project_ctl));
     ret->own_ptr = ret;
     return ret;
 }
 
-FileExplorer::FileExplorer(ProjectCtl_shared proj_ctl) :
-    main_box(Gtk::Orientation::VERTICAL, 5)
+FileExplorer::FileExplorer(ProjectCtl_shared project_ctl) :
+    main_box(Gtk::Orientation::VERTICAL, 5),
+    destroyer(
+        [this]()
+        {
+            win.destroy();
+            own_ptr.reset();
+        }
+    )
 {
-    this->proj_ctl = proj_ctl;
+    this->project_ctl = project_ctl;
 
-    maximize();
+    // maximize();
     updateTitle();
 
     main_box.set_margin(5);
@@ -94,7 +101,7 @@ FileExplorer::FileExplorer(ProjectCtl_shared proj_ctl) :
     main_box.append(path_box);
     main_box.append(lists_box);
 
-    set_child(main_box);
+    win.set_child(main_box);
 
     reset_view_btn.signal_clicked().connect(
         sigc::mem_fun(*this, &FileExplorer::on_reset_view_btn)
@@ -116,7 +123,7 @@ FileExplorer::FileExplorer(ProjectCtl_shared proj_ctl) :
         sigc::mem_fun(*this, &FileExplorer::on_find_file_btn)
     );
 
-    proj_ctl->signal_updated_name()->connect(
+    project_ctl->signal_updated_name()->connect(
         sigc::mem_fun(*this, &FileExplorer::updateTitle)
     );
 
@@ -132,7 +139,7 @@ FileExplorer::FileExplorer(ProjectCtl_shared proj_ctl) :
         sigc::mem_fun(*this, &FileExplorer::on_make_file_or_directory_btn)
     );
 
-    signal_destroy().connect(
+    win.signal_destroy().connect(
         sigc::mem_fun(*this, &FileExplorer::on_destroy_sig)
     );
 }
@@ -140,6 +147,7 @@ FileExplorer::FileExplorer(ProjectCtl_shared proj_ctl) :
 FileExplorer::~FileExplorer()
 {
     std::cout << "~FileExplorer()" << std::endl;
+    destroyer.run();
 }
 
 void FileExplorer::setupDirTreeView()
@@ -269,7 +277,7 @@ void FileExplorer::setupFileListView()
                     return;
                 }
 
-                auto f_path = proj_ctl->getProjectPath() / tlr->pth;
+                auto f_path = project_ctl->getProjectPath() / tlr->pth;
 
                 auto fi   = Gio::File::create_for_path(f_path);
                 auto fii  = fi->query_info();
@@ -290,7 +298,7 @@ void FileExplorer::updateTitle()
 {
     std::string new_title("");
 
-    if (proj_ctl->isGlobalProject())
+    if (project_ctl->isGlobalProject())
     {
         new_title = "global - File Explorer - Code Editor";
     }
@@ -298,11 +306,21 @@ void FileExplorer::updateTitle()
     {
         new_title = std::format(
             "{} - File Explorer - Code Editor",
-            proj_ctl->getProjectName()
+            project_ctl->getProjectName()
         );
     }
 
-    set_title(new_title);
+    win.set_title(new_title);
+}
+
+void FileExplorer::show()
+{
+    win.show();
+}
+
+void FileExplorer::destroy()
+{
+    destroyer.run();
 }
 
 int FileExplorer::touchFileOrMkDirRelToProject(
@@ -337,7 +355,7 @@ int FileExplorer::touchFileOrMkDir(
         return err;
     }
 
-    std::filesystem::path proj_path = proj_ctl->getProjectPath();
+    std::filesystem::path proj_path = project_ctl->getProjectPath();
     std::filesystem::path base_path = proj_path;
 
     if (rel_to_current)
@@ -446,7 +464,7 @@ void FileExplorer::on_file_list_view_activate(guint pos)
 
     std::cout << "on_file_list_view_activate: " << item->pth << std::endl;
 
-    auto pth = proj_ctl->getProjectPath() / item->pth;
+    auto pth = project_ctl->getProjectPath() / item->pth;
     std::cout << "on_file_list_view_activate trying to open " << pth;
 
     // todo: add correctness checks
@@ -458,9 +476,9 @@ void FileExplorer::on_file_list_view_activate(guint pos)
     }
     else
     {
-        proj_ctl->workSubjectEnsureExistance(pth);
-        proj_ctl->workSubjectNewEditor(pth);
-        // proj_ctl->workSubjectExistingOrNewEditor(pth);
+        project_ctl->workSubjectEnsureExistance(pth);
+        project_ctl->workSubjectNewEditor(pth);
+        // project_ctl->workSubjectExistingOrNewEditor(pth);
     }
 }
 
@@ -497,7 +515,7 @@ void FileExplorer::on_refresh_btn()
 
 void FileExplorer::on_filelauncher_dir_btn()
 {
-    auto proj_path = proj_ctl->getProjectPath();
+    auto proj_path = project_ctl->getProjectPath();
 
     auto lun = Gtk::FileLauncher::create(
         Gio::File::create_for_path((proj_path / opened_subdir).string())
@@ -512,7 +530,7 @@ void FileExplorer::on_filelauncher_dir_btn()
 
 void FileExplorer::on_find_file_btn()
 {
-    auto x = FindFile::create(proj_ctl);
+    auto x = FindFile::create(project_ctl);
     x->show();
 }
 
@@ -525,7 +543,7 @@ void FileExplorer::on_make_file_or_directory_btn()
 void FileExplorer::on_destroy_sig()
 {
     std::cout << "FileExplorer sig destroy" << std::endl;
-    own_ptr.reset();
+    destroyer.run();
     std::cout << "FileExplorer sig destroy exit" << std::endl;
 }
 
@@ -580,7 +598,7 @@ int FileExplorer::navigateToRoot()
 
             std::cout << "asked to create children for row with: " << cast_res->pth << std::endl;
 
-            auto projPath = proj_ctl->getProjectPath();
+            auto projPath = project_ctl->getProjectPath();
 
             // std::tie(res_good, err) = dirTreeGenDirListStore(
             //  std::filesystem::relative(cast_res->pth, projPath)
@@ -632,7 +650,7 @@ int FileExplorer::fileListNavigateTo(std::filesystem::path subpath)
 
     subpath = subpath.relative_path();
 
-    auto proj_path = proj_ctl->getProjectPath();
+    auto proj_path = project_ctl->getProjectPath();
 
     std::filesystem::path path_to_list = proj_path / subpath;
 
@@ -738,7 +756,7 @@ std::tuple<Glib::RefPtr<Gio::ListModel>, int>
 
     auto err_ret = Gio::ListStore<FileExplorerDirTreeRow>::create();
 
-    auto proj_path = proj_ctl->getProjectPath();
+    auto proj_path = project_ctl->getProjectPath();
 
     std::filesystem::path path_to_list = proj_path / subpath;
 
@@ -819,12 +837,19 @@ FileExplorerMakeFileDir_shared FileExplorerMakeFileDir::create(
 FileExplorerMakeFileDir::FileExplorerMakeFileDir(
     FileExplorer_shared   expl,
     std::filesystem::path subdir
-)
+) :
+    destroyer(
+        [this]()
+        {
+            win.destroy();
+            own_ptr.reset();
+        }
+    )
 {
     this->expl   = expl;
     this->subdir = subdir; // todo: rename to subpath
 
-    set_child(main_box);
+    win.set_child(main_box);
 
     main_box.set_margin(5);
     main_box.set_spacing(5);
@@ -874,7 +899,7 @@ FileExplorerMakeFileDir::FileExplorerMakeFileDir(
         sigc::mem_fun(*this, &FileExplorerMakeFileDir::on_cancel_btn)
     );
 
-    signal_destroy().connect(
+    win.signal_destroy().connect(
         sigc::mem_fun(
             *this,
             &FileExplorerMakeFileDir::on_destroy_sig
@@ -885,12 +910,23 @@ FileExplorerMakeFileDir::FileExplorerMakeFileDir(
 FileExplorerMakeFileDir::~FileExplorerMakeFileDir()
 {
     std::cout << "~FileExplorerMakeFileDir()" << std::endl;
+    destroyer.run();
+}
+
+void FileExplorerMakeFileDir::show()
+{
+    win.show();
+}
+
+void FileExplorerMakeFileDir::destroy()
+{
+    destroyer.run();
 }
 
 void FileExplorerMakeFileDir::on_destroy_sig()
 {
     std::cout << "FileExplorerMakeFileDir sig destroy" << std::endl;
-    own_ptr.reset();
+    destroyer.run();
     std::cout << "FileExplorerMakeFileDir sig destroy exit" << std::endl;
 }
 
@@ -912,17 +948,17 @@ void FileExplorerMakeFileDir::on_mk_dir_btn()
 {
     common_func(false);
     expl->fileListRefresh();
-    close();
+    destroy();
 }
 
 void FileExplorerMakeFileDir::on_mk_file_btn()
 {
     common_func(true);
     expl->fileListRefresh();
-    close();
+    destroy();
 }
 
 void FileExplorerMakeFileDir::on_cancel_btn()
 {
-    close();
+    destroy();
 }

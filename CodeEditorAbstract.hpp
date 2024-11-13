@@ -24,7 +24,7 @@ class CodeEditorAbstract
     virtual void        show()                               = 0;
     virtual void        present()                            = 0;
     virtual void        destroy()                            = 0;
-    virtual void        setTransientWindow(Gtk::Window *win) = 0;
+    // virtual void        setTransientWindow(Gtk::Window &win) = 0;
     virtual std::size_t getCursorOffsetPosition()            = 0;
     virtual void        setCursorOffsetPosition(
                std::size_t new_pos,

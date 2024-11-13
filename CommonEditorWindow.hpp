@@ -33,8 +33,6 @@ class CommonEditorWindow : public CodeEditorAbstract
     );
     ~CommonEditorWindow();
 
-    // void saveOwnPtr(std::shared_ptr<CodeEditorAbstract>) override;
-
     // todo: this 'todo:' should be ok
     // ⬇️ {CodeEditorAbstract overrides} ⬇️
     // todo: looks like unicode causes incorrect character counting in file
@@ -44,7 +42,11 @@ class CommonEditorWindow : public CodeEditorAbstract
     void show() override;
     void present() override;
     void destroy() override;
-    void setTransientWindow(Gtk::Window *win) override;
+
+    // void setTransientWindow(Gtk::Window &win) override;
+
+    Gtk::Window *getWindowPtr() override;
+    Gtk::Window &getWindowRef() override;
 
     std::size_t getCursorOffsetPosition() override;
     void        setCursorOffsetPosition(std::size_t new_pos, bool scroll = true) override;

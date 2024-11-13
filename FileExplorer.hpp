@@ -7,24 +7,29 @@
 
 #include "forward_declarations.hpp"
 
+#include "utils.hpp"
+
 namespace wayround_i2p::ccedit
 {
 
-class FileExplorer : public Gtk::Window
+class FileExplorer
 {
   public:
     static FileExplorer_shared create(
-        ProjectCtl_shared proj_ctl
+        ProjectCtl_shared project_ctl
     );
 
     ~FileExplorer();
 
   protected:
     FileExplorer(
-        ProjectCtl_shared proj_ctl
+        ProjectCtl_shared project_ctl
     );
 
   public:
+    void show();
+    void destroy();
+
     int touchFileOrMkDirRelToProject(
         std::filesystem::path subpath,
         bool                  file
@@ -47,11 +52,15 @@ class FileExplorer : public Gtk::Window
     int fileListRefresh();
 
   private:
-    ProjectCtl_shared proj_ctl;
-
     FileExplorer_shared own_ptr;
 
+    RunOnce destroyer;
+
+    ProjectCtl_shared project_ctl;
+
     // widgets
+    Gtk::Window win;
+
     Gtk::Box main_box;
 
     Gtk::Box path_box;
@@ -118,7 +127,7 @@ class FileExplorer : public Gtk::Window
     std::filesystem::path opened_subdir;
 };
 
-class FileExplorerMakeFileDir : public Gtk::Window
+class FileExplorerMakeFileDir
 {
   public:
     static FileExplorerMakeFileDir_shared create(
@@ -128,6 +137,9 @@ class FileExplorerMakeFileDir : public Gtk::Window
 
     ~FileExplorerMakeFileDir();
 
+    void show();
+    void destroy();
+
   protected:
     FileExplorerMakeFileDir(
         FileExplorer_shared   expl,
@@ -135,10 +147,14 @@ class FileExplorerMakeFileDir : public Gtk::Window
     );
 
   private:
+    FileExplorerMakeFileDir_shared own_ptr;
+
+    RunOnce destroyer;
+
     FileExplorer_shared   expl;
     std::filesystem::path subdir;
 
-    FileExplorerMakeFileDir_shared own_ptr;
+    Gtk::Window win;
 
     Gtk::Box  main_box;
     Gtk::Grid main_grid;
