@@ -33,14 +33,6 @@ ProjectCtl::ProjectCtl(Controller_shared controller) :
 
     work_subj_list_store = Gio::ListStore<WorkSubjectTableRow>::create();
     editors_list_store   = Gio::ListStore<CodeEditorTableRow>::create();
-
-    priv_signal_updated_name = std::shared_ptr<sigc::signal<void()>>(
-        new sigc::signal<void()>()
-    );
-
-    priv_signal_updated_path = std::shared_ptr<sigc::signal<void()>>(
-        new sigc::signal<void()>()
-    );
 }
 
 ProjectCtl::~ProjectCtl()
@@ -338,12 +330,12 @@ void ProjectCtl::projectControllerRegisteredInController()
 void ProjectCtl::updatedName()
 {
     // updateTitle();
-    priv_signal_updated_name->emit();
+    priv_signal_updated_name.emit();
 }
 
 void ProjectCtl::updatedPath()
 {
-    priv_signal_updated_path->emit();
+    priv_signal_updated_path.emit();
 }
 
 void ProjectCtl::showWindow()
@@ -372,15 +364,14 @@ void ProjectCtl::showNewFileExplorer()
 {
     auto x = FileExplorer::create(own_ptr);
     x->show();
-    // controller->registerWindow(x);
 }
 
-std::shared_ptr<sigc::signal<void()>> ProjectCtl::signal_updated_name()
+sigc::signal<void()> &ProjectCtl::signal_updated_name()
 {
     return priv_signal_updated_name;
 }
 
-std::shared_ptr<sigc::signal<void()>> ProjectCtl::signal_updated_path()
+sigc::signal<void()> &ProjectCtl::signal_updated_path()
 {
     return priv_signal_updated_path;
 }

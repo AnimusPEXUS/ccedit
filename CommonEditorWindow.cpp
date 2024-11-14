@@ -120,19 +120,19 @@ CommonEditorWindow::CommonEditorWindow(
         sigc::mem_fun(*this, &CommonEditorWindow::redraw_linum)
     );
 
-    subject->signal_modified_changed()->connect(
+    subject->signal_modified_changed().connect(
         sigc::mem_fun(*this, &CommonEditorWindow::updateTitle)
     );
 
-    subject->signal_editors_save_state()->connect(
+    subject->signal_editors_save_state().connect(
         sigc::mem_fun(*this, &CommonEditorWindow::saveState)
     );
 
-    subject->signal_editors_restore_state()->connect(
+    subject->signal_editors_restore_state().connect(
         sigc::mem_fun(*this, &CommonEditorWindow::restoreState)
     );
 
-    project_ctl->signal_updated_name()->connect(
+    project_ctl->signal_updated_name().connect(
         sigc::mem_fun(*this, &CommonEditorWindow::updateTitle)
     );
 

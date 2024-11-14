@@ -107,8 +107,8 @@ class ProjectCtl
     void registerEditor(CodeEditorAbstract_shared);
     void unregisterEditor(CodeEditorAbstract_shared);
 
-    std::shared_ptr<sigc::signal<void()>> signal_updated_name();
-    std::shared_ptr<sigc::signal<void()>> signal_updated_path();
+    sigc::signal<void()> &signal_updated_name();
+    sigc::signal<void()> &signal_updated_path();
 
   private:
     Controller_shared controller;
@@ -125,9 +125,8 @@ class ProjectCtl
     Glib::RefPtr<Gio::ListStore<WorkSubjectTableRow>> work_subj_list_store;
     Glib::RefPtr<Gio::ListStore<CodeEditorTableRow>>  editors_list_store;
 
-    // todo: cant remember why I did those signals in form of ptr
-    std::shared_ptr<sigc::signal<void()>> priv_signal_updated_name;
-    std::shared_ptr<sigc::signal<void()>> priv_signal_updated_path;
+    sigc::signal<void()> priv_signal_updated_name;
+    sigc::signal<void()> priv_signal_updated_path;
 };
 
 } // namespace wayround_i2p::ccedit

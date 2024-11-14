@@ -34,18 +34,6 @@ WorkSubject::WorkSubject(
     this->project_ctl = project_ctl;
     this->fpth        = fpth;
 
-    priv_signal_editors_save_state = std::shared_ptr<sigc::signal<void()>>(
-        new sigc::signal<void()>()
-    );
-
-    priv_signal_editors_restore_state = std::shared_ptr<sigc::signal<void()>>(
-        new sigc::signal<void()>()
-    );
-
-    priv_signal_modified_changed = std::shared_ptr<sigc::signal<void()>>(
-        new sigc::signal<void()>()
-    );
-
     createNew();
 }
 
@@ -97,7 +85,7 @@ void WorkSubject::emit_signal_modified_changed()
 {
     std::cout << "WorkSubject::emit_signal_modified_changed(): "
               << txt_buff->get_modified() << std ::endl;
-    priv_signal_modified_changed->emit();
+    priv_signal_modified_changed.emit();
 }
 
 // shortcut to reload() with allow_nonexist=false
@@ -158,23 +146,23 @@ std::string WorkSubject::getText()
 
 void WorkSubject::setText(std::string txt)
 {
-    priv_signal_editors_save_state->emit();
+    priv_signal_editors_save_state.emit();
     txt_buff->set_text(txt);
-    priv_signal_editors_restore_state->emit();
+    priv_signal_editors_restore_state.emit();
     return;
 }
 
-std::shared_ptr<sigc::signal<void()>> WorkSubject::signal_editors_save_state()
+sigc::signal<void()> &WorkSubject::signal_editors_save_state()
 {
     return priv_signal_editors_save_state;
 }
 
-std::shared_ptr<sigc::signal<void()>> WorkSubject::signal_editors_restore_state()
+sigc::signal<void()> &WorkSubject::signal_editors_restore_state()
 {
     return priv_signal_editors_restore_state;
 }
 
-std::shared_ptr<sigc::signal<void()>> WorkSubject::signal_modified_changed()
+sigc::signal<void()> &WorkSubject::signal_modified_changed()
 {
     return priv_signal_modified_changed;
 }

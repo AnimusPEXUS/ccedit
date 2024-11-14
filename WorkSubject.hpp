@@ -47,10 +47,10 @@ class WorkSubject
     std::string getText();
     void        setText(std::string txt);
 
-    std::shared_ptr<sigc::signal<void()>> signal_editors_save_state();
-    std::shared_ptr<sigc::signal<void()>> signal_editors_restore_state();
+    sigc::signal<void()> &signal_editors_save_state();
+    sigc::signal<void()> &signal_editors_restore_state();
 
-    std::shared_ptr<sigc::signal<void()>> signal_modified_changed();
+    sigc::signal<void()> &signal_modified_changed();
 
   protected:
     WorkSubject(
@@ -66,10 +66,10 @@ class WorkSubject
 
     Glib::RefPtr<Gtk::TextBuffer> txt_buff;
 
-    std::shared_ptr<sigc::signal<void()>> priv_signal_editors_save_state;
-    std::shared_ptr<sigc::signal<void()>> priv_signal_editors_restore_state;
+    sigc::signal<void()> priv_signal_editors_save_state;
+    sigc::signal<void()> priv_signal_editors_restore_state;
 
-    std::shared_ptr<sigc::signal<void()>> priv_signal_modified_changed;
+    sigc::signal<void()> priv_signal_modified_changed;
 
     void emit_signal_modified_changed();
 };

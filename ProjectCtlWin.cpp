@@ -91,7 +91,7 @@ ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared project_ctl) :
         sigc::mem_fun(*this, &ProjectCtlWin::on_show_file_explorer_btn)
     );
 
-    project_ctl->signal_updated_name()->connect(
+    project_ctl->signal_updated_name().connect(
         sigc::mem_fun(*this, &ProjectCtlWin::updateTitle)
     );
 

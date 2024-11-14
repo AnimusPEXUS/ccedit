@@ -123,7 +123,7 @@ FileExplorer::FileExplorer(ProjectCtl_shared project_ctl) :
         sigc::mem_fun(*this, &FileExplorer::on_find_file_btn)
     );
 
-    project_ctl->signal_updated_name()->connect(
+    project_ctl->signal_updated_name().connect(
         sigc::mem_fun(*this, &FileExplorer::updateTitle)
     );
 
