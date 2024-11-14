@@ -23,7 +23,7 @@ ProjectCtl::ProjectCtl(Controller_shared controller) :
         {
             this->controller->destroyProjCtl(this->own_ptr);
             this->destroyAllEditors();
-            this->destroyAllBuffers();
+            this->destroyAllWorkSubjects();
 
             this->own_ptr.reset();
         }
@@ -257,37 +257,54 @@ void ProjectCtl::registerEditor(CodeEditorAbstract_shared val)
 
 void ProjectCtl::unregisterEditor(CodeEditorAbstract_shared val)
 {
-    // todo: redo or maybe even remove this function
-
-    std::vector<CodeEditorAbstract_shared> vec;
-
-    for (int i = (editors_list_store->get_n_items() - 1); i > -1; i--)
+    std::size_t i = 0;
+    while (i < editors_list_store->get_n_items())
     {
         auto x    = editors_list_store->get_item(i);
         auto x_ed = x->editor;
         if (x_ed == val)
         {
-            vec.push_back(x_ed);
+            // x_ed->destroy();
             editors_list_store->remove(i);
+            continue;
         }
-    }
 
-    while (!vec.empty())
-    {
-        auto z = vec.begin();
-        ((*z).get())->destroy();
-        vec.erase(z);
+        i++;
     }
 }
 
 void ProjectCtl::destroyAllEditors()
 {
-    // todo: todo
+    std::deque<CodeEditorAbstract_shared> editors;
+
+    for (std::size_t i = 0; i < editors_list_store->get_n_items(); i++)
+    {
+        auto x    = editors_list_store->get_item(i);
+        auto x_ed = x->editor;
+        editors.push_back(x_ed);
+    }
+
+    for (auto i : editors)
+    {
+        i->destroy();
+    }
 }
 
-void ProjectCtl::destroyAllBuffers()
+void ProjectCtl::destroyAllWorkSubjects()
 {
-    // todo: todo
+    std::deque<WorkSubject_shared> wss;
+
+    for (std::size_t i = 0; i < work_subj_list_store->get_n_items(); i++)
+    {
+        auto x    = work_subj_list_store->get_item(i);
+        auto x_ws = x->work_subj;
+        wss.push_back(x_ws);
+    }
+
+    for (auto i : wss)
+    {
+        i->destroy();
+    }
 }
 
 void ProjectCtl::destroyEditor(CodeEditorAbstract_shared val)

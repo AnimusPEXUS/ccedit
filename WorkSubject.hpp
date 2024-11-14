@@ -17,7 +17,7 @@ namespace wayround_i2p::ccedit
 class WorkSubject
 {
   public:
-    // path should be always relative to project root
+    // path(fpth) should be always relative to project root
     static WorkSubject_shared create(
         Controller_shared     controller,
         ProjectCtl_shared     project_ctl,
@@ -25,6 +25,8 @@ class WorkSubject
     );
 
     ~WorkSubject();
+
+    void destroy();
 
     Controller_shared     getController();
     ProjectCtl_shared     getProject();

@@ -54,6 +54,10 @@ WorkSubject::~WorkSubject()
     std::cout << "~WorkSubject()" << std::endl;
 }
 
+void WorkSubject::destroy()
+{
+}
+
 Controller_shared WorkSubject::getController()
 {
     return controller;

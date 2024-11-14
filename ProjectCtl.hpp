@@ -120,7 +120,7 @@ class ProjectCtl
     );
 
     void destroyAllEditors();
-    void destroyAllBuffers();
+    void destroyAllWorkSubjects();
 
     Glib::RefPtr<Gio::ListStore<WorkSubjectTableRow>> work_subj_list_store;
     Glib::RefPtr<Gio::ListStore<CodeEditorTableRow>>  editors_list_store;
