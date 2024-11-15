@@ -50,6 +50,14 @@ add_executable(
   #builtin_mods/python/mod_py.cpp
 )
 
+#target_compile_options(
+#ccedit 
+#PUBLIC
+#-Wall 
+#-Wextra 
+#-Wpedantic 
+#)
+
 target_link_libraries(
   ccedit 
   PUBLIC 

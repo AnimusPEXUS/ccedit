@@ -21,15 +21,17 @@ class CodeEditorAbstract
     virtual Gtk::Window *getWindowPtr() = 0;
     virtual Gtk::Window &getWindowRef() = 0;
 
-    virtual void        show()                               = 0;
-    virtual void        present()                            = 0;
-    virtual void        destroy()                            = 0;
-    // virtual void        setTransientWindow(Gtk::Window &win) = 0;
-    virtual std::size_t getCursorOffsetPosition()            = 0;
-    virtual void        setCursorOffsetPosition(
-               std::size_t new_pos,
-               bool        scroll = true
-           )                                                                 = 0;
+    virtual void show()    = 0;
+    virtual void present() = 0;
+    virtual void destroy() = 0;
+
+    virtual std::size_t getCursorOffsetPosition() = 0;
+
+    virtual void setCursorOffsetPosition(
+        std::size_t new_pos,
+        bool        scroll = true
+    ) = 0;
+
     virtual std::size_t getCurrentLine()                                     = 0;
     virtual void        setCurrentLine(std::size_t line, bool scroll = true) = 0;
     virtual void        selectSlice(std::size_t start, std::size_t end)      = 0;

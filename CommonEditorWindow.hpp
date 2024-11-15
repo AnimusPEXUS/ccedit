@@ -41,6 +41,7 @@ class CommonEditorWindow : public CodeEditorAbstract
 
     void show() override;
     void present() override;
+
     void destroy() override;
 
     // void setTransientWindow(Gtk::Window &win) override;
@@ -66,10 +67,10 @@ class CommonEditorWindow : public CodeEditorAbstract
     void setOutlineCurrentLine(std::size_t val);
 
     virtual std::vector<std::tuple<std::size_t, std::string>>
-        genOutlineContents();
+        genOutlineContents() = 0;
 
   private:
-    CommonEditorWindow_shared own_ptr;
+    // CommonEditorWindow_shared own_ptr;
 
     ProjectCtl_shared  project_ctl;
     WorkSubject_shared subject;
@@ -138,9 +139,9 @@ class CommonEditorWindow : public CodeEditorAbstract
     Glib::RefPtr<Gio::Menu> getMenuModel();
 
   private:
-    virtual void make_special_menu();
-    virtual void make_special_actions();
-    virtual void make_special_hotkeys();
+    virtual void make_special_menu()    = 0;
+    virtual void make_special_actions() = 0;
+    virtual void make_special_hotkeys() = 0;
 };
 
 } // namespace wayround_i2p::ccedit

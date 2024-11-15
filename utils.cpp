@@ -171,7 +171,7 @@ std::tuple<std::string, int> loadStringFromDesc(
         {
             // todo: remove debug code
             std::cout << "scope_exit 1" << std::endl;
-            delete buffer;
+            delete[] buffer;
         }
     );
 

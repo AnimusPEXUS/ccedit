@@ -111,7 +111,7 @@ WorkSubject_shared ProjectCtl::workSubjectEnsureExistance(
     // todo: fpth value checks
     WorkSubject_shared ret;
 
-    if (ret = getWorkSubject(fpth))
+    if ((ret = getWorkSubject(fpth)))
     {
         return ret;
     }

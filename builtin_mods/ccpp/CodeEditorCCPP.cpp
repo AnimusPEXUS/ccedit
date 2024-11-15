@@ -13,29 +13,39 @@ extern "C" {
 
 #include <boost/regex.hpp>
 
-#include "../../utils.hpp"
 #include "CodeEditorCCPP.hpp"
 
 namespace wayround_i2p::ccedit
 {
 
-std::shared_ptr<CodeEditorAbstract> CodeEditorCCPP::create(
-    std::shared_ptr<ProjectCtl>  proj_ctl,
-    std::shared_ptr<WorkSubject> subj
+CodeEditorCCPP_shared CodeEditorCCPP::create(
+    ProjectCtl_shared  project_ctl,
+    WorkSubject_shared subject
 )
 {
-    auto x = std::shared_ptr<CodeEditorCCPP>(
-        new CodeEditorCCPP(proj_ctl, subj)
+    auto ret = CodeEditorCCPP_shared(
+        new CodeEditorCCPP(project_ctl, subject)
     );
-    x->own_ptr = x;
-    return std::dynamic_pointer_cast<CodeEditorAbstract>(x);
+    ret->own_ptr = ret;
+    return ret;
 }
 
 CodeEditorCCPP::CodeEditorCCPP(
-    std::shared_ptr<ProjectCtl>  project_ctl,
-    std::shared_ptr<WorkSubject> subject
+    ProjectCtl_shared  project_ctl,
+    WorkSubject_shared subject
 ) :
-    CommonEditorWindow(project_ctl, subject)
+    CommonEditorWindow(project_ctl, subject),
+    destroyer(
+        [this]()
+        {
+            std::cout << "CodeEditorCCPP::destroyer.run()" << std::endl;
+            this->project_ctl->unregisterEditor(
+                this->own_ptr
+            );
+            CommonEditorWindow::destroy();
+            own_ptr.reset();
+        }
+    )
 {
 
     this->project_ctl = project_ctl;
@@ -49,9 +59,15 @@ CodeEditorCCPP::CodeEditorCCPP(
 CodeEditorCCPP::~CodeEditorCCPP()
 {
     std::cout << "~CodeEditorCCPP()" << std::endl;
+    destroyer.run();
 }
 
-std::shared_ptr<CodeEditorAbstract> CodeEditorCCPP::getOwnPtr()
+void CodeEditorCCPP::destroy()
+{
+    destroyer.run();
+}
+
+CodeEditorAbstract_shared CodeEditorCCPP::getOwnPtr()
 {
     return dynamic_pointer_cast<CodeEditorAbstract>(own_ptr);
 }
@@ -243,7 +259,7 @@ void CodeEditorCCPP::clang_format_buffer()
 
                 auto sg02 = std::experimental::fundamentals_v3::scope_exit(
                     [buff]()
-                    { delete buff; }
+                    { delete[] buff; }
                 );
 
                 while (true)

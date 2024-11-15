@@ -5,20 +5,33 @@
 
 #include "../../CommonEditorWindow.hpp"
 
+#include "../../utils.hpp"
+
 namespace wayround_i2p::ccedit
 {
+
+class CodeEditorCCPP;
+using CodeEditorCCPP_shared = std::shared_ptr<CodeEditorCCPP>;
+using CodeEditorCCPP_weak   = std::weak_ptr<CodeEditorCCPP>;
 
 class CodeEditorCCPP : public CommonEditorWindow
 {
   public:
-    static CodeEditorAbstract_shared create(
-        ProjectCtl_shared  proj_ctl,
-        WorkSubject_shared subj
+    static CodeEditorCCPP_shared create(
+        ProjectCtl_shared  project_ctl,
+        WorkSubject_shared subject
     );
 
+  protected:
+    CodeEditorCCPP(
+        ProjectCtl_shared  project_ctl,
+        WorkSubject_shared subject
+    );
+
+  public:
     ~CodeEditorCCPP();
 
-    // void destroy();
+    void destroy() override;
 
     CodeEditorAbstract_shared getOwnPtr() override;
 
@@ -28,17 +41,13 @@ class CodeEditorCCPP : public CommonEditorWindow
     std::vector<std::tuple<std::size_t, std::string>>
         genOutlineContents() override;
 
-  protected:
-    CodeEditorCCPP(
-        ProjectCtl_shared  project_ctl,
-        WorkSubject_shared subject
-    );
-
   private:
+    CodeEditorCCPP_shared own_ptr;
+
+    RunOnce destroyer;
+
     ProjectCtl_shared  project_ctl;
     WorkSubject_shared subject;
-
-    std::shared_ptr<CodeEditorCCPP> own_ptr;
 
     Glib::RefPtr<Gio::Menu>     mm_special;
     Glib::RefPtr<Gio::MenuItem> mm_special_clang_format;

@@ -16,29 +16,20 @@ CommonEditorWindow::CommonEditorWindow(
     ProjectCtl_shared  project_ctl,
     WorkSubject_shared subject
 ) :
-    main_box(Gtk::Orientation::VERTICAL, 0),
-    outline_box(Gtk::Orientation::VERTICAL, 5),
-    text_view_box(Gtk::Orientation::HORIZONTAL, 5),
-    text_view_box_upper(Gtk::Orientation::VERTICAL, 0),
     destroyer(
         [this]()
         {
-            this->project_ctl->unregisterEditor(
-                this->own_ptr
-            );
+            std::cout << "CommonEditorWindow::destroyer.run()" << std::endl;
             this->win.destroy();
-
-            // note: this is probably overkill
-            // this->destroy();
-
-            this->own_ptr.reset();
         }
-    )
+    ),
+    main_box(Gtk::Orientation::VERTICAL, 0),
+    text_view_box_upper(Gtk::Orientation::VERTICAL, 0),
+    text_view_box(Gtk::Orientation::HORIZONTAL, 5),
+    outline_box(Gtk::Orientation::VERTICAL, 5)
 {
     this->project_ctl = project_ctl;
     this->subject     = subject;
-
-    win.set_hide_on_close(false);
 
     outline_list_store = Gio::ListStore<OutlineTableRow>::create();
 
@@ -50,6 +41,7 @@ CommonEditorWindow::CommonEditorWindow(
 
     // maximize();
 
+    win.set_hide_on_close(false);
     win.set_child(main_box);
 
     outline_view_refresh_btn.set_label("Refresh");
@@ -173,10 +165,11 @@ void CommonEditorWindow::setup_outline_columns()
                 const Glib::RefPtr<Gtk::ListItem> &list_item
             )
             {
-                list_item->set_child(*Gtk::make_managed<Gtk::Label>(
-                    "",
-                    Gtk::Align::START
-                )
+                list_item->set_child(
+                    *Gtk::make_managed<Gtk::Label>(
+                        "",
+                        Gtk::Align::START
+                    )
                 );
             }
         )
@@ -499,7 +492,7 @@ void CommonEditorWindow::redraw_linum(
 
     auto text_buff = text_view.get_buffer();
 
-    for (unsigned int i = 0; i != size; i++)
+    for (ssize_t i = 0; i != size; i++)
     {
         Gtk::TextIter new_iter;
         text_view.get_iter_at_location(new_iter, 0, i + modifier);
