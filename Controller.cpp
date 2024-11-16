@@ -350,7 +350,6 @@ ProjectCtl_shared Controller::createGlobalProjCtl()
     {
         ret             = ProjectCtl::create(own_ptr);
         global_proj_ctl = ret;
-        ret->projectControllerRegisteredInController();
     }
     else
     {
@@ -399,7 +398,6 @@ std::tuple<ProjectCtl_shared, int> Controller::createProjCtl(std::string name)
         {
             auto new_ctl = ProjectCtl::create(own_ptr);
             x->proj_ctl  = new_ctl;
-            x->proj_ctl->projectControllerRegisteredInController();
         }
         return std::tuple(x->proj_ctl, 0);
     }

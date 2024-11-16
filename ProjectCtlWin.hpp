@@ -91,13 +91,12 @@ class ProjectCtlWin
     // -------------------------
 
     void on_show_file_explorer_btn();
-    void on_show_new_worksubject_list_btn();
-    void on_show_new_editor_list_btn();
 
     void on_quit_project_btn();
 
     void on_hide_sig();
     void on_destroy_sig();
+    bool on_signal_close_request();
 };
 
 } // namespace wayround_i2p::ccedit

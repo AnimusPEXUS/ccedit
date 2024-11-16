@@ -96,8 +96,8 @@ ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared project_ctl) :
         sigc::mem_fun(*this, &ProjectCtlWin::on_show_file_explorer_btn)
     );
 
-    show_file_explorer_btn.signal_clicked().connect(
-        sigc::mem_fun(*this, &ProjectCtlWin::on_show_new_worksubject_list_btn)
+    quit_project_btn.signal_clicked().connect(
+        sigc::mem_fun(*this, &ProjectCtlWin::on_quit_project_btn)
     );
 
     project_ctl->signal_updated_name().connect(
@@ -106,6 +106,11 @@ ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared project_ctl) :
 
     win.signal_destroy().connect(
         sigc::mem_fun(*this, &ProjectCtlWin::on_destroy_sig)
+    );
+
+    win.signal_close_request().connect(
+        sigc::mem_fun(*this, &ProjectCtlWin::on_signal_close_request),
+        true
     );
 
     controller->registerWindow(&win);
@@ -117,6 +122,25 @@ ProjectCtlWin::~ProjectCtlWin()
 {
     std::cout << "~ProjectCtlWin()" << std::endl;
     destroyer.run();
+}
+
+void ProjectCtlWin::destroy()
+{
+    std::cout << "ProjectCtlWin::destroy()" << std::endl;
+    destroyer.run();
+}
+
+void ProjectCtlWin::on_destroy_sig()
+{
+    std::cout << "ProjectCtlWin::on_destroy_sig()" << std::endl;
+    destroyer.run();
+}
+
+bool ProjectCtlWin::on_signal_close_request()
+{
+    std::cout << "ProjectCtlWin::on_signal_close_request()" << std::endl;
+    destroyer.run();
+    return false;
 }
 
 void ProjectCtlWin::ws_add_columns()
@@ -207,18 +231,12 @@ void ProjectCtlWin::eds_table_subject_cell_bind(
 
 void ProjectCtlWin::on_show_file_explorer_btn()
 {
-    project_ctl->showNewFileExplorer();
+    project_ctl->createNewFileExplorer();
 }
 
-void ProjectCtlWin::on_show_new_worksubject_list_btn()
+void ProjectCtlWin::on_quit_project_btn()
 {
     project_ctl->destroy();
-}
-
-void ProjectCtlWin::on_destroy_sig()
-{
-    std::cout << "ProjectCtlWin::on_destroy_sig()" << std::endl;
-    destroyer.run();
 }
 
 void ProjectCtlWin::updateTitle()
@@ -242,11 +260,6 @@ void ProjectCtlWin::updateTitle()
 void ProjectCtlWin::show()
 {
     win.show();
-}
-
-void ProjectCtlWin::destroy()
-{
-    destroyer.run();
 }
 
 } // namespace wayround_i2p::ccedit

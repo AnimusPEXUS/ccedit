@@ -33,6 +33,8 @@ class ProjectCtl
     RunOnce destroyer;
 
   public:
+    void destroy();
+
     Controller_shared getController();
 
     bool                  isGlobalProject();
@@ -92,17 +94,16 @@ class ProjectCtl
     Glib::RefPtr<Gio::ListStore<WorkSubjectTableRow>> getWorkSubjectListStore();
     Glib::RefPtr<Gio::ListStore<CodeEditorTableRow>>  getCodeEditorListStore();
 
-    void projectControllerRegisteredInController();
-
     void updatedName();
     void updatedPath();
 
     void showWindow();
     void destroyWindow();
 
-    void showNewFileExplorer();
+    FileExplorer_shared createNewFileExplorer();
 
-    void destroy();
+    void registerFileExplorer(FileExplorer_shared fe);
+    void unregisterFileExplorer(FileExplorer_shared fe);
 
     void registerEditor(CodeEditorAbstract_shared);
     void unregisterEditor(CodeEditorAbstract_shared);
@@ -119,9 +120,11 @@ class ProjectCtl
         WorkSubject_shared
     );
 
+    void destroyAllExplorers();
     void destroyAllEditors();
     void destroyAllWorkSubjects();
 
+    std::deque<FileExplorer_shared>                   explorers;
     Glib::RefPtr<Gio::ListStore<WorkSubjectTableRow>> work_subj_list_store;
     Glib::RefPtr<Gio::ListStore<CodeEditorTableRow>>  editors_list_store;
 

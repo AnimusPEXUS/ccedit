@@ -20,6 +20,7 @@ FileExplorer_shared FileExplorer::create(
 {
     auto ret     = FileExplorer_shared(new FileExplorer(project_ctl));
     ret->own_ptr = ret;
+    project_ctl->registerFileExplorer(ret);
     return ret;
 }
 
@@ -29,6 +30,7 @@ FileExplorer::FileExplorer(ProjectCtl_shared project_ctl) :
         [this]()
         {
             win.destroy();
+            this->project_ctl->unregisterFileExplorer(own_ptr);
             own_ptr.reset();
         }
     )

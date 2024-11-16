@@ -21,9 +21,13 @@ ProjectCtl::ProjectCtl(Controller_shared controller) :
     destroyer(
         [this]()
         {
+            std::cout << "ProjectCtl::destroyer.run()" << std::endl;
             this->controller->destroyProjCtl(this->own_ptr);
+            this->destroyAllExplorers();
             this->destroyAllEditors();
             this->destroyAllWorkSubjects();
+
+            this->destroyWindow();
 
             this->own_ptr.reset();
         }
@@ -33,11 +37,21 @@ ProjectCtl::ProjectCtl(Controller_shared controller) :
 
     work_subj_list_store = Gio::ListStore<WorkSubjectTableRow>::create();
     editors_list_store   = Gio::ListStore<CodeEditorTableRow>::create();
+
+    updatedName();
+    updatedPath();
 }
 
 ProjectCtl::~ProjectCtl()
 {
-    std::cout << "~ProjectCtl()" << std::endl;
+    std::cout << "ProjectCtl::~ProjectCtl()" << std::endl;
+    destroyer.run();
+}
+
+void ProjectCtl::destroy()
+{
+    // todo: close and destroy all subwindows and work subjects
+    destroyer.run();
 }
 
 Controller_shared ProjectCtl::getController()
@@ -265,6 +279,15 @@ void ProjectCtl::unregisterEditor(CodeEditorAbstract_shared val)
     }
 }
 
+void ProjectCtl::destroyAllExplorers()
+{
+    auto e = explorers;
+    for (auto &i : e)
+    {
+        i->destroy();
+    }
+}
+
 void ProjectCtl::destroyAllEditors()
 {
     std::deque<CodeEditorAbstract_shared> editors;
@@ -314,19 +337,6 @@ Glib::RefPtr<Gio::ListStore<CodeEditorTableRow>> ProjectCtl::getCodeEditorListSt
     return editors_list_store;
 }
 
-void ProjectCtl::destroy()
-{
-    // todo: close and destroy all subwindows and work subjects
-    destroyer.run();
-}
-
-void ProjectCtl::projectControllerRegisteredInController()
-{
-    // updateTitle();
-    updatedName();
-    updatedPath();
-}
-
 void ProjectCtl::updatedName()
 {
     // updateTitle();
@@ -359,10 +369,32 @@ void ProjectCtl::destroyWindow()
     proj_ctl_win.reset();
 }
 
-void ProjectCtl::showNewFileExplorer()
+FileExplorer_shared ProjectCtl::createNewFileExplorer()
 {
-    auto x = FileExplorer::create(own_ptr);
-    x->show();
+    auto ret = FileExplorer::create(own_ptr);
+    ret->show();
+    return ret;
+}
+
+void ProjectCtl::registerFileExplorer(FileExplorer_shared fe)
+{
+    explorers.push_back(fe);
+}
+
+void ProjectCtl::unregisterFileExplorer(FileExplorer_shared fe)
+{
+    auto i = explorers.begin();
+
+    while (i != explorers.end())
+    {
+        if (*i == fe)
+        {
+            i = explorers.erase(i);
+            continue;
+        }
+
+        ++i;
+    }
 }
 
 sigc::signal<void()> &ProjectCtl::signal_updated_name()
