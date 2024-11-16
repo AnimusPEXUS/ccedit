@@ -131,15 +131,12 @@ WorkSubject_shared ProjectCtl::workSubjectEnsureExistance(
     }
     else
     {
-        auto new_item = WorkSubjectTableRow::create();
-        ret           = WorkSubject::create(
-            controller,
+
+        ret = WorkSubject::create(
             own_ptr,
             fpth
         );
-        new_item->work_subj = ret;
-        work_subj_list_store->append(new_item);
-        new_item->work_subj->reload();
+        ret->reload();
         return ret;
     }
 }
@@ -250,6 +247,30 @@ CodeEditorAbstract_shared
     return ret;
 }
 
+void ProjectCtl::registerWorkSubject(WorkSubject_shared val)
+{
+    auto new_item       = WorkSubjectTableRow::create();
+    new_item->work_subj = val;
+    work_subj_list_store->append(new_item);
+}
+
+void ProjectCtl::unregisterWorkSubject(WorkSubject_shared val)
+{
+    std::size_t i = 0;
+    while (i < work_subj_list_store->get_n_items())
+    {
+        auto x    = work_subj_list_store->get_item(i);
+        auto x_we = x->work_subj;
+        if (x_we == val)
+        {
+            work_subj_list_store->remove(i);
+            continue;
+        }
+
+        i++;
+    }
+}
+
 void ProjectCtl::registerEditor(CodeEditorAbstract_shared val)
 {
     // todo: register in Application?
@@ -276,6 +297,26 @@ void ProjectCtl::unregisterEditor(CodeEditorAbstract_shared val)
         }
 
         i++;
+    }
+}
+
+void ProjectCtl::destroyWorkSubjectEditors(WorkSubject_shared val)
+{
+    std::deque<CodeEditorAbstract_shared> editors;
+
+    for (std::size_t i = 0; i < editors_list_store->get_n_items(); i++)
+    {
+        auto x    = editors_list_store->get_item(i);
+        auto x_ed = x->editor;
+        if (x_ed->workSubjectIs(val))
+        {
+            editors.push_back(x_ed);
+        }
+    }
+
+    for (auto i : editors)
+    {
+        i->destroy();
     }
 }
 

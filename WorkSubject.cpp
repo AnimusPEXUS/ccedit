@@ -9,30 +9,38 @@
 using namespace wayround_i2p::ccedit;
 
 WorkSubject_shared WorkSubject::create(
-    Controller_shared     controller,
     ProjectCtl_shared     project_ctl,
     std::filesystem::path fpth
 )
 {
     auto ret = WorkSubject_shared(
         new WorkSubject(
-            controller,
             project_ctl,
             fpth
         )
     );
+    ret->own_ptr = ret;
+    project_ctl->registerWorkSubject(ret);
     return ret;
 }
 
 WorkSubject::WorkSubject(
-    Controller_shared     controller,
     ProjectCtl_shared     project_ctl,
     std::filesystem::path fpth
-)
+) :
+    destroyer(
+        [this]()
+        {
+            this->project_ctl->destroyWorkSubjectEditors(own_ptr);
+            this->project_ctl->unregisterWorkSubject(own_ptr);
+            own_ptr.reset();
+        }
+    )
 {
-    this->controller  = controller;
     this->project_ctl = project_ctl;
     this->fpth        = fpth;
+
+    this->controller = project_ctl->getController();
 
     createNew();
 }
@@ -40,10 +48,13 @@ WorkSubject::WorkSubject(
 WorkSubject::~WorkSubject()
 {
     std::cout << "~WorkSubject()" << std::endl;
+    destroyer.run();
 }
 
 void WorkSubject::destroy()
 {
+    std::cout << "WorkSubject::destroy()" << std::endl;
+    destroyer.run();
 }
 
 Controller_shared WorkSubject::getController()

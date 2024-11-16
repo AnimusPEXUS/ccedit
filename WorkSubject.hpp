@@ -11,6 +11,8 @@
 
 #include "forward_declarations.hpp"
 
+#include "utils.hpp"
+
 namespace wayround_i2p::ccedit
 {
 
@@ -19,11 +21,17 @@ class WorkSubject
   public:
     // path(fpth) should be always relative to project root
     static WorkSubject_shared create(
-        Controller_shared     controller,
         ProjectCtl_shared     project_ctl,
         std::filesystem::path fpth
     );
 
+  protected:
+    WorkSubject(
+        ProjectCtl_shared     project_ctl,
+        std::filesystem::path fpth
+    );
+
+  public:
     ~WorkSubject();
 
     void destroy();
@@ -52,14 +60,11 @@ class WorkSubject
 
     sigc::signal<void()> &signal_modified_changed();
 
-  protected:
-    WorkSubject(
-        Controller_shared     controller,
-        ProjectCtl_shared     project_ctl,
-        std::filesystem::path fpth
-    );
-
   private:
+    RunOnce destroyer;
+
+    WorkSubject_shared own_ptr;
+
     Controller_shared     controller;
     ProjectCtl_shared     project_ctl;
     std::filesystem::path fpth;

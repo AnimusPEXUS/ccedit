@@ -440,14 +440,19 @@ void FileExplorer::on_dir_tree_view_activate(guint pos)
 void FileExplorer::on_file_list_view_activate(guint pos)
 {
     int  err = 0;
-    auto sel = std::dynamic_pointer_cast<Gtk::MultiSelection>(file_list_view.get_model());
+    auto sel = std::dynamic_pointer_cast<Gtk::MultiSelection>(
+        file_list_view.get_model()
+    );
     if (!sel)
     {
         std::cout << "!sel" << __FILE__ << " : " << __LINE__ << std::endl;
         return;
     }
 
-    auto model = std::dynamic_pointer_cast<Gio::ListStore<FileExplorerFileListRow>>(sel->get_model());
+    auto model
+        = std::dynamic_pointer_cast<Gio::ListStore<FileExplorerFileListRow>>(
+            sel->get_model()
+        );
     if (!model)
     {
         std::cout << "!model" << __FILE__ << " : " << __LINE__ << std::endl;
@@ -455,7 +460,10 @@ void FileExplorer::on_file_list_view_activate(guint pos)
         return;
     }
 
-    auto item = std::dynamic_pointer_cast<FileExplorerFileListRow>(model->get_item(pos));
+    auto item
+        = std::dynamic_pointer_cast<FileExplorerFileListRow>(
+            model->get_item(pos)
+        );
     if (!item)
     {
 

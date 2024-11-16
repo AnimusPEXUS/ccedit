@@ -102,11 +102,25 @@ class ProjectCtl
 
     FileExplorer_shared createNewFileExplorer();
 
+    CodeEditorAbstract_shared createBestEditorForWorkSubject(
+        WorkSubject_shared
+    );
+
+    void destroyWorkSubjectEditors(WorkSubject_shared val);
+
+    void destroyAllExplorers();
+
+    void destroyAllWorkSubjects();
+    void destroyAllEditors();
+
     void registerFileExplorer(FileExplorer_shared fe);
     void unregisterFileExplorer(FileExplorer_shared fe);
 
-    void registerEditor(CodeEditorAbstract_shared);
-    void unregisterEditor(CodeEditorAbstract_shared);
+    void registerWorkSubject(WorkSubject_shared val);
+    void unregisterWorkSubject(WorkSubject_shared val);
+
+    void registerEditor(CodeEditorAbstract_shared val);
+    void unregisterEditor(CodeEditorAbstract_shared val);
 
     sigc::signal<void()> &signal_updated_name();
     sigc::signal<void()> &signal_updated_path();
@@ -115,14 +129,6 @@ class ProjectCtl
     Controller_shared controller;
 
     ProjectCtlWin_shared proj_ctl_win;
-
-    CodeEditorAbstract_shared createBestEditorForWorkSubject(
-        WorkSubject_shared
-    );
-
-    void destroyAllExplorers();
-    void destroyAllEditors();
-    void destroyAllWorkSubjects();
 
     std::deque<FileExplorer_shared>                   explorers;
     Glib::RefPtr<Gio::ListStore<WorkSubjectTableRow>> work_subj_list_store;
