@@ -41,7 +41,10 @@ class ProjectCtlWin
 
     Gtk::Box main_box;
 
+    Gtk::Box b_box;
+
     Gtk::Button show_file_explorer_btn;
+    Gtk::Button quit_project_btn;
 
     Gtk::Paned ws_ed_paned;
 
@@ -90,6 +93,8 @@ class ProjectCtlWin
     void on_show_file_explorer_btn();
     void on_show_new_worksubject_list_btn();
     void on_show_new_editor_list_btn();
+
+    void on_quit_project_btn();
 
     void on_hide_sig();
     void on_destroy_sig();

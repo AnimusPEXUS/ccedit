@@ -23,6 +23,7 @@ ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared project_ctl) :
         {
             std::cout << "ProjectCtlWin: destroyer.run()" << std::endl;
             win.destroy();
+            this->project_ctl->destroyWindow();
             own_ptr.reset();
         }
     ),
@@ -33,6 +34,7 @@ ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared project_ctl) :
     this->controller  = project_ctl->getController();
 
     show_file_explorer_btn.set_label("File Explorer");
+    quit_project_btn.set_label("Quit Project");
 
     win.set_child(main_box);
 
@@ -41,7 +43,10 @@ ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared project_ctl) :
     main_box.set_margin_end(5);
     main_box.set_margin_bottom(5);
 
-    main_box.append(show_file_explorer_btn);
+    main_box.append(b_box);
+
+    b_box.append(show_file_explorer_btn);
+    b_box.append(quit_project_btn);
 
     main_box.append(ws_ed_paned);
 
@@ -89,6 +94,10 @@ ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared project_ctl) :
 
     show_file_explorer_btn.signal_clicked().connect(
         sigc::mem_fun(*this, &ProjectCtlWin::on_show_file_explorer_btn)
+    );
+
+    show_file_explorer_btn.signal_clicked().connect(
+        sigc::mem_fun(*this, &ProjectCtlWin::on_show_new_worksubject_list_btn)
     );
 
     project_ctl->signal_updated_name().connect(
@@ -199,6 +208,11 @@ void ProjectCtlWin::eds_table_subject_cell_bind(
 void ProjectCtlWin::on_show_file_explorer_btn()
 {
     project_ctl->showNewFileExplorer();
+}
+
+void ProjectCtlWin::on_show_new_worksubject_list_btn()
+{
+    project_ctl->destroy();
 }
 
 void ProjectCtlWin::on_destroy_sig()

@@ -355,9 +355,8 @@ void ProjectCtl::destroyWindow()
     if (proj_ctl_win)
     {
         proj_ctl_win->destroy();
-        // todo: try moving this inside ProjectCtlWin
-        // proj_ctl_win.reset();
     }
+    proj_ctl_win.reset();
 }
 
 void ProjectCtl::showNewFileExplorer()

@@ -34,7 +34,16 @@ CodeEditorCCPP::CodeEditorCCPP(
     ProjectCtl_shared  project_ctl,
     WorkSubject_shared subject
 ) :
-    CommonEditorWindow(project_ctl, subject),
+    CommonEditorWindow(
+        project_ctl,
+        subject,
+        [this]()
+        {
+            std::cout << "CodeEditorCCPP::CommonEditorWindow::destroyer_cb"
+                      << std::endl;
+            destroyer.run();
+        }
+    ),
     destroyer(
         [this]()
         {
@@ -58,12 +67,13 @@ CodeEditorCCPP::CodeEditorCCPP(
 
 CodeEditorCCPP::~CodeEditorCCPP()
 {
-    std::cout << "~CodeEditorCCPP()" << std::endl;
+    std::cout << "CodeEditorCCPP::~CodeEditorCCPP()" << std::endl;
     destroyer.run();
 }
 
 void CodeEditorCCPP::destroy()
 {
+    std::cout << "CodeEditorCCPP::destroy()" << std::endl;
     destroyer.run();
 }
 

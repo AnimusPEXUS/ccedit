@@ -13,16 +13,22 @@ namespace wayround_i2p::ccedit
 {
 
 CommonEditorWindow::CommonEditorWindow(
-    ProjectCtl_shared  project_ctl,
-    WorkSubject_shared subject
+    ProjectCtl_shared     project_ctl,
+    WorkSubject_shared    subject,
+    std::function<void()> callback_on_destroy
 ) :
     destroyer(
         [this]()
         {
             std::cout << "CommonEditorWindow::destroyer.run()" << std::endl;
-            this->win.destroy();
+            if (this->callback_on_destroy)
+            {
+                this->callback_on_destroy();
+            }
+            win.destroy();
         }
     ),
+    callback_on_destroy(callback_on_destroy),
     main_box(Gtk::Orientation::VERTICAL, 0),
     text_view_box_upper(Gtk::Orientation::VERTICAL, 0),
     text_view_box(Gtk::Orientation::HORIZONTAL, 5),
@@ -41,7 +47,7 @@ CommonEditorWindow::CommonEditorWindow(
 
     // maximize();
 
-    win.set_hide_on_close(false);
+    // win.set_hide_on_close(false);
     win.set_child(main_box);
 
     outline_view_refresh_btn.set_label("Refresh");
@@ -140,6 +146,11 @@ CommonEditorWindow::CommonEditorWindow(
         sigc::mem_fun(*this, &CommonEditorWindow::on_destroy_sig)
     );
 
+    win.signal_close_request().connect(
+        sigc::mem_fun(*this, &CommonEditorWindow::on_signal_close_request),
+        true
+    );
+
     text_view_sw.get_vscrollbar()->get_adjustment()->signal_changed().connect(
         sigc::mem_fun(*this, &CommonEditorWindow::force_redraw_linum)
     );
@@ -154,6 +165,26 @@ CommonEditorWindow::CommonEditorWindow(
 CommonEditorWindow::~CommonEditorWindow()
 {
     std::cout << "~CommonEditorWindow()" << std::endl;
+    destroyer.run();
+}
+
+void CommonEditorWindow::destroy()
+{
+    std::cout << "CommonEditorWindow::destroy()" << std::endl;
+    destroyer.run();
+}
+
+void CommonEditorWindow::on_destroy_sig()
+{
+    std::cout << "CommonEditorWindow::on_destroy_sig()" << std::endl;
+    destroyer.run();
+}
+
+bool CommonEditorWindow::on_signal_close_request()
+{
+    std::cout << "CommonEditorWindow::on_signal_close_request()" << std::endl;
+    destroyer.run();
+    return false;
 }
 
 void CommonEditorWindow::setup_outline_columns()
@@ -521,11 +552,6 @@ void CommonEditorWindow::present()
     win.present();
 }
 
-void CommonEditorWindow::destroy()
-{
-    destroyer.run();
-}
-
 // void CommonEditorWindow::setTransientWindow(Gtk::Window &win)
 //{
 //     win->set_transient_for(win);
@@ -670,11 +696,6 @@ void CommonEditorWindow::on_outline_activate(guint val)
     auto iter_at_line = tb->get_iter_at_line(x->line);
     text_view.scroll_to(iter_at_line, 0, 0.5, 0.5);
     tb->place_cursor(iter_at_line);
-}
-
-void CommonEditorWindow::on_destroy_sig()
-{
-    destroyer.run();
 }
 
 } // namespace wayround_i2p::ccedit

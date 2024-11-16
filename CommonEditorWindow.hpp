@@ -28,8 +28,9 @@ class CommonEditorWindow : public CodeEditorAbstract
 {
   public:
     CommonEditorWindow(
-        ProjectCtl_shared  project_ctl,
-        WorkSubject_shared subject
+        ProjectCtl_shared     project_ctl,
+        WorkSubject_shared    subject,
+        std::function<void()> callback_on_destroy
     );
     ~CommonEditorWindow();
 
@@ -70,7 +71,7 @@ class CommonEditorWindow : public CodeEditorAbstract
         genOutlineContents() = 0;
 
   private:
-    // CommonEditorWindow_shared own_ptr;
+    std::function<void()> callback_on_destroy;
 
     ProjectCtl_shared  project_ctl;
     WorkSubject_shared subject;
@@ -134,6 +135,7 @@ class CommonEditorWindow : public CodeEditorAbstract
     void on_outline_activate(guint val);
 
     void on_destroy_sig();
+    bool on_signal_close_request();
 
   protected:
     Glib::RefPtr<Gio::Menu> getMenuModel();
