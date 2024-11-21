@@ -317,7 +317,7 @@ void FileExplorer::updateTitle()
 
 void FileExplorer::show()
 {
-    win.show();
+    win.present();
 }
 
 void FileExplorer::destroy()

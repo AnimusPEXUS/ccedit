@@ -168,6 +168,12 @@ CommonEditorWindow::~CommonEditorWindow()
     destroyer.run();
 }
 
+void CommonEditorWindow::show()
+{
+    std::cout << "CommonEditorWindow::show()" << std::endl;
+    win.present();
+}
+
 void CommonEditorWindow::destroy()
 {
     std::cout << "CommonEditorWindow::destroy()" << std::endl;
@@ -273,38 +279,64 @@ void CommonEditorWindow::setup_outline_columns()
 
 void CommonEditorWindow::make_menubar()
 {
+    Glib::RefPtr<Gio::Menu> sect;
+
+    auto mm_ws = Gio::Menu::create();
+
+    sect = Gio::Menu::create();
+    sect->append("(Re)load", "editor_window.work_subject_reload");
+    sect->append("Save", "editor_window.work_subject_save");
+    sect->append("Save as..", "editor_window.work_subject_save_as");
+    mm_ws->append_section(sect);
+
+    sect = Gio::Menu::create();
+    sect->append("Close", "editor_window.work_subject_close");
+    mm_ws->append_section(sect);
+
+    auto mm_search = Gio::Menu::create();
+
+    sect = Gio::Menu::create();
+
+    sect->append("Search Window..", "editor_window.search_show_window");
+
+    mm_search->append_section(sect);
+
+    auto mm_windows = Gio::Menu::create();
+
+    sect = Gio::Menu::create();
+    sect->append("Previous", "editor_window.windows_prev_window");
+    sect->append("Next", "editor_window.windows_next_window");
+    mm_windows->append_section(sect);
+
+    sect = Gio::Menu::create();
+    sect->append(
+        "Duplicate Current",
+        "editor_window.windows_duplicate_window"
+    );
+    sect->append("Close Current", "editor_window.windows_close_window");
+    mm_windows->append_section(sect);
+
+    sect = Gio::Menu::create();
+    sect->append(
+        "Project Manager",
+        "editor_window.windows_show_project_mgr"
+    );
+    sect->append(
+        "Project Controller",
+        "editor_window.windows_show_project_ctl"
+    );
+    sect->append(
+        "Create New FileExplorer",
+        "editor_window.windows_create_new_explorer"
+    );
+    mm_windows->append_section(sect);
+
     menu_model = Gio::Menu::create();
-    menu_bar.set_menu_model(menu_model);
-
-    mm_buffer = Gio::Menu::create();
-    menu_model->append_submenu("Buffer", mm_buffer);
-
-    mm_buffer_reload = Gio::MenuItem::create(
-        "(Re)load",
-        "editor_window.buffer_reload"
-    );
-    mm_buffer_save = Gio::MenuItem::create(
-        "Save",
-        "editor_window.buffer_save"
-    );
-    mm_buffer_save_as = Gio::MenuItem::create(
-        "Save as..",
-        "editor_window.buffer_save_as"
-    );
-
-    mm_buffer->append_item(mm_buffer_reload);
-    mm_buffer->append_item(mm_buffer_save);
-    mm_buffer->append_item(mm_buffer_save_as);
-
-    mm_search = Gio::Menu::create();
+    menu_model->append_submenu("Work Subject", mm_ws);
     menu_model->append_submenu("Search", mm_search);
+    menu_model->append_submenu("Windows", mm_windows);
 
-    mm_search_search_window = Gio::MenuItem::create(
-        "Search Window..",
-        "editor_window.search_show_window"
-    );
-
-    mm_search->append_item(mm_search_search_window);
+    menu_bar.set_menu_model(menu_model);
 };
 
 void CommonEditorWindow::make_special_menu()
@@ -316,21 +348,60 @@ void CommonEditorWindow::make_special_menu()
 void CommonEditorWindow::make_actions()
 {
     auto action_group = Gio::SimpleActionGroup::create();
+
     action_group->add_action(
-        "buffer_reload",
-        sigc::mem_fun(*this, &CommonEditorWindow::action_buffer_reload)
+        "work_subject_reload",
+        sigc::mem_fun(*this, &CommonEditorWindow::action_work_subject_reload)
     );
+
     action_group->add_action(
-        "buffer_save",
-        sigc::mem_fun(*this, &CommonEditorWindow::action_buffer_save)
+        "work_subject_save",
+        sigc::mem_fun(*this, &CommonEditorWindow::action_work_subject_save)
     );
+
     action_group->add_action(
-        "buffer_save_as",
-        sigc::mem_fun(*this, &CommonEditorWindow::action_buffer_save_as)
+        "work_subject_save_as",
+        sigc::mem_fun(*this, &CommonEditorWindow::action_work_subject_save_as)
     );
+
     action_group->add_action(
-        "search_show_window",
-        sigc::mem_fun(*this, &CommonEditorWindow::action_search_show_window)
+        "work_subject_close",
+        sigc::mem_fun(*this, &CommonEditorWindow::action_work_subject_close)
+    );
+
+    action_group->add_action(
+        "windows_prev_window",
+        sigc::mem_fun(*this, &CommonEditorWindow::action_windows_prev_window)
+    );
+
+    action_group->add_action(
+        "windows_next_window",
+        sigc::mem_fun(*this, &CommonEditorWindow::action_windows_next_window)
+    );
+
+    action_group->add_action(
+        "windows_duplicate_window",
+        sigc::mem_fun(*this, &CommonEditorWindow::action_windows_duplicate_window)
+    );
+
+    action_group->add_action(
+        "windows_close_window",
+        sigc::mem_fun(*this, &CommonEditorWindow::action_windows_close_window)
+    );
+
+    action_group->add_action(
+        "windows_show_project_mgr",
+        sigc::mem_fun(*this, &CommonEditorWindow::action_windows_show_project_mgr)
+    );
+
+    action_group->add_action(
+        "windows_show_project_ctl",
+        sigc::mem_fun(*this, &CommonEditorWindow::action_windows_show_project_ctl)
+    );
+
+    action_group->add_action(
+        "windows_create_new_explorer",
+        sigc::mem_fun(*this, &CommonEditorWindow::action_windows_create_new_explorer)
     );
 
     win.insert_action_group("editor_window", action_group);
@@ -352,14 +423,14 @@ void CommonEditorWindow::make_hotkeys()
             GDK_KEY_r,
             Gdk::ModifierType::CONTROL_MASK
         ),
-        Gtk::NamedAction::create("editor_window.buffer_reload")
+        Gtk::NamedAction::create("editor_window.work_subject_reload")
     ));
     controller->add_shortcut(Gtk::Shortcut::create(
         Gtk::KeyvalTrigger::create(
             GDK_KEY_s,
             Gdk::ModifierType::CONTROL_MASK
         ),
-        Gtk::NamedAction::create("editor_window.buffer_save")
+        Gtk::NamedAction::create("editor_window.work_subject_save")
     ));
     controller->add_shortcut(Gtk::Shortcut::create(
         Gtk::KeyvalTrigger::create(
@@ -367,7 +438,7 @@ void CommonEditorWindow::make_hotkeys()
             Gdk::ModifierType::CONTROL_MASK
                 | Gdk::ModifierType::SHIFT_MASK
         ),
-        Gtk::NamedAction::create("editor_window.buffer_save_as")
+        Gtk::NamedAction::create("editor_window.work_subject_save_as")
     ));
     controller->add_shortcut(Gtk::Shortcut::create(
         Gtk::KeyvalTrigger::create(
@@ -542,26 +613,6 @@ void CommonEditorWindow::force_redraw_linum()
     linum_area.queue_draw();
 }
 
-void CommonEditorWindow::show()
-{
-    win.show();
-}
-
-void CommonEditorWindow::present()
-{
-    win.present();
-}
-
-// void CommonEditorWindow::setTransientWindow(Gtk::Window &win)
-//{
-//     win->set_transient_for(win);
-// }
-
-// void CommonEditorWindow::setTransientWindow(std::shared_ptr<Gtk::Window> win)
-//{
-//     setTransientWindow(win.get());
-// }
-
 Gtk::Window *CommonEditorWindow::getWindowPtr()
 {
     return &win;
@@ -651,21 +702,27 @@ std::string CommonEditorWindow::getText()
     return subject->getText();
 }
 
-void CommonEditorWindow::action_buffer_reload()
+void CommonEditorWindow::action_work_subject_reload()
 {
     std::cout << "reload" << std::endl;
     subject->reload();
 }
 
-void CommonEditorWindow::action_buffer_save()
+void CommonEditorWindow::action_work_subject_save()
 {
     std::cout << "save" << std::endl;
     subject->save();
 }
 
-void CommonEditorWindow::action_buffer_save_as()
+void CommonEditorWindow::action_work_subject_save_as()
 {
     std::cout << "save as" << std::endl;
+    // todo: todo
+}
+
+void CommonEditorWindow::action_work_subject_close()
+{
+    subject->destroy();
 }
 
 void CommonEditorWindow::action_search_show_window()
@@ -678,6 +735,43 @@ void CommonEditorWindow::action_search_show_window()
     // project_ctl->getController()->registerWindow(w);
     // setTransientWindow(w);
     // w->set_destroy_with_parent(true);
+}
+
+void CommonEditorWindow::action_windows_prev_window()
+{
+    std::cout << "CommonEditorWindow::action_windows_prev_window" << std::endl;
+    project_ctl->showPrevEditor(getOwnPtr());
+}
+
+void CommonEditorWindow::action_windows_next_window()
+{
+    std::cout << "CommonEditorWindow::action_windows_next_window" << std::endl;
+    project_ctl->showNextEditor(getOwnPtr());
+}
+
+void CommonEditorWindow::action_windows_duplicate_window()
+{
+    project_ctl->workSubjectNewEditor(subject);
+}
+
+void CommonEditorWindow::action_windows_close_window()
+{
+    destroy();
+}
+
+void CommonEditorWindow::action_windows_show_project_mgr()
+{
+    project_ctl->getController()->showProjectMgr();
+}
+
+void CommonEditorWindow::action_windows_show_project_ctl()
+{
+    project_ctl->showWindow();
+}
+
+void CommonEditorWindow::action_windows_create_new_explorer()
+{
+    project_ctl->createNewFileExplorer();
 }
 
 void CommonEditorWindow::on_outline_refresh_btn()

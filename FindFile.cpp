@@ -186,7 +186,7 @@ void FindFile::setup_result_filelist()
                     {
                         return;
                     }
-                    ed->present();
+                    ed->show();
                 }
             );
             list_item->set_child(*w);
@@ -225,7 +225,7 @@ void FindFile::setup_result_linelist()
                     {
                         return;
                     }
-                    ed->present();
+                    ed->show();
                     ed->setCurrentLine(
                         item->line,
                         true
@@ -274,7 +274,7 @@ void FindFile::stop()
 
 void FindFile::show()
 {
-    win.show();
+    win.present();
 }
 
 void FindFile::destroy()

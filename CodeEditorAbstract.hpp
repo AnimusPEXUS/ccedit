@@ -15,6 +15,10 @@ class CodeEditorAbstract
   public:
     virtual CodeEditorAbstract_shared getOwnPtr() = 0;
 
+    // protected:
+    //  virtual setOwnPtr(CodeEditorAbstract_shared) = 0;
+
+  public:
     virtual WorkSubject_shared getWorkSubject()                  = 0;
     virtual bool               workSubjectIs(WorkSubject_shared) = 0;
 
@@ -22,7 +26,6 @@ class CodeEditorAbstract
     virtual Gtk::Window &getWindowRef() = 0;
 
     virtual void show()    = 0;
-    virtual void present() = 0;
     virtual void destroy() = 0;
 
     virtual std::size_t getCursorOffsetPosition() = 0;

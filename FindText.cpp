@@ -876,7 +876,7 @@ int FindText::setFindTextQuery(FindTextQuery q)
 
 void FindText::show()
 {
-    win.show();
+    win.present();
 }
 
 void FindText::destroy()

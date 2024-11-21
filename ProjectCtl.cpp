@@ -206,9 +206,8 @@ CodeEditorAbstract_shared
     {
         return nullptr;
     }
-    registerEditor(ed);
+    // registerEditor(ed);
     ed->show();
-    ed->present();
     return ed;
 }
 
@@ -274,12 +273,24 @@ void ProjectCtl::unregisterWorkSubject(WorkSubject_shared val)
 void ProjectCtl::registerEditor(CodeEditorAbstract_shared val)
 {
     // todo: register in Application?
-    // todo: check is already exists
     std::cout << "registerEditor(" << val << ")" << std::endl;
+
+    std::size_t i = 0;
+    while (i < editors_list_store->get_n_items())
+    {
+        auto x    = editors_list_store->get_item(i);
+        auto x_ed = x->editor;
+        if (x_ed == val)
+        {
+            return;
+        }
+
+        i++;
+    }
+
     auto v    = CodeEditorTableRow::create();
     v->editor = val;
     editors_list_store->append(v);
-    controller->registerWindow(val->getWindowPtr());
 }
 
 void ProjectCtl::unregisterEditor(CodeEditorAbstract_shared val)
@@ -298,6 +309,60 @@ void ProjectCtl::unregisterEditor(CodeEditorAbstract_shared val)
 
         i++;
     }
+}
+
+void ProjectCtl::showPrevNextEditor(CodeEditorAbstract_shared val, bool prev)
+{
+
+    std::cout << "ProjectCtl::showPrevNextEditor "
+              << val.get() << " " << prev << std::endl;
+
+    std::size_t i = 0;
+    while (i < editors_list_store->get_n_items())
+    {
+        auto x    = editors_list_store->get_item(i);
+        auto x_ed = x->editor;
+        if (x_ed == val)
+        {
+            std::cout << "   editor index " << i << std::endl;
+            std::size_t j = 0;
+
+            if (prev)
+            {
+                if (i == 0)
+                {
+                    return;
+                }
+                j = i - 1;
+            }
+            else
+            {
+                if (i >= editors_list_store->get_n_items() - 1)
+                {
+                    return;
+                }
+                j = i + 1;
+            }
+
+            auto y    = editors_list_store->get_item(j);
+            auto y_ed = y->editor;
+            y_ed->show();
+            return;
+        }
+
+        i++;
+    }
+    std::cout << "not found" << std::endl;
+}
+
+void ProjectCtl::showPrevEditor(CodeEditorAbstract_shared val)
+{
+    showPrevNextEditor(val, true);
+}
+
+void ProjectCtl::showNextEditor(CodeEditorAbstract_shared val)
+{
+    showPrevNextEditor(val, false);
 }
 
 void ProjectCtl::destroyWorkSubjectEditors(WorkSubject_shared val)

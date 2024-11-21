@@ -41,8 +41,6 @@ class CommonEditorWindow : public CodeEditorAbstract
     //       to this 'todo:' - if first 'todo:' not highlited - bug present
 
     void show() override;
-    void present() override;
-
     void destroy() override;
 
     // void setTransientWindow(Gtk::Window &win) override;
@@ -105,19 +103,20 @@ class CommonEditorWindow : public CodeEditorAbstract
 
     Glib::RefPtr<Gio::Menu> menu_model;
 
-    Glib::RefPtr<Gio::Menu>     mm_buffer;
-    Glib::RefPtr<Gio::MenuItem> mm_buffer_reload;
-    Glib::RefPtr<Gio::MenuItem> mm_buffer_save;
-    Glib::RefPtr<Gio::MenuItem> mm_buffer_save_as;
-
-    Glib::RefPtr<Gio::Menu>     mm_search;
-    Glib::RefPtr<Gio::MenuItem> mm_search_search_window;
-
-    void action_buffer_reload();
-    void action_buffer_save();
-    void action_buffer_save_as();
+    void action_work_subject_reload();
+    void action_work_subject_save();
+    void action_work_subject_save_as();
+    void action_work_subject_close();
 
     void action_search_show_window();
+
+    void action_windows_prev_window();
+    void action_windows_next_window();
+    void action_windows_duplicate_window();
+    void action_windows_close_window();
+    void action_windows_show_project_mgr();
+    void action_windows_show_project_ctl();
+    void action_windows_create_new_explorer();
 
     CommonEditorWindowStateStorage saved_editor_state;
     void                           saveState();

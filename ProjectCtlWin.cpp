@@ -259,7 +259,7 @@ void ProjectCtlWin::updateTitle()
 
 void ProjectCtlWin::show()
 {
-    win.show();
+    win.present();
 }
 
 } // namespace wayround_i2p::ccedit

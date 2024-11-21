@@ -18,7 +18,7 @@ ProjectMgr_shared ProjectMgr::create(Controller_shared controller)
 
 void ProjectMgr::show()
 {
-    win.show();
+    win.present();
 }
 
 void ProjectMgr::destroy()

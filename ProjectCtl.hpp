@@ -43,56 +43,66 @@ class ProjectCtl
 
     // ----------
 
-    bool workSubjectExists(std::filesystem::path fpth);
+    bool
+        workSubjectExists(std::filesystem::path fpth);
 
     // tries to find and return existing WorkSubject. result is empty if
     // there's no existing WS for fpath
 
-    WorkSubject_shared getWorkSubject(std::filesystem::path fpth);
+    WorkSubject_shared
+        getWorkSubject(std::filesystem::path fpth);
 
     // tries to find and return existing WorkSubject. if WS not exists already -
     // creates and returns new one
 
-    WorkSubject_shared workSubjectEnsureExistance(
-        std::filesystem::path fpth
-    );
+    WorkSubject_shared
+        workSubjectEnsureExistance(
+            std::filesystem::path fpth
+        );
 
     // ----------
 
     // if subject not exists - create.
     // tries to find and return existing editor.
 
-    CodeEditorAbstract_shared workSubjectExistingOrNewEditor(
-        std::filesystem::path fpth
-    );
+    CodeEditorAbstract_shared
+        workSubjectExistingOrNewEditor(
+            std::filesystem::path fpth
+        );
 
     // if subject not exists - create.
     // allways create new editor for resulting subject
 
-    CodeEditorAbstract_shared workSubjectNewEditor(
-        std::filesystem::path fpth
-    );
+    CodeEditorAbstract_shared
+        workSubjectNewEditor(
+            std::filesystem::path fpth
+        );
 
     // ----------
 
     // tries to find and return existing editor.
 
-    CodeEditorAbstract_shared workSubjectExistingOrNewEditor(
-        WorkSubject_shared
-    );
+    CodeEditorAbstract_shared
+        workSubjectExistingOrNewEditor(
+            WorkSubject_shared
+        );
 
     // allways create new editor for subject
 
-    CodeEditorAbstract_shared workSubjectNewEditor(
-        WorkSubject_shared
-    );
+    CodeEditorAbstract_shared
+        workSubjectNewEditor(
+            WorkSubject_shared
+        );
 
     // ----------
 
-    void destroyEditor(CodeEditorAbstract_shared);
+    void
+        destroyEditor(CodeEditorAbstract_shared);
 
-    Glib::RefPtr<Gio::ListStore<WorkSubjectTableRow>> getWorkSubjectListStore();
-    Glib::RefPtr<Gio::ListStore<CodeEditorTableRow>>  getCodeEditorListStore();
+    Glib::RefPtr<Gio::ListStore<WorkSubjectTableRow>>
+        getWorkSubjectListStore();
+    Glib::RefPtr<Gio::ListStore<CodeEditorTableRow>>
+        getCodeEditorListStore();
 
     void updatedName();
     void updatedPath();
@@ -100,11 +110,13 @@ class ProjectCtl
     void showWindow();
     void destroyWindow();
 
-    FileExplorer_shared createNewFileExplorer();
+    FileExplorer_shared
+        createNewFileExplorer();
 
-    CodeEditorAbstract_shared createBestEditorForWorkSubject(
-        WorkSubject_shared
-    );
+    CodeEditorAbstract_shared
+        createBestEditorForWorkSubject(
+            WorkSubject_shared
+        );
 
     void destroyWorkSubjectEditors(WorkSubject_shared val);
 
@@ -121,6 +133,10 @@ class ProjectCtl
 
     void registerEditor(CodeEditorAbstract_shared val);
     void unregisterEditor(CodeEditorAbstract_shared val);
+
+    void showPrevNextEditor(CodeEditorAbstract_shared val, bool prev);
+    void showPrevEditor(CodeEditorAbstract_shared val);
+    void showNextEditor(CodeEditorAbstract_shared val);
 
     sigc::signal<void()> &signal_updated_name();
     sigc::signal<void()> &signal_updated_path();

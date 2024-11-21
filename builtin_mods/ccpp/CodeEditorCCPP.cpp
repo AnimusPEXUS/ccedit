@@ -15,6 +15,8 @@ extern "C" {
 
 #include "CodeEditorCCPP.hpp"
 
+#include "../../Controller.hpp"
+
 namespace wayround_i2p::ccedit
 {
 
@@ -27,6 +29,12 @@ CodeEditorCCPP_shared CodeEditorCCPP::create(
         new CodeEditorCCPP(project_ctl, subject)
     );
     ret->own_ptr = ret;
+
+    project_ctl->registerEditor(ret);
+
+    // todo: move this to constructor?
+    project_ctl->getController()->registerWindow(ret->getWindowPtr());
+
     return ret;
 }
 

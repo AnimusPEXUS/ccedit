@@ -138,7 +138,7 @@ ProjectMgrEditor::~ProjectMgrEditor()
 
 void ProjectMgrEditor::show()
 {
-    win.show();
+    win.present();
 }
 
 void ProjectMgrEditor::destroy()
