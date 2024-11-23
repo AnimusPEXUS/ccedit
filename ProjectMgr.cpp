@@ -73,10 +73,10 @@ ProjectMgr::ProjectMgr(Controller_shared controller) :
     win.set_title("Project Manager :: Create/Edit/Remove/Open - Code Editor");
     win.set_child(main_box);
 
-    main_box.set_margin_top(5);
-    main_box.set_margin_start(5);
-    main_box.set_margin_end(5);
-    main_box.set_margin_bottom(5);
+    // main_box.set_margin_top(5);
+    // main_box.set_margin_start(5);
+    // main_box.set_margin_end(5);
+    // main_box.set_margin_bottom(5);
 
     project_list_view.set_hexpand();
     project_list_view.set_vexpand();
@@ -89,21 +89,21 @@ ProjectMgr::ProjectMgr(Controller_shared controller) :
 
     add_columns();
 
-    main_box.set_spacing(5);
+    //     main_box.set_spacing(5);
     main_box.set_orientation(Gtk::Orientation::VERTICAL);
     main_box.append(project_list_sw);
     main_box.append(button_box);
 
     project_list_sw.set_child(project_list_view);
-    project_list_sw.set_has_frame(true);
+    //     project_list_sw.set_has_frame(true);
 
-    button_box.set_spacing(5);
+    //  button_box.set_spacing(5);
     button_box.set_orientation(Gtk::Orientation::HORIZONTAL);
     button_box.set_halign(Gtk::Align::FILL);
     button_box.set_hexpand(true);
 
     button_box_sec.set_hexpand(true);
-    button_box_sec.set_spacing(5);
+    //  button_box_sec.set_spacing(5);
     button_box_sec.set_orientation(Gtk::Orientation::HORIZONTAL);
     button_box_sec.set_halign(Gtk::Align::END);
 
@@ -128,16 +128,24 @@ ProjectMgr::ProjectMgr(Controller_shared controller) :
     button_box_sec.append(btn_quit);
 
     btn_add_proj.set_label("add");
+    btn_add_proj.set_has_frame(false);
     btn_rm_proj.set_label("rm");
+    btn_rm_proj.set_has_frame(false);
     btn_edit_proj.set_label("edit");
+    btn_edit_proj.set_has_frame(false);
     btn_open_proj.set_label("open proj ctrl");
+    btn_open_proj.set_has_frame(false);
 
     btn_open_global.set_label("open global ctrl");
+    btn_open_global.set_has_frame(false);
 
     btn_modules_info_print.set_label("print mods");
+    btn_modules_info_print.set_has_frame(false);
     btn_save_cfg.set_label("rewrite config");
+    btn_save_cfg.set_has_frame(false);
 
     btn_quit.set_label("quit");
+    btn_quit.set_has_frame(false);
 
     // save_cfg.set_hexpand(true);
     // save_cfg.set_halign(Gtk::Align::END);

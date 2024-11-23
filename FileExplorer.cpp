@@ -25,7 +25,7 @@ FileExplorer_shared FileExplorer::create(
 }
 
 FileExplorer::FileExplorer(ProjectCtl_shared project_ctl) :
-    main_box(Gtk::Orientation::VERTICAL, 5),
+    main_box(Gtk::Orientation::VERTICAL, 0),
     destroyer(
         [this]()
         {
@@ -40,44 +40,71 @@ FileExplorer::FileExplorer(ProjectCtl_shared project_ctl) :
     // maximize();
     updateTitle();
 
-    main_box.set_margin(5);
+    // main_box.set_margin(5);
+
+    // main_box.append(menu_bar);
 
     path_box.set_orientation(Gtk::Orientation::HORIZONTAL);
     // path_box.set_spacing(5);
     // абв
-    reset_view_btn.set_label("⏹️");
+
+    path_box.add_css_class("toolbar");
+
+    fb1.add_css_class("linked");
+    fb2.add_css_class("linked");
+    fb3.add_css_class("linked");
+
+    reset_view_btn.set_image_from_icon_name("edit-clear-all");
     reset_view_btn.set_tooltip_text("Reset View");
-    go_root_btn.set_label("🏠");
+    go_root_btn.set_image_from_icon_name("go-home");
     go_root_btn.set_tooltip_text("Nav to Project Root");
-    refresh_btn.set_label("⟲");
+    refresh_btn.set_image_from_icon_name("view-refresh");
     refresh_btn.set_tooltip_text("Refresh");
 
-    filelauncher_dir_btn.set_label("🗁");
+    filelauncher_dir_btn.set_image_from_icon_name("document-open");
     filelauncher_dir_btn.set_tooltip_text("Open current Folder in System's App");
-    find_file_btn.set_label("🔍");
+    find_file_btn.set_image_from_icon_name("system-search");
     find_file_btn.set_tooltip_text("Find File..");
 
-    make_file_or_directory_btn.set_label("🆕");
+    make_file_or_directory_btn.set_image_from_icon_name("document-new");
     make_file_or_directory_btn.set_tooltip_text("mk dir/file..");
-    rename_file_or_directory_btn.set_label("✒️");
+    rename_file_or_directory_btn.set_label("rename");
     rename_file_or_directory_btn.set_tooltip_text("Rename..");
-    remove_file_or_directory_btn.set_label("␡");
+    remove_file_or_directory_btn.set_image_from_icon_name("edit-delete");
     remove_file_or_directory_btn.set_tooltip_text("Delete File or Dir..");
 
-    path_box.set_spacing(5);
-    path_box.append(reset_view_btn);
-    path_box.append(go_root_btn);
-    path_box.append(refresh_btn);
-    path_box.append(sep1);
-    path_box.append(filelauncher_dir_btn);
-    path_box.append(find_file_btn);
-    path_box.append(reset_view_btn);
-    path_box.append(sep2);
-    path_box.append(make_file_or_directory_btn);
-    path_box.append(rename_file_or_directory_btn);
-    path_box.append(remove_file_or_directory_btn);
-    path_box.append(sep3);
+    remove_file_or_directory_btn.add_css_class("destructive-action");
+
+    path_entry.set_hexpand(true);
+
+    // path_box.set_spacing(5);
+
+    fb1.append(reset_view_btn);
+    fb1.append(go_root_btn);
+    fb1.append(refresh_btn);
+
+    path_box.append(fb1);
+    // path_box.append(sep1);
+
+    fb2.append(filelauncher_dir_btn);
+    fb2.append(find_file_btn);
+    fb2.append(reset_view_btn);
+
+    path_box.append(fb2);
+    // path_box.append(sep2);
+
+    fb3.append(make_file_or_directory_btn);
+    fb3.append(rename_file_or_directory_btn);
+    fb3.append(remove_file_or_directory_btn);
+
+    path_box.append(fb3);
+    // path_box.append(sep3);
+
     path_box.append(path_entry);
+
+    setup_actions();
+    setup_main_menu();
+    setup_hotkeys();
 
     setupDirTreeView();
     setupFileListView();
@@ -89,13 +116,13 @@ FileExplorer::FileExplorer(ProjectCtl_shared project_ctl) :
     lists_box.set_end_child(file_list_sw);
     lists_box.set_resize_start_child(false);
 
-    lists_box.set_wide_handle(true);
+    lists_box.set_wide_handle(false);
 
     lists_box.set_vexpand(true);
     lists_box.set_hexpand(true);
 
-    dir_tree_sw.set_has_frame(true);
-    file_list_sw.set_has_frame(true);
+    // dir_tree_sw.set_has_frame(true);
+    // file_list_sw.set_has_frame(true);
 
     dir_tree_sw.set_child(dir_tree_view);
     file_list_sw.set_child(file_list_view);
@@ -294,6 +321,39 @@ void FileExplorer::setupFileListView()
     );
 
     file_list_view.set_factory(factory);
+}
+
+void FileExplorer::setup_main_menu()
+{
+}
+
+void FileExplorer::setup_actions()
+{
+    auto action_group = Gio::SimpleActionGroup::create();
+
+    //    action_group->add_action(
+    //        "work_subject_reload",
+    //        sigc::mem_fun(*this, &CommonEditorWindow::action_work_subject_reload)
+    //    );
+
+    win.insert_action_group("file_explorer_window", action_group);
+}
+
+void FileExplorer::setup_hotkeys()
+{
+    auto controller = Gtk::ShortcutController::create();
+    controller->set_scope(Gtk::ShortcutScope::LOCAL);
+
+    /*
+    controller->add_shortcut(Gtk::Shortcut::create(
+        Gtk::KeyvalTrigger::create(
+            GDK_KEY_r,
+            Gdk::ModifierType::CONTROL_MASK
+        ),
+        Gtk::NamedAction::create("editor_window.work_subject_reload")
+    ));
+*/
+    win.add_controller(controller);
 }
 
 void FileExplorer::updateTitle()

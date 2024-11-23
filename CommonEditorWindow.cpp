@@ -31,8 +31,8 @@ CommonEditorWindow::CommonEditorWindow(
     callback_on_destroy(callback_on_destroy),
     main_box(Gtk::Orientation::VERTICAL, 0),
     text_view_box_upper(Gtk::Orientation::VERTICAL, 0),
-    text_view_box(Gtk::Orientation::HORIZONTAL, 5),
-    outline_box(Gtk::Orientation::VERTICAL, 5)
+    text_view_box(Gtk::Orientation::HORIZONTAL, 0),
+    outline_box(Gtk::Orientation::VERTICAL, 0)
 {
     this->project_ctl = project_ctl;
     this->subject     = subject;

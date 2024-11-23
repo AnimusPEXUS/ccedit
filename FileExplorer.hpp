@@ -59,27 +59,29 @@ class FileExplorer
     ProjectCtl_shared project_ctl;
 
     // widgets
-    Gtk::Window win;
+    Gtk::ApplicationWindow win;
+
+    // Gtk::PopoverMenuBar menu_bar;
 
     Gtk::Box main_box;
 
     Gtk::Box path_box;
 
-    // Gtk::FlowBox   fb1;
-    Gtk::Button    reset_view_btn;
-    Gtk::Button    go_root_btn;
-    Gtk::Button    refresh_btn;
-    Gtk::Separator sep1;
-    // Gtk::FlowBox   fb2;
-    Gtk::Button    filelauncher_dir_btn;
-    Gtk::Button    find_file_btn;
-    Gtk::Separator sep2;
-    // Gtk::FlowBox   fb3;
-    Gtk::Button    make_file_or_directory_btn;
-    Gtk::Button    rename_file_or_directory_btn;
-    Gtk::Button    remove_file_or_directory_btn;
-    Gtk::Separator sep3;
-    Gtk::Entry     path_entry;
+    Gtk::Box    fb1;
+    Gtk::Button reset_view_btn;
+    Gtk::Button go_root_btn;
+    Gtk::Button refresh_btn;
+    // Gtk::Separator sep1;
+    Gtk::Box    fb2;
+    Gtk::Button filelauncher_dir_btn;
+    Gtk::Button find_file_btn;
+    // Gtk::Separator sep2;
+    Gtk::Box    fb3;
+    Gtk::Button make_file_or_directory_btn;
+    Gtk::Button rename_file_or_directory_btn;
+    Gtk::Button remove_file_or_directory_btn;
+    // Gtk::Separator sep3;
+    Gtk::Entry  path_entry;
 
     Gtk::Paned lists_box;
 
@@ -91,6 +93,9 @@ class FileExplorer
 
     // main functions
 
+    void setup_actions();
+    void setup_main_menu();
+    void setup_hotkeys();
     void setupDirTreeView();
     void setupFileListView();
 

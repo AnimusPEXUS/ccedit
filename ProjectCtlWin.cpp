@@ -27,21 +27,23 @@ ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared project_ctl) :
             own_ptr.reset();
         }
     ),
-    main_box(Gtk::Orientation::VERTICAL, 5)
+    main_box(Gtk::Orientation::VERTICAL, 0)
 {
 
     this->project_ctl = project_ctl;
     this->controller  = project_ctl->getController();
 
     show_file_explorer_btn.set_label("File Explorer");
+    show_file_explorer_btn.set_has_frame(false);
     quit_project_btn.set_label("Quit Project");
+    quit_project_btn.set_has_frame(false);
 
     win.set_child(main_box);
 
-    main_box.set_margin_top(5);
-    main_box.set_margin_start(5);
-    main_box.set_margin_end(5);
-    main_box.set_margin_bottom(5);
+    //    main_box.set_margin_top(5);
+    //     main_box.set_margin_start(5);
+    //     main_box.set_margin_end(5);
+    //     main_box.set_margin_bottom(5);
 
     main_box.append(b_box);
 
@@ -52,7 +54,7 @@ ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared project_ctl) :
 
     ws_ed_paned.set_start_child(ws_main_box);
     ws_ed_paned.set_end_child(eds_main_box);
-    ws_ed_paned.set_wide_handle(true);
+    // ws_ed_paned.set_wide_handle(true);
 
     // ------- work subjects -------
 
@@ -66,7 +68,7 @@ ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared project_ctl) :
     ws_view_sw.set_child(ws_view);
     ws_view_sw.set_hexpand(true);
     ws_view_sw.set_vexpand(true);
-    ws_view_sw.set_has_frame(true);
+    // ws_view_sw.set_has_frame(true);
 
     ws_add_columns();
 
@@ -84,7 +86,7 @@ ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared project_ctl) :
     eds_view_sw.set_child(eds_view);
     eds_view_sw.set_hexpand(true);
     eds_view_sw.set_vexpand(true);
-    eds_view_sw.set_has_frame(true);
+    // eds_view_sw.set_has_frame(true);
 
     eds_add_columns();
 
