@@ -28,6 +28,7 @@ CommonEditorWindow::CommonEditorWindow(
             win.destroy();
         }
     ),
+    wmg(project_ctl),
     callback_on_destroy(callback_on_destroy),
     main_box(Gtk::Orientation::VERTICAL, 0),
     text_view_box_upper(Gtk::Orientation::VERTICAL, 0),
@@ -316,19 +317,7 @@ void CommonEditorWindow::make_menubar()
     sect->append("Close Current", "editor_window.windows_close_window");
     mm_windows->append_section(sect);
 
-    sect = Gio::Menu::create();
-    sect->append(
-        "Project Manager",
-        "editor_window.windows_show_project_mgr"
-    );
-    sect->append(
-        "Project Controller",
-        "editor_window.windows_show_project_ctl"
-    );
-    sect->append(
-        "Create New FileExplorer",
-        "editor_window.windows_create_new_explorer"
-    );
+    sect = wmg.createWindowsMenu("editor_window");
     mm_windows->append_section(sect);
 
     menu_model = Gio::Menu::create();
@@ -389,20 +378,7 @@ void CommonEditorWindow::make_actions()
         sigc::mem_fun(*this, &CommonEditorWindow::action_windows_close_window)
     );
 
-    action_group->add_action(
-        "windows_show_project_mgr",
-        sigc::mem_fun(*this, &CommonEditorWindow::action_windows_show_project_mgr)
-    );
-
-    action_group->add_action(
-        "windows_show_project_ctl",
-        sigc::mem_fun(*this, &CommonEditorWindow::action_windows_show_project_ctl)
-    );
-
-    action_group->add_action(
-        "windows_create_new_explorer",
-        sigc::mem_fun(*this, &CommonEditorWindow::action_windows_create_new_explorer)
-    );
+    wmg.addActionsToActionGroup(action_group);
 
     win.insert_action_group("editor_window", action_group);
 }
@@ -757,21 +733,6 @@ void CommonEditorWindow::action_windows_duplicate_window()
 void CommonEditorWindow::action_windows_close_window()
 {
     destroy();
-}
-
-void CommonEditorWindow::action_windows_show_project_mgr()
-{
-    project_ctl->getController()->showProjectMgr();
-}
-
-void CommonEditorWindow::action_windows_show_project_ctl()
-{
-    project_ctl->showWindow();
-}
-
-void CommonEditorWindow::action_windows_create_new_explorer()
-{
-    project_ctl->createNewFileExplorer();
 }
 
 void CommonEditorWindow::on_outline_refresh_btn()

@@ -42,6 +42,7 @@ add_executable(
   tables.cpp
   utils.cpp
   WorkSubject.cpp
+  ShowWindowMenu.cpp
   builtin_mods/ccpp/CodeEditorCCPP.cpp
   builtin_mods/ccpp/mod_ccpp.cpp
   #builtin_mods/go/CodeEditorGo.cpp

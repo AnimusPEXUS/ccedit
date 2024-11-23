@@ -1,12 +1,13 @@
-#ifndef WAYROUND_I2P_20241106_133730_895599
-#define WAYROUND_I2P_20241106_133730_895599
+#ifndef WAYROUND_I2P_20241123_193654_651377
+#define WAYROUND_I2P_20241123_193654_651377
 
 #include <iostream>
 
 #include <gtkmm.h>
 
-#include "forward_declarations.hpp"
+#include "ShowWindowMenu.hpp"
 
+#include "forward_declarations.hpp"
 #include "utils.hpp"
 
 namespace wayround_i2p::ccedit
@@ -58,6 +59,8 @@ class FileExplorer
 
     ProjectCtl_shared project_ctl;
 
+    WindowsMenuGenerator wmg;
+
     // widgets
     Gtk::ApplicationWindow win;
 
@@ -81,7 +84,10 @@ class FileExplorer
     Gtk::Button rename_file_or_directory_btn;
     Gtk::Button remove_file_or_directory_btn;
     // Gtk::Separator sep3;
-    Gtk::Entry  path_entry;
+
+    Gtk::MenuButton show_windows_btn;
+
+    Gtk::Entry path_entry;
 
     Gtk::Paned lists_box;
 

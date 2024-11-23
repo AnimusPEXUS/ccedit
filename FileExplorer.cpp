@@ -26,6 +26,7 @@ FileExplorer_shared FileExplorer::create(
 
 FileExplorer::FileExplorer(ProjectCtl_shared project_ctl) :
     main_box(Gtk::Orientation::VERTICAL, 0),
+    wmg(project_ctl),
     destroyer(
         [this]()
         {
@@ -72,8 +73,16 @@ FileExplorer::FileExplorer(ProjectCtl_shared project_ctl) :
     rename_file_or_directory_btn.set_tooltip_text("Rename..");
     remove_file_or_directory_btn.set_image_from_icon_name("edit-delete");
     remove_file_or_directory_btn.set_tooltip_text("Delete File or Dir..");
-
     remove_file_or_directory_btn.add_css_class("destructive-action");
+
+    show_windows_btn.set_menu_model(
+        wmg.createWindowsMenu("file_explorer_window")
+    );
+    // show_windows_btn.add_css_class("raised");
+    show_windows_btn.add_css_class("circular");
+    show_windows_btn.set_has_frame(true);
+    show_windows_btn.set_icon_name("applications-utilities");
+    show_windows_btn.set_tooltip_text("ccedit Windows");
 
     path_entry.set_hexpand(true);
 
@@ -99,6 +108,8 @@ FileExplorer::FileExplorer(ProjectCtl_shared project_ctl) :
 
     path_box.append(fb3);
     // path_box.append(sep3);
+
+    path_box.append(show_windows_btn);
 
     path_box.append(path_entry);
 
@@ -336,6 +347,8 @@ void FileExplorer::setup_actions()
     //        sigc::mem_fun(*this, &CommonEditorWindow::action_work_subject_reload)
     //    );
 
+    wmg.addActionsToActionGroup(action_group);
+
     win.insert_action_group("file_explorer_window", action_group);
 }
 
@@ -350,7 +363,7 @@ void FileExplorer::setup_hotkeys()
             GDK_KEY_r,
             Gdk::ModifierType::CONTROL_MASK
         ),
-        Gtk::NamedAction::create("editor_window.work_subject_reload")
+        Gtk::NamedAction::create("file_explorer_window.work_subject_reload")
     ));
 */
     win.add_controller(controller);

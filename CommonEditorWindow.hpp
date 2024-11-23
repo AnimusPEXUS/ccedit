@@ -1,9 +1,11 @@
-#ifndef WAYROUND_I2P_20241106_133730_894827
-#define WAYROUND_I2P_20241106_133730_894827
+#ifndef WAYROUND_I2P_20241123_193654_650891
+#define WAYROUND_I2P_20241123_193654_650891
 
 #include <memory>
 
 #include <gtkmm.h>
+
+#include "ShowWindowMenu.hpp"
 
 #include "forward_declarations.hpp"
 
@@ -70,6 +72,8 @@ class CommonEditorWindow : public CodeEditorAbstract
 
   private:
     std::function<void()> callback_on_destroy;
+
+    WindowsMenuGenerator wmg;
 
     ProjectCtl_shared  project_ctl;
     WorkSubject_shared subject;
