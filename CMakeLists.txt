@@ -25,24 +25,29 @@ find_package(ICU 73.0 COMPONENTS uc i18n REQUIRED)
 set(ICU_DEBUG OFF)
 
 add_executable(
-  ccedit 
+  ccedit
+
   CommonEditorWindow.cpp
   Controller.cpp
   FileExplorer.cpp
+  FileExplorerTables.cpp
   FindFile.cpp
+  FindTables.cpp
   FindText.cpp
   FindTypes.cpp
-  FindTables.cpp
   main.cpp
   modularity.cpp
+  OutlineTables.cpp
   ProjectCtl.cpp
+  ProjectCtlTables.cpp
   ProjectCtlWin.cpp
   ProjectMgr.cpp
   ProjectMgrEditor.cpp
-  tables.cpp
+  ProjectMgrTables.cpp
+  ShowWindowMenu.cpp
   utils.cpp
   WorkSubject.cpp
-  ShowWindowMenu.cpp
+
   builtin_mods/ccpp/CodeEditorCCPP.cpp
   builtin_mods/ccpp/mod_ccpp.cpp
   #builtin_mods/go/CodeEditorGo.cpp
@@ -52,31 +57,30 @@ add_executable(
 )
 
 #target_compile_options(
-#ccedit 
+#ccedit
 #PUBLIC
-#-Wall 
-#-Wextra 
-#-Wpedantic 
+#-Wall
+#-Wextra
+#-Wpedantic
 #)
 
 target_link_libraries(
-  ccedit 
-  PUBLIC 
+  ccedit
+  PUBLIC
   # -static
-  PkgConfig::gtk4 
+  PkgConfig::gtk4
   PkgConfig::glib
-  PkgConfig::gtkmm4 
-  PkgConfig::sigc 
+  PkgConfig::gtkmm4
+  PkgConfig::sigc
   Boost::json
   Boost::regex
-  ICU::uc 
+  ICU::uc
   ICU::i18n
 )
 
 target_include_directories(
-  ccedit 
-  PUBLIC 
+  ccedit
+  PUBLIC
   ${Boost_INCLUDE_DIRS}
   ${ICU_INCLUDE_DIRS}
 )
-

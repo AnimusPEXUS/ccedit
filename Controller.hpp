@@ -1,5 +1,5 @@
-#ifndef WAYROUND_I2P_20241123_193654_643461
-#define WAYROUND_I2P_20241123_193654_643461
+#ifndef WAYROUND_I2P_20241125_061830_584939
+#define WAYROUND_I2P_20241125_061830_584939
 
 #include <filesystem>
 #include <memory>
@@ -10,10 +10,9 @@
 #include "forward_declarations.hpp"
 
 #include "modularity.hpp"
-
-#include "tables.hpp"
-
 #include "utils.hpp"
+
+#include "ProjectMgrTables.hpp"
 
 namespace wayround_i2p::ccedit
 {

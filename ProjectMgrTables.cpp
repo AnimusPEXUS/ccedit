@@ -1,10 +1,16 @@
-
-#include "tables.hpp"
+#include "ProjectMgrTables.hpp"
 
 #include "ProjectCtl.hpp"
 
 namespace wayround_i2p::ccedit
 {
+
+Glib::RefPtr<ProjectTableRow> ProjectTableRow::create()
+{
+    return Glib::make_refptr_for_instance<ProjectTableRow>(
+        new ProjectTableRow()
+    );
+}
 
 ProjectTableRow::ProjectTableRow() :
     Glib::ObjectBase(typeid(ProjectTableRow))
@@ -12,6 +18,10 @@ ProjectTableRow::ProjectTableRow() :
     //  priv_signal_proj_name_changed = std::shared_ptr<sigc::signal<void()>>(new sigc::signal<void()>());
 
     //  priv_signal_proj_path_changed = std::shared_ptr<sigc::signal<void()>>(new sigc::signal<void()>());
+}
+
+ProjectTableRow::~ProjectTableRow()
+{
 }
 
 std::string ProjectTableRow::proj_name()

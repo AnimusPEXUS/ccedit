@@ -1,5 +1,5 @@
-#ifndef WAYROUND_I2P_20241123_193654_650891
-#define WAYROUND_I2P_20241123_193654_650891
+#ifndef WAYROUND_I2P_20241125_061830_591020
+#define WAYROUND_I2P_20241125_061830_591020
 
 #include <memory>
 
@@ -10,8 +10,9 @@
 #include "forward_declarations.hpp"
 
 #include "modularity.hpp"
-#include "tables.hpp"
 #include "utils.hpp"
+
+#include "OutlineTables.hpp"
 
 #include "CodeEditorAbstract.hpp"
 #include "ProjectCtl.hpp"

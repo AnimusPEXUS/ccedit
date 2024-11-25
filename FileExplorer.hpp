@@ -1,11 +1,13 @@
-#ifndef WAYROUND_I2P_20241123_193654_651377
-#define WAYROUND_I2P_20241123_193654_651377
+#ifndef WAYROUND_I2P_20241125_061830_591310
+#define WAYROUND_I2P_20241125_061830_591310
 
 #include <iostream>
 
 #include <gtkmm.h>
 
 #include "ShowWindowMenu.hpp"
+
+#include "FileExplorerTables.hpp"
 
 #include "forward_declarations.hpp"
 #include "utils.hpp"

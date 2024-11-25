@@ -1,5 +1,5 @@
-#ifndef WAYROUND_I2P_20241123_193654_648854
-#define WAYROUND_I2P_20241123_193654_648854
+#ifndef WAYROUND_I2P_20241125_061830_590224
+#define WAYROUND_I2P_20241125_061830_590224
 
 #include <filesystem>
 #include <iostream>
@@ -9,10 +9,9 @@
 #include <sigc++/sigc++.h>
 
 #include "forward_declarations.hpp"
-
-#include "tables.hpp"
-
 #include "utils.hpp"
+
+#include "ProjectCtlTables.hpp"
 
 namespace wayround_i2p::ccedit
 {
