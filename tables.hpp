@@ -30,8 +30,8 @@ class ProjectTableRow : public Glib::Object
         );
     }
 
-    std::shared_ptr<sigc::signal<void()>> signal_proj_name_changed();
-    std::shared_ptr<sigc::signal<void()>> signal_proj_path_changed();
+    sigc::signal<void()> &signal_proj_name_changed();
+    sigc::signal<void()> &signal_proj_path_changed();
 
   protected:
     ProjectTableRow();
@@ -40,8 +40,8 @@ class ProjectTableRow : public Glib::Object
     std::string           priv_proj_name;
     std::filesystem::path priv_proj_path;
 
-    std::shared_ptr<sigc::signal<void()>> priv_signal_proj_name_changed;
-    std::shared_ptr<sigc::signal<void()>> priv_signal_proj_path_changed;
+    sigc::signal<void()> priv_signal_proj_name_changed;
+    sigc::signal<void()> priv_signal_proj_path_changed;
 };
 
 class WorkSubjectTableRow : public Glib::Object

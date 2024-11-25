@@ -99,9 +99,9 @@ namespace ccedit
         set_spacing(5);
         go_btn.set_label("go");
 
+        append(go_btn);
         append(subpath);
         append(found_count);
-        append(go_btn);
 
         go_btn.signal_clicked().connect(
             sigc::mem_fun(*this, &FindFileResultTreeItemWidget::on_go_btn)
@@ -157,8 +157,8 @@ namespace ccedit
         go_btn.set_label("go");
 
         append(line);
-        append(text);
         append(go_btn);
+        append(text);
 
         go_btn.signal_clicked().connect(
             sigc::mem_fun(*this, &FindFileResultTreeItemItemWidget::on_go_btn)

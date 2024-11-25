@@ -9,6 +9,8 @@
 #include <gtkmm.h>
 #include <sigc++/sigc++.h>
 
+#include "ShowWindowMenu.hpp"
+
 #include "forward_declarations.hpp"
 
 namespace wayround_i2p::ccedit
@@ -37,14 +39,15 @@ class ProjectCtlWin
     ProjectCtl_shared project_ctl;
     Controller_shared controller;
 
+    WindowsMenuGenerator wmg;
+
     Gtk::Window win;
 
     Gtk::Box main_box;
 
     Gtk::Box b_box;
 
-    Gtk::Button show_file_explorer_btn;
-    Gtk::Button quit_project_btn;
+    Gtk::MenuButton show_windows_btn;
 
     Gtk::Paned ws_ed_paned;
 
@@ -89,10 +92,6 @@ class ProjectCtlWin
     );
 
     // -------------------------
-
-    void on_show_file_explorer_btn();
-
-    void on_quit_project_btn();
 
     void on_hide_sig();
     void on_destroy_sig();

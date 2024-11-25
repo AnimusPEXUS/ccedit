@@ -27,16 +27,12 @@ ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared project_ctl) :
             own_ptr.reset();
         }
     ),
-    main_box(Gtk::Orientation::VERTICAL, 0)
+    main_box(Gtk::Orientation::VERTICAL, 0),
+    wmg(project_ctl)
 {
 
     this->project_ctl = project_ctl;
     this->controller  = project_ctl->getController();
-
-    show_file_explorer_btn.set_label("File Explorer");
-    show_file_explorer_btn.set_has_frame(false);
-    quit_project_btn.set_label("Quit Project");
-    quit_project_btn.set_has_frame(false);
 
     win.set_child(main_box);
 
@@ -47,14 +43,22 @@ ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared project_ctl) :
 
     main_box.append(b_box);
 
-    b_box.append(show_file_explorer_btn);
-    b_box.append(quit_project_btn);
+    b_box.append(show_windows_btn);
+    b_box.add_css_class("toolbar");
 
     main_box.append(ws_ed_paned);
 
     ws_ed_paned.set_start_child(ws_main_box);
     ws_ed_paned.set_end_child(eds_main_box);
     // ws_ed_paned.set_wide_handle(true);
+
+    show_windows_btn.set_menu_model(
+        wmg.createWindowsMenu("project_ctl_window")
+    );
+    show_windows_btn.add_css_class("circular");
+    show_windows_btn.set_has_frame(true);
+    show_windows_btn.set_icon_name("applications-utilities");
+    show_windows_btn.set_tooltip_text("ccedit Windows");
 
     // ------- work subjects -------
 
@@ -94,14 +98,6 @@ ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared project_ctl) :
 
     // -------------------------
 
-    show_file_explorer_btn.signal_clicked().connect(
-        sigc::mem_fun(*this, &ProjectCtlWin::on_show_file_explorer_btn)
-    );
-
-    quit_project_btn.signal_clicked().connect(
-        sigc::mem_fun(*this, &ProjectCtlWin::on_quit_project_btn)
-    );
-
     project_ctl->signal_updated_name().connect(
         sigc::mem_fun(*this, &ProjectCtlWin::updateTitle)
     );
@@ -114,6 +110,10 @@ ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared project_ctl) :
         sigc::mem_fun(*this, &ProjectCtlWin::on_signal_close_request),
         true
     );
+
+    auto action_group = Gio::SimpleActionGroup::create();
+    wmg.addActionsToActionGroup(action_group);
+    win.insert_action_group("project_ctl_window", action_group);
 
     controller->registerWindow(&win);
 
@@ -160,11 +160,17 @@ void ProjectCtlWin::ws_add_columns()
         )
     );
 
-    auto column = Gtk::ColumnViewColumn::create("Subject", factory);
+    auto column = Gtk::ColumnViewColumn::create("Work Subject", factory);
     // column->set_fixed_width(200);
     // column->set_resizable(true);
     column->set_expand(true);
     ws_view.append_column(column);
+
+    // column = Gtk::ColumnViewColumn::create("Not Saved", factory);
+    // column->set_fixed_width(200);
+    // column->set_resizable(true);
+    // column->set_expand(true);
+    // ws_view.append_column(column);
 }
 
 void ProjectCtlWin::ws_table_cell_setup(
@@ -229,16 +235,6 @@ void ProjectCtlWin::eds_table_subject_cell_bind(
     if (!label)
         return;
     label->set_text("todo");
-}
-
-void ProjectCtlWin::on_show_file_explorer_btn()
-{
-    project_ctl->createNewFileExplorer();
-}
-
-void ProjectCtlWin::on_quit_project_btn()
-{
-    project_ctl->destroy();
 }
 
 void ProjectCtlWin::updateTitle()

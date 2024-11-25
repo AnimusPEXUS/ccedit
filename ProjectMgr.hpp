@@ -47,23 +47,27 @@ class ProjectMgr
 
     Gtk::Box main_box;
     Gtk::Box button_box;
-    Gtk::Box button_box_sec;
+    Gtk::Box button_box_separator;
 
     // todo: better names for buttons
 
-    Gtk::Button    btn_add_proj;
-    Gtk::Button    btn_rm_proj;
-    Gtk::Button    btn_edit_proj;
-    Gtk::Separator sep0;
-    Gtk::Button    btn_open_proj;
-    Gtk::Separator sep1;
-    Gtk::Button    btn_open_global;
+    Gtk::Box    bb1;
+    Gtk::Button btn_add_proj;
+    Gtk::Button btn_rm_proj;
+    Gtk::Button btn_edit_proj;
 
+    Gtk::Box    bb2;
+    Gtk::Button btn_open_proj;
+
+    Gtk::Box    bb3;
+    Gtk::Button btn_open_global;
+
+    Gtk::Box    bb4;
     Gtk::Button btn_modules_info_print;
     Gtk::Button btn_save_cfg;
 
-    Gtk::Separator sep2;
-    Gtk::Button    btn_quit;
+    Gtk::Box    bb5;
+    Gtk::Button btn_quit;
 
     void add_columns();
 

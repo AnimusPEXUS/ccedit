@@ -359,6 +359,11 @@ void CommonEditorWindow::make_actions()
     );
 
     action_group->add_action(
+        "search_show_window",
+        sigc::mem_fun(*this, &CommonEditorWindow::action_search_show_window)
+    );
+
+    action_group->add_action(
         "windows_prev_window",
         sigc::mem_fun(*this, &CommonEditorWindow::action_windows_prev_window)
     );

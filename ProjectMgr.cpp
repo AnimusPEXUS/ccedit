@@ -97,55 +97,60 @@ ProjectMgr::ProjectMgr(Controller_shared controller) :
     project_list_sw.set_child(project_list_view);
     //     project_list_sw.set_has_frame(true);
 
-    //  button_box.set_spacing(5);
+    button_box.set_spacing(5);
     button_box.set_orientation(Gtk::Orientation::HORIZONTAL);
-    button_box.set_halign(Gtk::Align::FILL);
-    button_box.set_hexpand(true);
+    // button_box.set_halign(Gtk::Align::FILL);
+    // button_box.set_hexpand(true);
+    button_box.add_css_class("toolbar");
 
-    button_box_sec.set_hexpand(true);
+    button_box_separator.set_hexpand(true);
     //  button_box_sec.set_spacing(5);
-    button_box_sec.set_orientation(Gtk::Orientation::HORIZONTAL);
-    button_box_sec.set_halign(Gtk::Align::END);
+    button_box_separator.set_orientation(Gtk::Orientation::HORIZONTAL);
 
     // separ.set_orientation(Gtk::Orientation::VERTICAL);
 
-    button_box.append(btn_add_proj);
-    button_box.append(btn_rm_proj);
-    button_box.append(btn_edit_proj);
+    bb1.add_css_class("linked");
+    bb2.add_css_class("linked");
+    bb3.add_css_class("linked");
+    bb4.add_css_class("linked");
+    bb5.add_css_class("linked");
+    bb1.set_orientation(Gtk::Orientation::HORIZONTAL);
+    bb2.set_orientation(Gtk::Orientation::HORIZONTAL);
+    bb3.set_orientation(Gtk::Orientation::HORIZONTAL);
+    bb4.set_orientation(Gtk::Orientation::HORIZONTAL);
+    bb5.set_orientation(Gtk::Orientation::HORIZONTAL);
 
-    button_box.append(sep0);
-    button_box.append(btn_open_proj);
+    bb1.append(btn_add_proj);
+    bb1.append(btn_rm_proj);
+    bb1.append(btn_edit_proj);
 
-    button_box.append(sep1);
-    button_box.append(btn_open_global);
+    bb2.append(btn_open_proj);
 
-    button_box.append(button_box_sec);
+    bb3.append(btn_open_global);
 
-    button_box_sec.append(btn_modules_info_print);
-    button_box_sec.append(btn_save_cfg);
+    bb4.append(btn_modules_info_print);
+    bb4.append(btn_save_cfg);
 
-    button_box_sec.append(sep2);
-    button_box_sec.append(btn_quit);
+    bb5.append(btn_quit);
+
+    button_box.append(bb1);
+    button_box.append(bb2);
+    button_box.append(bb3);
+    button_box.append(button_box_separator);
+    button_box.append(bb4);
+    button_box.append(bb5);
 
     btn_add_proj.set_label("add");
-    btn_add_proj.set_has_frame(false);
     btn_rm_proj.set_label("rm");
-    btn_rm_proj.set_has_frame(false);
     btn_edit_proj.set_label("edit");
-    btn_edit_proj.set_has_frame(false);
     btn_open_proj.set_label("open proj ctrl");
-    btn_open_proj.set_has_frame(false);
 
     btn_open_global.set_label("open global ctrl");
-    btn_open_global.set_has_frame(false);
 
     btn_modules_info_print.set_label("print mods");
-    btn_modules_info_print.set_has_frame(false);
     btn_save_cfg.set_label("rewrite config");
-    btn_save_cfg.set_has_frame(false);
 
     btn_quit.set_label("quit");
-    btn_quit.set_has_frame(false);
 
     // save_cfg.set_hexpand(true);
     // save_cfg.set_halign(Gtk::Align::END);
@@ -252,7 +257,7 @@ void ProjectMgr::table_name_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_it
     if (!label)
         return;
     label->set_text(col->proj_name());
-    col->signal_proj_name_changed()->connect(
+    col->signal_proj_name_changed().connect(
         [label, col]() -> void
         {
             label->set_text(col->proj_name());
@@ -265,7 +270,7 @@ void ProjectMgr::table_name_cell_unbind(const Glib::RefPtr<Gtk::ListItem> &list_
     auto col = std::dynamic_pointer_cast<ProjectTableRow>(list_item->get_item());
     if (!col)
         return;
-    col->signal_proj_name_changed()->clear();
+    col->signal_proj_name_changed().clear();
 }
 
 void ProjectMgr::table_path_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_item)
@@ -277,7 +282,7 @@ void ProjectMgr::table_path_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_it
     if (!label)
         return;
     label->set_text(col->proj_path().string());
-    col->signal_proj_path_changed()->connect(
+    col->signal_proj_path_changed().connect(
         [label, col]() -> void
         {
             label->set_text(col->proj_path().string());
@@ -290,7 +295,7 @@ void ProjectMgr::table_path_cell_unbind(const Glib::RefPtr<Gtk::ListItem> &list_
     auto col = std::dynamic_pointer_cast<ProjectTableRow>(list_item->get_item());
     if (!col)
         return;
-    col->signal_proj_path_changed()->clear();
+    col->signal_proj_path_changed().clear();
 }
 
 void ProjectMgr::on_btn_add_click()
