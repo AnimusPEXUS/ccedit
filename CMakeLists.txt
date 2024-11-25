@@ -41,10 +41,10 @@ add_executable(
   ProjectCtl.cpp
   ProjectCtlTables.cpp
   ProjectCtlWin.cpp
+  ProjectMenu.cpp
   ProjectMgr.cpp
   ProjectMgrEditor.cpp
   ProjectMgrTables.cpp
-  ShowWindowMenu.cpp
   utils.cpp
   WorkSubject.cpp
 

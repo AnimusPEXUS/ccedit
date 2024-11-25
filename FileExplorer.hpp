@@ -5,7 +5,7 @@
 
 #include <gtkmm.h>
 
-#include "ShowWindowMenu.hpp"
+#include "ProjectMenu.hpp"
 
 #include "FileExplorerTables.hpp"
 
@@ -61,7 +61,7 @@ class FileExplorer
 
     ProjectCtl_shared project_ctl;
 
-    WindowsMenuGenerator wmg;
+    ProjectMenuGenerator wmg;
 
     // widgets
     Gtk::ApplicationWindow win;

@@ -415,7 +415,11 @@ void ProjectCtl::destroyAllWorkSubjects()
 {
     std::deque<WorkSubject_shared> wss;
 
-    for (std::size_t i = 0; i < work_subj_list_store->get_n_items(); i++)
+    for (
+        std::size_t i = 0;
+        i < work_subj_list_store->get_n_items();
+        i++
+    )
     {
         auto x    = work_subj_list_store->get_item(i);
         auto x_ws = x->work_subj;

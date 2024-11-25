@@ -317,13 +317,13 @@ void CommonEditorWindow::make_menubar()
     sect->append("Close Current", "editor_window.windows_close_window");
     mm_windows->append_section(sect);
 
-    sect = wmg.createWindowsMenu("editor_window");
-    mm_windows->append_section(sect);
+    auto mm_project_mnu = wmg.createProjectMenu("editor_window");
 
     menu_model = Gio::Menu::create();
     menu_model->append_submenu("Work Subject", mm_ws);
     menu_model->append_submenu("Search", mm_search);
-    menu_model->append_submenu("Windows", mm_windows);
+    menu_model->append_submenu("Editor Windows", mm_windows);
+    menu_model->append_submenu("Project Menu", mm_project_mnu);
 
     menu_bar.set_menu_model(menu_model);
 };

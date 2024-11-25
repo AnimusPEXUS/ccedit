@@ -9,7 +9,7 @@
 #include <gtkmm.h>
 #include <sigc++/sigc++.h>
 
-#include "ShowWindowMenu.hpp"
+#include "ProjectMenu.hpp"
 
 #include "forward_declarations.hpp"
 
@@ -39,7 +39,7 @@ class ProjectCtlWin
     ProjectCtl_shared project_ctl;
     Controller_shared controller;
 
-    WindowsMenuGenerator wmg;
+    ProjectMenuGenerator wmg;
 
     Gtk::Window win;
 

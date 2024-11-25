@@ -53,12 +53,12 @@ ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared project_ctl) :
     // ws_ed_paned.set_wide_handle(true);
 
     show_windows_btn.set_menu_model(
-        wmg.createWindowsMenu("project_ctl_window")
+        wmg.createProjectMenu("project_ctl_window")
     );
     show_windows_btn.add_css_class("circular");
     show_windows_btn.set_has_frame(true);
     show_windows_btn.set_icon_name("applications-utilities");
-    show_windows_btn.set_tooltip_text("ccedit Windows");
+    show_windows_btn.set_tooltip_text("Project Menu");
 
     // ------- work subjects -------
 

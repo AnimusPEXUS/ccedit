@@ -8,13 +8,13 @@
 namespace wayround_i2p::ccedit
 {
 
-class WindowsMenuGenerator
+class ProjectMenuGenerator
 {
   public:
-    WindowsMenuGenerator(ProjectCtl_shared project_ctl);
-    ~WindowsMenuGenerator();
+    ProjectMenuGenerator(ProjectCtl_shared project_ctl);
+    ~ProjectMenuGenerator();
 
-    Glib::RefPtr<Gio::Menu> createWindowsMenu(
+    Glib::RefPtr<Gio::Menu> createProjectMenu(
         std::string group_name
     );
 
@@ -28,6 +28,7 @@ class WindowsMenuGenerator
     void action_show_project_mgr();
     void action_show_project_ctl();
     void action_create_new_explorer();
+    void action_close_project_work_subjects();
     void action_close_project();
     void action_close_ccedit();
 };

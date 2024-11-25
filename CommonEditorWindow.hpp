@@ -5,7 +5,7 @@
 
 #include <gtkmm.h>
 
-#include "ShowWindowMenu.hpp"
+#include "ProjectMenu.hpp"
 
 #include "forward_declarations.hpp"
 
@@ -74,7 +74,7 @@ class CommonEditorWindow : public CodeEditorAbstract
   private:
     std::function<void()> callback_on_destroy;
 
-    WindowsMenuGenerator wmg;
+    ProjectMenuGenerator wmg;
 
     ProjectCtl_shared  project_ctl;
     WorkSubject_shared subject;

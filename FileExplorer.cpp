@@ -69,20 +69,24 @@ FileExplorer::FileExplorer(ProjectCtl_shared project_ctl) :
 
     make_file_or_directory_btn.set_image_from_icon_name("document-new");
     make_file_or_directory_btn.set_tooltip_text("mk dir/file..");
+
     rename_file_or_directory_btn.set_label("rename");
-    rename_file_or_directory_btn.set_tooltip_text("Rename..");
+    rename_file_or_directory_btn.set_tooltip_text("Rename.. (todo)");
+    rename_file_or_directory_btn.set_sensitive(false);
+
     remove_file_or_directory_btn.set_image_from_icon_name("edit-delete");
-    remove_file_or_directory_btn.set_tooltip_text("Delete File or Dir..");
+    remove_file_or_directory_btn.set_tooltip_text("Delete File or Dir.. (todo)");
     remove_file_or_directory_btn.add_css_class("destructive-action");
+    remove_file_or_directory_btn.set_sensitive(false);
 
     show_windows_btn.set_menu_model(
-        wmg.createWindowsMenu("file_explorer_window")
+        wmg.createProjectMenu("file_explorer_window")
     );
     // show_windows_btn.add_css_class("raised");
     show_windows_btn.add_css_class("circular");
     show_windows_btn.set_has_frame(true);
     show_windows_btn.set_icon_name("applications-utilities");
-    show_windows_btn.set_tooltip_text("ccedit Windows");
+    show_windows_btn.set_tooltip_text("Project Menu");
 
     path_entry.set_hexpand(true);
 
