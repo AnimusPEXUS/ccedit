@@ -12,8 +12,6 @@
 #include "modularity.hpp"
 #include "utils.hpp"
 
-#include "OutlineTables.hpp"
-
 #include "CodeEditorAbstract.hpp"
 #include "ProjectCtl.hpp"
 #include "WorkSubject.hpp"
@@ -63,13 +61,15 @@ class CommonEditorWindow : public CodeEditorAbstract
 
     void updateTitle(); // todo: make it private?
 
-    void setOutlineContents(
-        std::vector<std::tuple<std::size_t, std::string>> val
-    );
-    void setOutlineCurrentLine(std::size_t val);
-
-    virtual std::vector<std::tuple<std::size_t, std::string>>
-        genOutlineContents() = 0;
+                        /*
+                        void setOutlineContents(
+                            std::vector<std::tuple<std::size_t, std::string>> val
+                        );
+                        void setOutlineCurrentLine(std::size_t val);
+                    
+                        virtual std::vector<std::tuple<std::size_t, std::string>>
+                            genOutlineContents() = 0;
+                        */
 
   private:
     std::function<void()> callback_on_destroy;
@@ -84,21 +84,23 @@ class CommonEditorWindow : public CodeEditorAbstract
 
     Gtk::ApplicationWindow win;
 
-    Gtk::Box                                      main_box;
-    Gtk::Paned                                    paned;
-    Gtk::Box                                      text_view_box_upper;
-    Gtk::Box                                      text_view_box;
-    Gtk::DrawingArea                              linum_area;
-    Gtk::ScrolledWindow                           text_view_sw;
-    Gtk::TextView                                 text_view;
-    Gtk::Box                                      outline_box;
-    Gtk::ScrolledWindow                           outline_view_sw;
-    Gtk::ColumnView                               outline_view;
-    Gtk::Button                                   outline_view_refresh_btn;
-    Glib::RefPtr<Gtk::SingleSelection>            outline_view_selection;
-    Glib::RefPtr<Gio::ListStore<OutlineTableRow>> outline_list_store;
+    Gtk::Box            main_box;
+   // Gtk::Paned          paned;
+    Gtk::Box            text_view_box_upper;
+    Gtk::Box            text_view_box;
+    Gtk::DrawingArea    linum_area;
+    Gtk::ScrolledWindow text_view_sw;
+    Gtk::TextView       text_view;
+    /*
+        Gtk::Box                                      outline_box;
+        Gtk::ScrolledWindow                           outline_view_sw;
+        Gtk::ColumnView                               outline_view;
+        Gtk::Button                                   outline_view_refresh_btn;
+        Glib::RefPtr<Gtk::SingleSelection>            outline_view_selection;
+        Glib::RefPtr<Gio::ListStore<OutlineTableRow>> outline_list_store;
+    */
 
-    void setup_outline_columns();
+    //  void setup_outline_columns();
 
     void make_menubar();
     void make_actions();
@@ -135,8 +137,10 @@ class CommonEditorWindow : public CodeEditorAbstract
 
     void force_redraw_linum();
 
-    void on_outline_refresh_btn();
-    void on_outline_activate(guint val);
+    /*
+        void on_outline_refresh_btn();
+        void on_outline_activate(guint val);
+    */
 
     void on_destroy_sig();
     bool on_signal_close_request();

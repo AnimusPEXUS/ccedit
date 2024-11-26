@@ -38,8 +38,8 @@ class CodeEditorCCPP : public CommonEditorWindow
     WorkSubject_shared getWorkSubject() override;
     bool               workSubjectIs(WorkSubject_shared) override;
 
-    std::vector<std::tuple<std::size_t, std::string>>
-        genOutlineContents() override;
+    // std::vector<std::tuple<std::size_t, std::string>>
+     //   genOutlineContents() override;
 
   private:
     CodeEditorCCPP_shared own_ptr;

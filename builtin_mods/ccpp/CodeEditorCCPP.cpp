@@ -314,6 +314,7 @@ void CodeEditorCCPP::clang_format_buffer()
     return;
 }
 
+/*
 std::vector<std::tuple<std::size_t, std::string>>
     CodeEditorCCPP::genOutlineContents()
 {
@@ -373,5 +374,6 @@ std::vector<std::tuple<std::size_t, std::string>>
 
     return ret;
 }
+*/
 
 } // namespace wayround_i2p::ccedit

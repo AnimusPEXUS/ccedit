@@ -83,6 +83,8 @@ ProjectMgr::ProjectMgr(Controller_shared controller) :
     project_list_view.set_halign(Gtk::Align::FILL);
     project_list_view.set_valign(Gtk::Align::FILL);
 
+    // project_list_view.set_enable_rubberband(true);
+
     project_list_view.set_reorderable(false);
 
     project_list_view.set_model(project_list_view_selection);

@@ -32,29 +32,32 @@ CommonEditorWindow::CommonEditorWindow(
     callback_on_destroy(callback_on_destroy),
     main_box(Gtk::Orientation::VERTICAL, 0),
     text_view_box_upper(Gtk::Orientation::VERTICAL, 0),
-    text_view_box(Gtk::Orientation::HORIZONTAL, 0),
-    outline_box(Gtk::Orientation::VERTICAL, 0)
+    text_view_box(Gtk::Orientation::HORIZONTAL, 0)
+// ,    outline_box(Gtk::Orientation::VERTICAL, 0)
 {
     this->project_ctl = project_ctl;
     this->subject     = subject;
 
-    outline_list_store = Gio::ListStore<OutlineTableRow>::create();
+    /*
+        outline_list_store = Gio::ListStore<OutlineTableRow>::create();
 
-    outline_view_selection = Gtk::SingleSelection::create(
-        outline_list_store
-    );
+        outline_view_selection = Gtk::SingleSelection::create(
+            outline_list_store
+        );
 
-    outline_view.set_model(outline_view_selection);
+        outline_view.set_model(outline_view_selection);
+    */
 
     // maximize();
 
     // win.set_hide_on_close(false);
     win.set_child(main_box);
 
-    outline_view_refresh_btn.set_label("Refresh");
+    //  outline_view_refresh_btn.set_label("Refresh");
 
     main_box.append(menu_bar);
-    main_box.append(paned);
+    // main_box.append(paned);
+    main_box.append(text_view_box_upper);
 
     text_view_box.set_vexpand(true);
 
@@ -64,20 +67,22 @@ CommonEditorWindow::CommonEditorWindow(
     text_view_box.append(linum_area);
     text_view_box.append(text_view_sw);
 
-    paned.set_start_child(text_view_box_upper);
-    paned.set_end_child(outline_box);
+    //  paned.set_start_child(text_view_box_upper);
+    //  paned.set_end_child(outline_box);
 
-    outline_box.append(outline_view_refresh_btn);
-    outline_box.append(outline_view_sw);
+    //   outline_box.append(outline_view_refresh_btn);
+    //   outline_box.append(outline_view_sw);
 
     text_view_sw.set_policy(
         Gtk::PolicyType::ALWAYS,
         Gtk::PolicyType::ALWAYS
     );
+/*
     outline_view_sw.set_policy(
         Gtk::PolicyType::ALWAYS,
         Gtk::PolicyType::ALWAYS
     );
+*/
 
     linum_area.set_content_width(50);
 
@@ -91,20 +96,24 @@ CommonEditorWindow::CommonEditorWindow(
     text_view_sw.set_valign(Gtk::Align::FILL);
     text_view_sw.set_halign(Gtk::Align::FILL);
 
-    outline_view_sw.set_vexpand(true);
-    outline_view_sw.set_valign(Gtk::Align::FILL);
+    /*
+        outline_view_sw.set_vexpand(true);
+        outline_view_sw.set_valign(Gtk::Align::FILL);
+    */
 
     text_view_sw.set_overlay_scrolling(false);
-    outline_view_sw.set_overlay_scrolling(false);
+    //   outline_view_sw.set_overlay_scrolling(false);
 
     text_view_sw.set_kinetic_scrolling(false);
-    outline_view_sw.set_kinetic_scrolling(false);
+    //  outline_view_sw.set_kinetic_scrolling(false);
 
+/*
     paned.set_vexpand(true);
     paned.set_resize_end_child(false);
+*/
 
     text_view_sw.set_child(text_view);
-    outline_view_sw.set_child(outline_view);
+    //  outline_view_sw.set_child(outline_view);
 
     text_view.set_monospace(true);
     text_view.set_buffer(subject->getTextBuffer());
@@ -113,7 +122,7 @@ CommonEditorWindow::CommonEditorWindow(
     make_actions();
     make_hotkeys();
 
-    setup_outline_columns();
+  //  setup_outline_columns();
 
     linum_area.set_draw_func(
         sigc::mem_fun(*this, &CommonEditorWindow::redraw_linum)
@@ -135,6 +144,7 @@ CommonEditorWindow::CommonEditorWindow(
         sigc::mem_fun(*this, &CommonEditorWindow::updateTitle)
     );
 
+/*
     outline_view_refresh_btn.signal_clicked().connect(
         sigc::mem_fun(*this, &CommonEditorWindow::on_outline_refresh_btn)
     );
@@ -142,6 +152,7 @@ CommonEditorWindow::CommonEditorWindow(
     outline_view.signal_activate().connect(
         sigc::mem_fun(*this, &CommonEditorWindow::on_outline_activate)
     );
+*/
 
     win.signal_destroy().connect(
         sigc::mem_fun(*this, &CommonEditorWindow::on_destroy_sig)
@@ -194,6 +205,7 @@ bool CommonEditorWindow::on_signal_close_request()
     return false;
 }
 
+/*
 void CommonEditorWindow::setup_outline_columns()
 {
     auto factory = Gtk::SignalListItemFactory::create();
@@ -277,6 +289,7 @@ void CommonEditorWindow::setup_outline_columns()
     column->set_expand(true);
     outline_view.append_column(column);
 }
+*/
 
 void CommonEditorWindow::make_menubar()
 {
@@ -508,6 +521,7 @@ void CommonEditorWindow::restoreState()
     );
 }
 
+/*
 void CommonEditorWindow::setOutlineContents(
     std::vector<std::tuple<std::size_t, std::string>> val
 )
@@ -551,12 +565,14 @@ void CommonEditorWindow::setOutlineContents(
         )
     );
 }
-
+*/
+/*
 std::vector<std::tuple<std::size_t, std::string>>
     CommonEditorWindow::genOutlineContents()
 {
     return {};
 }
+*/
 
 void CommonEditorWindow::redraw_linum(
     const Cairo::RefPtr<Cairo::Context> &cont,
@@ -582,7 +598,7 @@ void CommonEditorWindow::redraw_linum(
         new_line = new_iter.get_line();
         if (new_line != current_line)
         {
-            cont->move_to(0, i);
+            cont->move_to(5, i);
             cont->show_text(std::format("{}", new_line));
             current_line = new_line;
         }
@@ -740,12 +756,15 @@ void CommonEditorWindow::action_windows_close_window()
     destroy();
 }
 
+/*
 void CommonEditorWindow::on_outline_refresh_btn()
 {
     auto oc = genOutlineContents();
     setOutlineContents(oc);
 }
+*/
 
+/*
 void CommonEditorWindow::on_outline_activate(guint val)
 {
     auto x = outline_list_store->get_item(val);
@@ -757,5 +776,6 @@ void CommonEditorWindow::on_outline_activate(guint val)
     text_view.scroll_to(iter_at_line, 0, 0.5, 0.5);
     tb->place_cursor(iter_at_line);
 }
+*/
 
 } // namespace wayround_i2p::ccedit
