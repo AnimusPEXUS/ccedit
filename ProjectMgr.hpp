@@ -17,6 +17,10 @@ class ProjectMgr
   public:
     static ProjectMgr_shared create(Controller_shared controller);
 
+  protected:
+    ProjectMgr(Controller_shared controller);
+
+  public:
     Controller_shared getController();
 
     void show();
@@ -24,9 +28,6 @@ class ProjectMgr
 
     Gtk::Window *getWindowPtr();
     Gtk::Window &getWindowRef();
-
-  protected:
-    ProjectMgr(Controller_shared controller);
 
   private:
     ProjectMgr_shared own_ptr;
@@ -93,6 +94,7 @@ class ProjectMgr
     void on_btn_quit_click();
 
     void on_destroy_sig();
+    bool on_signal_close_request();
 };
 
 } // namespace wayround_i2p::ccedit

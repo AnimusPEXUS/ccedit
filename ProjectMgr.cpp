@@ -13,33 +13,8 @@ ProjectMgr_shared ProjectMgr::create(Controller_shared controller)
 {
     ProjectMgr_shared ret = ProjectMgr_shared(new ProjectMgr(controller));
     ret->own_ptr          = ret;
+    controller->registerWindow(ret->getWindowPtr());
     return ret;
-}
-
-void ProjectMgr::show()
-{
-    win.present();
-}
-
-void ProjectMgr::destroy()
-{
-    std::cout << "ProjectMgr::destroy()" << std::endl;
-    destroyer.run();
-}
-
-Gtk::Window *ProjectMgr::getWindowPtr()
-{
-    return &win;
-}
-
-Gtk::Window &ProjectMgr::getWindowRef()
-{
-    return win;
-}
-
-Controller_shared ProjectMgr::getController()
-{
-    return controller;
 }
 
 ProjectMgr::ProjectMgr(Controller_shared controller) :
@@ -49,10 +24,9 @@ ProjectMgr::ProjectMgr(Controller_shared controller) :
             std::cout
                 << "ProjectMgr::united_destroy_routines.run()"
                 << std::endl;
-
             this->win.destroy();
-
             this->controller->destroyProjectMgr();
+            own_ptr.reset();
         }
     )
 {
@@ -193,7 +167,51 @@ ProjectMgr::ProjectMgr(Controller_shared controller) :
         sigc::mem_fun(*this, &ProjectMgr::on_destroy_sig)
     );
 
+    win.signal_close_request().connect(
+        sigc::mem_fun(*this, &ProjectMgr::on_signal_close_request),
+        true
+    );
+
     // project_list.set_model(project_list_store);
+}
+
+void ProjectMgr::show()
+{
+    win.present();
+}
+
+void ProjectMgr::destroy()
+{
+    std::cout << "ProjectMgr::destroy()" << std::endl;
+    destroyer.run();
+}
+
+void ProjectMgr::on_destroy_sig()
+{
+    std::cout << "ProjectMgr::on_destroy_sig()" << std::endl;
+    destroyer.run();
+}
+
+bool ProjectMgr::on_signal_close_request()
+{
+    std::cout << "ProjectMgr::on_signal_close_request()" << std::endl;
+    destroyer.run();
+    return false;
+}
+
+Controller_shared ProjectMgr::getController()
+{
+    return controller;
+}
+
+Gtk::Window *ProjectMgr::getWindowPtr()
+{
+    return &win;
+}
+
+Gtk::Window &ProjectMgr::getWindowRef()
+{
+    return win;
 }
 
 void ProjectMgr::add_columns()
@@ -303,7 +321,7 @@ void ProjectMgr::table_path_cell_unbind(const Glib::RefPtr<Gtk::ListItem> &list_
 void ProjectMgr::on_btn_add_click()
 {
     auto w = ProjectMgrEditor::create(own_ptr, "", "");
-    w->destroy();
+    w->show();
 }
 
 void ProjectMgr::on_btn_rm_click()
@@ -382,12 +400,6 @@ void ProjectMgr::on_btn_modules_info_print()
 void ProjectMgr::on_btn_quit_click()
 {
     controller->quit();
-}
-
-void ProjectMgr::on_destroy_sig()
-{
-    std::cout << "ProjectMgr sig destroy" << std::endl;
-    destroyer.run();
 }
 
 } // namespace wayround_i2p::ccedit

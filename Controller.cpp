@@ -198,7 +198,9 @@ void Controller::destroyProjectMgr()
 {
     if (project_mgr)
     {
-        project_mgr->destroy();
+        auto x = project_mgr;
+        project_mgr.reset();
+        x->destroy();
     }
 }
 
