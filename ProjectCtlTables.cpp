@@ -3,6 +3,7 @@
 namespace wayround_i2p::ccedit
 {
 
+/*
 Glib::RefPtr<WorkSubjectTableRow> WorkSubjectTableRow::create()
 {
     return Glib::make_refptr_for_instance<WorkSubjectTableRow>(
@@ -18,6 +19,7 @@ WorkSubjectTableRow::WorkSubjectTableRow() :
 WorkSubjectTableRow::~WorkSubjectTableRow()
 {
 }
+*/
 
 Glib::RefPtr<CodeEditorTableRow> CodeEditorTableRow::create()
 {

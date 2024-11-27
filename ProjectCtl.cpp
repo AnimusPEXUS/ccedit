@@ -35,7 +35,7 @@ ProjectCtl::ProjectCtl(Controller_shared controller) :
 {
     this->controller = controller;
 
-    work_subj_list_store = Gio::ListStore<WorkSubjectTableRow>::create();
+    work_subj_list_store = Gio::ListStore<TableItemTpl<WorkSubject_shared>>::create();
     editors_list_store   = Gio::ListStore<CodeEditorTableRow>::create();
 
     updatedName();
@@ -108,7 +108,7 @@ WorkSubject_shared ProjectCtl::getWorkSubject(
     )
     {
         auto x    = work_subj_list_store->get_item(i);
-        auto sbj  = x->work_subj;
+        auto sbj  = x->value;
         auto x_fp = sbj->getPath();
         if (x_fp == fpth)
         {
@@ -248,8 +248,8 @@ CodeEditorAbstract_shared
 
 void ProjectCtl::registerWorkSubject(WorkSubject_shared val)
 {
-    auto new_item       = WorkSubjectTableRow::create();
-    new_item->work_subj = val;
+    auto new_item   = TableItemTpl<WorkSubject_shared>::create();
+    new_item->value = val;
     work_subj_list_store->append(new_item);
 }
 
@@ -259,7 +259,7 @@ void ProjectCtl::unregisterWorkSubject(WorkSubject_shared val)
     while (i < work_subj_list_store->get_n_items())
     {
         auto x    = work_subj_list_store->get_item(i);
-        auto x_we = x->work_subj;
+        auto x_we = x->value;
         if (x_we == val)
         {
             work_subj_list_store->remove(i);
@@ -422,7 +422,7 @@ void ProjectCtl::destroyAllWorkSubjects()
     )
     {
         auto x    = work_subj_list_store->get_item(i);
-        auto x_ws = x->work_subj;
+        auto x_ws = x->value;
         wss.push_back(x_ws);
     }
 
@@ -437,7 +437,8 @@ void ProjectCtl::destroyEditor(CodeEditorAbstract_shared val)
     val->destroy();
 }
 
-Glib::RefPtr<Gio::ListStore<WorkSubjectTableRow>> ProjectCtl::getWorkSubjectListStore()
+Glib::RefPtr<Gio::ListStore<TableItemTpl<WorkSubject_shared>>>
+    ProjectCtl::getWorkSubjectListStore()
 {
     return work_subj_list_store;
 }

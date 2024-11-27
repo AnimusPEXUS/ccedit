@@ -27,12 +27,18 @@ namespace wayround_i2p::ccedit
 {
 
 template <class T>
+class TableItemTpl;
+
+template <class T>
+using TableItemTplP = Glib::RefPtr<TableItemTpl<T>>;
+
+template <class T>
 class TableItemTpl : public Glib::Object
 {
   public:
     T value;
 
-    static Glib::RefPtr<TableItemTpl<T>> create()
+    static TableItemTplP<T> create()
     {
         return Glib::make_refptr_for_instance<TableItemTpl<T>>(
             new TableItemTpl<T>()

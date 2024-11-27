@@ -98,7 +98,7 @@ class ProjectCtl
     void
         destroyEditor(CodeEditorAbstract_shared);
 
-    Glib::RefPtr<Gio::ListStore<WorkSubjectTableRow>>
+    Glib::RefPtr<Gio::ListStore<TableItemTpl<WorkSubject_shared>>>
         getWorkSubjectListStore();
     Glib::RefPtr<Gio::ListStore<CodeEditorTableRow>>
         getCodeEditorListStore();
@@ -146,7 +146,7 @@ class ProjectCtl
     ProjectCtlWin_shared proj_ctl_win;
 
     std::deque<FileExplorer_shared>                   explorers;
-    Glib::RefPtr<Gio::ListStore<WorkSubjectTableRow>> work_subj_list_store;
+    Glib::RefPtr<Gio::ListStore<TableItemTpl<WorkSubject_shared>>> work_subj_list_store;
     Glib::RefPtr<Gio::ListStore<CodeEditorTableRow>>  editors_list_store;
 
     sigc::signal<void()> priv_signal_updated_name;

@@ -184,7 +184,7 @@ void ProjectCtlWin::ws_table_subject_cell_bind(
     const Glib::RefPtr<Gtk::ListItem> &list_item
 )
 {
-    auto col = std::dynamic_pointer_cast<WorkSubjectTableRow>(
+    auto col = std::dynamic_pointer_cast<TableItemTpl<WorkSubject_shared>>(
         list_item->get_item()
     );
     if (!col)

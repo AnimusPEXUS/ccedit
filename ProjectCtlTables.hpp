@@ -10,8 +10,8 @@
 namespace wayround_i2p::ccedit
 {
 
-class WorkSubjectTableRow;
-using WorkSubjectTableRowP = Glib::RefPtr<WorkSubjectTableRow>;
+// class WorkSubjectTableRow;
+// using WorkSubjectTableRowP = Glib::RefPtr<WorkSubjectTableRow>;
 
 class CodeEditorTableRow;
 using CodeEditorTableRowP = Glib::RefPtr<CodeEditorTableRow>;
@@ -20,6 +20,8 @@ using CodeEditorTableRowP = Glib::RefPtr<CodeEditorTableRow>;
 //       make a template to geterate those List Item object classes.
 //       or, maybe, even better: use single real class and
 //       use std::any for storing payload
+
+/*
 class WorkSubjectTableRow : public Glib::Object
 {
   public:
@@ -32,6 +34,11 @@ class WorkSubjectTableRow : public Glib::Object
   protected:
     WorkSubjectTableRow();
 };
+*/
+
+// using TableItemTplP<WorkSubject_shared>;
+
+// class TableItemTpl<WorkSubject_shared>;
 
 class CodeEditorTableRow : public Glib::Object
 {
@@ -50,8 +57,8 @@ class WorkSubjectTableRowWidget : public Gtk::Box
 {
   public:
     WorkSubjectTableRowWidget(
-        const Glib::RefPtr<Gtk::ListItem>             &list_item,
-        std::function<void(WorkSubjectTableRowP item)> go_action
+        const Glib::RefPtr<Gtk::ListItem>                          &list_item,
+        std::function<void(TableItemTplP<WorkSubject_shared> item)> go_action
     );
     ~WorkSubjectTableRowWidget();
 
@@ -73,8 +80,8 @@ class CodeEditorTableRowWidget : public Gtk::Box
 {
   public:
     CodeEditorTableRowWidget(
-        const Glib::RefPtr<Gtk::ListItem>             &list_item,
-        std::function<void(WorkSubjectTableRowP item)> go_action
+        const Glib::RefPtr<Gtk::ListItem>            &list_item,
+        std::function<void(CodeEditorTableRowP item)> go_action
     );
     ~CodeEditorTableRowWidget();
 
