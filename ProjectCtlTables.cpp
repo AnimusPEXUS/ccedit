@@ -15,6 +15,10 @@ WorkSubjectTableRow::WorkSubjectTableRow() :
 {
 }
 
+WorkSubjectTableRow::~WorkSubjectTableRow()
+{
+}
+
 Glib::RefPtr<CodeEditorTableRow> CodeEditorTableRow::create()
 {
     return Glib::make_refptr_for_instance<CodeEditorTableRow>(
@@ -24,6 +28,10 @@ Glib::RefPtr<CodeEditorTableRow> CodeEditorTableRow::create()
 
 CodeEditorTableRow::CodeEditorTableRow() :
     Glib::ObjectBase(typeid(CodeEditorTableRow))
+{
+}
+
+CodeEditorTableRow::~CodeEditorTableRow()
 {
 }
 

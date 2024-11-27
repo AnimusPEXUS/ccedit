@@ -5,6 +5,8 @@
 //       I don't currently use it, and
 //       probably never will
 
+/*
+
 class error : public std::exception
 {
   public:
@@ -18,5 +20,36 @@ class error : public std::exception
   private:
     std::string text;
 };
+
+*/
+
+namespace wayround_i2p::ccedit
+{
+
+template <class T>
+class TableItemTpl : public Glib::Object
+{
+  public:
+    T value;
+
+    static Glib::RefPtr<TableItemTpl<T>> create()
+    {
+        return Glib::make_refptr_for_instance<TableItemTpl<T>>(
+            new TableItemTpl<T>()
+        );
+    }
+
+    ~TableItemTpl()
+    {
+    }
+
+  protected:
+    TableItemTpl() :
+        Glib::ObjectBase(typeid(TableItemTpl<T>))
+    {
+    }
+};
+
+} // namespace wayround_i2p::ccedit
 
 #endif
