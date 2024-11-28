@@ -99,15 +99,18 @@ ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared project_ctl) :
     // -------------------------
 
     project_ctl->signal_updated_name().connect(
-        sigc::mem_fun(*this, &ProjectCtlWin::updateTitle)
+        [this]()
+        { updateTitle(); }
     );
 
     win.signal_destroy().connect(
-        sigc::mem_fun(*this, &ProjectCtlWin::on_destroy_sig)
+        [this]()
+        { on_destroy_sig(); }
     );
 
     win.signal_close_request().connect(
-        sigc::mem_fun(*this, &ProjectCtlWin::on_signal_close_request),
+        [this]() -> bool
+        { return on_signal_close_request(); },
         true
     );
 
@@ -149,94 +152,58 @@ void ProjectCtlWin::ws_add_columns()
 {
     auto factory = Gtk::SignalListItemFactory::create();
     factory->signal_setup().connect(
-        sigc::bind(
-            sigc::mem_fun(*this, &ProjectCtlWin::ws_table_cell_setup),
-            Gtk::Align::START
-        )
+        [](const Glib::RefPtr<Gtk::ListItem> &list_item)
+        {
+            list_item->set_child(*Gtk::make_managed<WorkSubjectTableRowWidget>());
+        }
     );
     factory->signal_bind().connect(
-        sigc::bind(
-            sigc::mem_fun(*this, &ProjectCtlWin::ws_table_subject_cell_bind)
-        )
+        [](const Glib::RefPtr<Gtk::ListItem> &list_item)
+        {
+            auto col = std::dynamic_pointer_cast<TableItemTpl<WorkSubject_shared>>(
+                list_item->get_item()
+            );
+            if (!col)
+                return;
+            auto x = dynamic_cast<WorkSubjectTableRowWidget *>(list_item->get_child());
+            if (!x)
+                return;
+            x->bind(list_item);
+        }
     );
 
     auto column = Gtk::ColumnViewColumn::create("Work Subject", factory);
-    // column->set_fixed_width(200);
-    // column->set_resizable(true);
     column->set_expand(true);
     ws_view.append_column(column);
-
-    // column = Gtk::ColumnViewColumn::create("Not Saved", factory);
-    // column->set_fixed_width(200);
-    // column->set_resizable(true);
-    // column->set_expand(true);
-    // ws_view.append_column(column);
-}
-
-void ProjectCtlWin::ws_table_cell_setup(
-    const Glib::RefPtr<Gtk::ListItem> &list_item, Gtk::Align halign
-)
-{
-    list_item->set_child(*Gtk::make_managed<Gtk::Label>("", halign));
-}
-
-void ProjectCtlWin::ws_table_subject_cell_bind(
-    const Glib::RefPtr<Gtk::ListItem> &list_item
-)
-{
-    auto col = std::dynamic_pointer_cast<TableItemTpl<WorkSubject_shared>>(
-        list_item->get_item()
-    );
-    if (!col)
-        return;
-    auto label = dynamic_cast<Gtk::Label *>(list_item->get_child());
-    if (!label)
-        return;
-    label->set_text("todo");
 }
 
 void ProjectCtlWin::eds_add_columns()
 {
     auto factory = Gtk::SignalListItemFactory::create();
     factory->signal_setup().connect(
-        sigc::bind(
-            sigc::mem_fun(*this, &ProjectCtlWin::eds_table_cell_setup),
-            Gtk::Align::START
-        )
+        [](const Glib::RefPtr<Gtk::ListItem> &list_item)
+        {
+            list_item->set_child(*Gtk::make_managed<CodeEditorTableRowWidget>());
+        }
     );
     factory->signal_bind().connect(
-        sigc::bind(
-            sigc::mem_fun(*this, &ProjectCtlWin::eds_table_subject_cell_bind)
-        )
+        [](const Glib::RefPtr<Gtk::ListItem> &list_item)
+        {
+            auto col = std::dynamic_pointer_cast<TableItemTpl<CodeEditorAbstract_shared>>(
+                list_item->get_item()
+            );
+            if (!col)
+                return;
+            auto x = dynamic_cast<CodeEditorTableRowWidget *>(list_item->get_child());
+            if (!x)
+                return;
+            x->bind(list_item);
+        }
     );
 
-    auto column = Gtk::ColumnViewColumn::create("FN", factory);
-    // column->set_fixed_width(200);
-    // column->set_resizable(true);
+    auto column = Gtk::ColumnViewColumn::create("Editor", factory);
     column->set_expand(true);
     eds_view.append_column(column);
-}
-
-void ProjectCtlWin::eds_table_cell_setup(
-    const Glib::RefPtr<Gtk::ListItem> &list_item, Gtk::Align halign
-)
-{
-    list_item->set_child(*Gtk::make_managed<Gtk::Label>("", halign));
-}
-
-void ProjectCtlWin::eds_table_subject_cell_bind(
-    const Glib::RefPtr<Gtk::ListItem> &list_item
-)
-{
-    auto col = std::dynamic_pointer_cast<TableItemTpl<CodeEditorAbstract_shared>>(
-        list_item->get_item()
-    );
-    if (!col)
-        return;
-    auto label = dynamic_cast<Gtk::Label *>(list_item->get_child());
-    if (!label)
-        return;
-    label->set_text("todo");
 }
 
 void ProjectCtlWin::updateTitle()

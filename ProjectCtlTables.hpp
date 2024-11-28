@@ -13,45 +13,55 @@ namespace wayround_i2p::ccedit
 class WorkSubjectTableRowWidget : public Gtk::Box
 {
   public:
-    WorkSubjectTableRowWidget(
-        const Glib::RefPtr<Gtk::ListItem>                          &list_item,
-        std::function<void(TableItemTplP<WorkSubject_shared> item)> go_action
-    );
+    WorkSubjectTableRowWidget();
     ~WorkSubjectTableRowWidget();
 
     void bind(const Glib::RefPtr<Gtk::ListItem> &list_item);
     void unbind(const Glib::RefPtr<Gtk::ListItem> &list_item);
 
   private:
-    Gtk::Button btn_new_win;
-    Gtk::Button btn_existing_or_new_win;
-    Gtk::Button btn_close;
-    Gtk::Label  path;
+    WorkSubject_shared bond_ws;
 
-    void on_btn_new_win();
-    void on_btn_existing_or_new_win();
+    Gtk::Box button_box;
+
+    Gtk::Button btn_close;
+    Gtk::Button btn_open_editor;
+
+    Gtk::Label edited_indicator;
+    Gtk::Label path;
+
+    void update_labels();
+
     void on_btn_close();
+    void on_btn_open_editor();
+
+    void on_ws_changed();
 };
 
 class CodeEditorTableRowWidget : public Gtk::Box
 {
   public:
-    CodeEditorTableRowWidget(
-        const Glib::RefPtr<Gtk::ListItem>                                 &list_item,
-        std::function<void(TableItemTplP<CodeEditorAbstract_shared> item)> go_action
-    );
+    CodeEditorTableRowWidget();
     ~CodeEditorTableRowWidget();
 
     void bind(const Glib::RefPtr<Gtk::ListItem> &list_item);
     void unbind(const Glib::RefPtr<Gtk::ListItem> &list_item);
 
   private:
-    Gtk::Button btn_present;
+    CodeEditorAbstract_shared editor;
+
+    Gtk::Box    button_box1;
+    Gtk::Box    button_box2;
     Gtk::Button btn_close;
+    Gtk::Button btn_show;
+    Gtk::Button btn_up;
+    Gtk::Button btn_down;
     Gtk::Label  path;
 
-    void on_btn_present();
+    void on_btn_show();
     void on_btn_close();
+    void on_btn_up();
+    void on_btn_down();
 };
 
 } // namespace wayround_i2p::ccedit
