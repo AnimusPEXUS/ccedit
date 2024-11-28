@@ -10,49 +10,6 @@
 namespace wayround_i2p::ccedit
 {
 
-// class WorkSubjectTableRow;
-// using WorkSubjectTableRowP = Glib::RefPtr<WorkSubjectTableRow>;
-
-class CodeEditorTableRow;
-using CodeEditorTableRowP = Glib::RefPtr<CodeEditorTableRow>;
-
-// todo: maybe! here and in other *Table.[hc]pp files
-//       make a template to geterate those List Item object classes.
-//       or, maybe, even better: use single real class and
-//       use std::any for storing payload
-
-/*
-class WorkSubjectTableRow : public Glib::Object
-{
-  public:
-    WorkSubject_shared work_subj;
-
-    static WorkSubjectTableRowP create();
-
-    ~WorkSubjectTableRow();
-
-  protected:
-    WorkSubjectTableRow();
-};
-*/
-
-// using TableItemTplP<WorkSubject_shared>;
-
-// class TableItemTpl<WorkSubject_shared>;
-
-class CodeEditorTableRow : public Glib::Object
-{
-  public:
-    CodeEditorAbstract_shared editor;
-
-    static CodeEditorTableRowP create();
-
-    ~CodeEditorTableRow();
-
-  protected:
-    CodeEditorTableRow();
-};
-
 class WorkSubjectTableRowWidget : public Gtk::Box
 {
   public:
@@ -80,8 +37,8 @@ class CodeEditorTableRowWidget : public Gtk::Box
 {
   public:
     CodeEditorTableRowWidget(
-        const Glib::RefPtr<Gtk::ListItem>            &list_item,
-        std::function<void(CodeEditorTableRowP item)> go_action
+        const Glib::RefPtr<Gtk::ListItem>                                 &list_item,
+        std::function<void(TableItemTplP<CodeEditorAbstract_shared> item)> go_action
     );
     ~CodeEditorTableRowWidget();
 

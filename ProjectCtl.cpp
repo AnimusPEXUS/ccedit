@@ -36,7 +36,7 @@ ProjectCtl::ProjectCtl(Controller_shared controller) :
     this->controller = controller;
 
     work_subj_list_store = Gio::ListStore<TableItemTpl<WorkSubject_shared>>::create();
-    editors_list_store   = Gio::ListStore<CodeEditorTableRow>::create();
+    editors_list_store   = Gio::ListStore<TableItemTpl<CodeEditorAbstract_shared>>::create();
 
     updatedName();
     updatedPath();
@@ -182,7 +182,7 @@ CodeEditorAbstract_shared ProjectCtl::workSubjectExistingOrNewEditor(
         {
             continue;
         }
-        auto x_ed = x->editor;
+        auto x_ed = x->value;
         if (!x_ed)
         {
             continue;
@@ -279,7 +279,7 @@ void ProjectCtl::registerEditor(CodeEditorAbstract_shared val)
     while (i < editors_list_store->get_n_items())
     {
         auto x    = editors_list_store->get_item(i);
-        auto x_ed = x->editor;
+        auto x_ed = x->value;
         if (x_ed == val)
         {
             return;
@@ -288,8 +288,8 @@ void ProjectCtl::registerEditor(CodeEditorAbstract_shared val)
         i++;
     }
 
-    auto v    = CodeEditorTableRow::create();
-    v->editor = val;
+    auto v   = TableItemTpl<CodeEditorAbstract_shared>::create();
+    v->value = val;
     editors_list_store->append(v);
 }
 
@@ -299,7 +299,7 @@ void ProjectCtl::unregisterEditor(CodeEditorAbstract_shared val)
     while (i < editors_list_store->get_n_items())
     {
         auto x    = editors_list_store->get_item(i);
-        auto x_ed = x->editor;
+        auto x_ed = x->value;
         if (x_ed == val)
         {
             // x_ed->destroy();
@@ -321,7 +321,7 @@ void ProjectCtl::showPrevNextEditor(CodeEditorAbstract_shared val, bool prev)
     while (i < editors_list_store->get_n_items())
     {
         auto x    = editors_list_store->get_item(i);
-        auto x_ed = x->editor;
+        auto x_ed = x->value;
         if (x_ed == val)
         {
             std::cout << "   editor index " << i << std::endl;
@@ -345,7 +345,7 @@ void ProjectCtl::showPrevNextEditor(CodeEditorAbstract_shared val, bool prev)
             }
 
             auto y    = editors_list_store->get_item(j);
-            auto y_ed = y->editor;
+            auto y_ed = y->value;
             y_ed->show();
             return;
         }
@@ -372,7 +372,7 @@ void ProjectCtl::destroyWorkSubjectEditors(WorkSubject_shared val)
     for (std::size_t i = 0; i < editors_list_store->get_n_items(); i++)
     {
         auto x    = editors_list_store->get_item(i);
-        auto x_ed = x->editor;
+        auto x_ed = x->value;
         if (x_ed->workSubjectIs(val))
         {
             editors.push_back(x_ed);
@@ -401,7 +401,7 @@ void ProjectCtl::destroyAllEditors()
     for (std::size_t i = 0; i < editors_list_store->get_n_items(); i++)
     {
         auto x    = editors_list_store->get_item(i);
-        auto x_ed = x->editor;
+        auto x_ed = x->value;
         editors.push_back(x_ed);
     }
 
@@ -443,7 +443,8 @@ Glib::RefPtr<Gio::ListStore<TableItemTpl<WorkSubject_shared>>>
     return work_subj_list_store;
 }
 
-Glib::RefPtr<Gio::ListStore<CodeEditorTableRow>> ProjectCtl::getCodeEditorListStore()
+Glib::RefPtr<Gio::ListStore<TableItemTpl<CodeEditorAbstract_shared>>>
+    ProjectCtl::getCodeEditorListStore()
 {
     return editors_list_store;
 }

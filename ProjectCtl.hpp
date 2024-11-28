@@ -100,7 +100,7 @@ class ProjectCtl
 
     Glib::RefPtr<Gio::ListStore<TableItemTpl<WorkSubject_shared>>>
         getWorkSubjectListStore();
-    Glib::RefPtr<Gio::ListStore<CodeEditorTableRow>>
+    Glib::RefPtr<Gio::ListStore<TableItemTpl<CodeEditorAbstract_shared>>>
         getCodeEditorListStore();
 
     void updatedName();
@@ -145,9 +145,9 @@ class ProjectCtl
 
     ProjectCtlWin_shared proj_ctl_win;
 
-    std::deque<FileExplorer_shared>                   explorers;
-    Glib::RefPtr<Gio::ListStore<TableItemTpl<WorkSubject_shared>>> work_subj_list_store;
-    Glib::RefPtr<Gio::ListStore<CodeEditorTableRow>>  editors_list_store;
+    std::deque<FileExplorer_shared>                                       explorers;
+    Glib::RefPtr<Gio::ListStore<TableItemTpl<WorkSubject_shared>>>        work_subj_list_store;
+    Glib::RefPtr<Gio::ListStore<TableItemTpl<CodeEditorAbstract_shared>>> editors_list_store;
 
     sigc::signal<void()> priv_signal_updated_name;
     sigc::signal<void()> priv_signal_updated_path;

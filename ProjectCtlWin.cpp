@@ -228,7 +228,9 @@ void ProjectCtlWin::eds_table_subject_cell_bind(
     const Glib::RefPtr<Gtk::ListItem> &list_item
 )
 {
-    auto col = std::dynamic_pointer_cast<CodeEditorTableRow>(list_item->get_item());
+    auto col = std::dynamic_pointer_cast<TableItemTpl<CodeEditorAbstract_shared>>(
+        list_item->get_item()
+    );
     if (!col)
         return;
     auto label = dynamic_cast<Gtk::Label *>(list_item->get_child());
