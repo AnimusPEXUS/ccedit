@@ -46,6 +46,11 @@ Glib::RefPtr<Gio::Menu> ProjectMenuGenerator::createProjectMenu(
         group_name + ".action_close_project_work_subjects"
     );
 
+    sect_m2->append(
+        "Close Project's Editors",
+        group_name + ".action_close_project_editors"
+    );
+
     auto sect_m3 = Gio::Menu::create();
 
     sect_m3->append(
@@ -94,6 +99,14 @@ void ProjectMenuGenerator::addActionsToActionGroup(
     );
 
     action_group->add_action(
+        "action_close_project_editors",
+        sigc::mem_fun(
+            *this,
+            &ProjectMenuGenerator::action_close_project_editors
+        )
+    );
+
+    action_group->add_action(
         "action_close_project",
         sigc::mem_fun(*this, &ProjectMenuGenerator::action_close_project)
     );
@@ -122,6 +135,11 @@ void ProjectMenuGenerator::action_create_new_explorer()
 void ProjectMenuGenerator::action_close_project_work_subjects()
 {
     project_ctl->destroyAllWorkSubjects();
+}
+
+void ProjectMenuGenerator::action_close_project_editors()
+{
+    project_ctl->destroyAllEditors();
 }
 
 void ProjectMenuGenerator::action_close_project()

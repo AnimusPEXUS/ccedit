@@ -42,6 +42,9 @@ CommonEditorWindow::CommonEditorWindow(
         [this]()
         {
             std::cout << "CommonEditorWindow::destroyer.run()" << std::endl;
+            this->project_ctl->unregisterEditor(
+                this->own_ptr
+            );
             destroy();
             win.destroy();
             own_ptr.reset();

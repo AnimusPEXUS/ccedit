@@ -29,6 +29,7 @@ class ProjectMenuGenerator
     void action_show_project_ctl();
     void action_create_new_explorer();
     void action_close_project_work_subjects();
+    void action_close_project_editors();
     void action_close_project();
     void action_close_ccedit();
 };
