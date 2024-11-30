@@ -16,7 +16,7 @@ namespace ccedit
         title : "C/C++",
         description : "C/C++ editor",
         supported_extensions : {".cpp", ".c", ".cc", ".hpp", ".h", ".hh"},
-        newEditorForSubject : &createCCPPeditor
+        newEditorForSubject : &createCCPPEditor
     };
 
     CodeEditorMod *get_mod_info_ccpp()

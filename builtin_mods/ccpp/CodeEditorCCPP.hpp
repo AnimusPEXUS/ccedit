@@ -19,7 +19,7 @@ std::tuple<std::string, int> clang_format_txt(
     std::filesystem::path wd
 );
 
-CommonEditorWindow_shared createCCPPeditor(
+CommonEditorWindow_shared createCCPPEditor(
     ProjectCtl_shared  project_ctl,
     WorkSubject_shared subject
 );

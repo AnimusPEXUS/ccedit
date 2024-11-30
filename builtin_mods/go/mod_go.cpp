@@ -14,7 +14,7 @@ CodeEditorMod mod_info_go = {
     title : "Golang",
     description : "Golang editor",
     supported_extensions : {".go"},
-    newEditorForSubject : &CodeEditorGo::create
+    newEditorForSubject : &createGolangEditor
 };
 
 CodeEditorMod *get_mod_info_go()

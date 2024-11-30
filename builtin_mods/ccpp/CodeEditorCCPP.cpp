@@ -20,7 +20,7 @@ extern "C" {
 namespace wayround_i2p::ccedit
 {
 
-CommonEditorWindow_shared createCCPPeditor(
+CommonEditorWindow_shared createCCPPEditor(
     ProjectCtl_shared  project_ctl,
     WorkSubject_shared subject
 )
@@ -40,7 +40,7 @@ CommonEditorWindow_shared createCCPPeditor(
 void ccpp_menu_maker_cb(CommonEditorWindow *ed_win)
 {
     auto mm_special_clang_format = Gio::MenuItem::create(
-        "clang-format on buffer",
+        "use clang-format on buffer",
         "editor_window_special.clang_format_buffer"
     );
 

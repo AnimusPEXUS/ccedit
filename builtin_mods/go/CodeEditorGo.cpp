@@ -19,110 +19,78 @@ extern "C" {
 namespace wayround_i2p::ccedit
 {
 
-CodeEditorGo_shared create(
+CommonEditorWindow_shared createGolangEditor(
     ProjectCtl_shared  project_ctl,
     WorkSubject_shared subject
 )
 {
-    auto ret = CodeEditorGo_shared(
-        new CodeEditorGo(proj_ctl, subj)
-    );
-    ret->own_ptr = ret;
-
-    // todo: move this to constructor? also somehow need to move this to
-    //       CommonEditor or into some better place
-    project_ctl->registerEditor(ret);
-    project_ctl->getController()->registerWindow(ret->getWindowPtr());
-
-    return ret;
-}
-
-CodeEditorGo::CodeEditorGo(
-    ProjectCtl_shared  project_ctl,
-    WorkSubject_shared subject
-) :
-    CommonEditorWindow(
+    auto ed = CommonEditorWindow::create(
         project_ctl,
         subject,
-        [this]()
         {
-            std::cout << "CodeEditorGo::CommonEditorWindow::destroyer_cb"
-                      << std::endl;
-            destroyer.run();
+            menu_maker_cb : &golang_menu_maker_cb,
+            actions_maker_cb : &golang_actions_maker_cb,
+            hotkeys_maker_cb : &golang_hotkeys_maker_cb
         }
-    ),
-    destroyer(
-        [this]()
-        {
-            std::cout << "CodeEditorGo::destroyer.run()" << std::endl;
-            this->project_ctl->unregisterEditor(
-                this->own_ptr
-            );
-            CommonEditorWindow::destroy();
-            own_ptr.reset();
-        }
-    )
-{
-
-    this->project_ctl = project_ctl;
-    this->subject     = subject;
-
-    make_special_menu();
-    make_special_actions();
-    make_special_hotkeys();
+    );
+    return ed;
 }
 
-CodeEditorGo::~CodeEditorGo()
+void golang_menu_maker_cb(CommonEditorWindow *ed_win)
 {
-    std::cout << "CodeEditorGo::~CodeEditorGo()" << std::endl;
-    destroyer.run();
-}
-
-void CodeEditorGo::destroy()
-{
-    std::cout << "CodeEditorGo::destroy()" << std::endl;
-    destroyer.run();
-}
-
-CodeEditorAbstract_shared CodeEditorGo::getOwnPtr()
-{
-    return dynamic_pointer_cast<CodeEditorAbstract>(own_ptr);
-}
-
-void CodeEditorGo::make_special_menu()
-{
-
-    mm_special_go_fmt = Gio::MenuItem::create(
-        "gofmt on buffer",
-        "editor_window_special.go_fmt_buffer"
+    auto mm_special_golang_format = Gio::MenuItem::create(
+        "use gofmt on buffer",
+        "editor_window_special.golang_fmt_txt"
     );
 
-    mm_special = Gio::Menu::create();
+    auto mm_special = Gio::Menu::create();
 
-    mm_special->append_item(mm_special_go_fmt);
+    mm_special->append_item(mm_special_golang_format);
 
-    getMenuModel()->append_submenu("Golang", mm_special);
+    auto target_menu = ed_win->getMenuModel();
 
-    return;
+    target_menu->append_submenu("Golang", mm_special);
 }
 
-void CodeEditorGo::make_special_actions()
+void golang_actions_maker_cb(CommonEditorWindow *ed_win)
 {
     auto action_group = Gio::SimpleActionGroup::create();
+
     action_group->add_action(
-        "go_fmt_buffer",
-        sigc::mem_fun(*this, &CodeEditorGo::go_fmt_buffer)
+        "golang_fmt_txt",
+        [ed_win]()
+        {
+            auto subj = ed_win->getWorkSubject();
+
+            auto txt = subj->getText();
+
+            // todo: check what dir is correctly calculated here and in
+            //       Subject
+            auto [ret, err] = golang_fmt_txt(
+                txt,
+                subj->getFullPath().parent_path()
+            );
+            if (err != 0)
+            {
+                // todo: report
+                return;
+            }
+
+            subj->setText(ret);
+            subj->modified(true);
+        }
     );
-    getWindowRef().insert_action_group(
+
+    ed_win->getWindowRef().insert_action_group(
         "editor_window_special",
         action_group
     );
-    return;
 }
 
-void CodeEditorGo::make_special_hotkeys()
+void golang_hotkeys_maker_cb(CommonEditorWindow *ed_win)
 {
     auto controller = Gtk::ShortcutController::create();
+
     controller->add_shortcut(
         Gtk::Shortcut::create(
             Gtk::KeyvalTrigger::create(
@@ -131,29 +99,18 @@ void CodeEditorGo::make_special_hotkeys()
                     | Gdk::ModifierType::SHIFT_MASK
             ),
             Gtk::NamedAction::create(
-                "editor_window_special.go_fmt_buffer"
+                "editor_window_special.golang_fmt_txt"
             )
         )
     );
-    add_controller(controller);
-    return;
+
+    ed_win->getWindowRef().add_controller(controller);
 }
 
-std::shared_ptr<WorkSubject> CodeEditorGo::getWorkSubject()
-{
-    return subject;
-}
-
-bool CodeEditorGo::workSubjectIs(std::shared_ptr<WorkSubject> subj)
-{
-    if (!subj || !subject)
-    {
-        return false;
-    }
-    return subj == subject;
-}
-
-void CodeEditorGo::go_fmt_buffer()
+std::tuple<std::string, int> golang_fmt_txt(
+    std::string           txt,
+    std::filesystem::path wd
+)
 {
     // todo: display error messages
     int err = 0;
@@ -161,20 +118,10 @@ void CodeEditorGo::go_fmt_buffer()
     int in_pipe[2];
     int out_pipe[2];
 
-    auto pp = subject->getFullPath().parent_path();
-
-    /*
-        auto [proj_pth, err] = project_ctl->getProjectPath();
-        if (err != 0)
-        {
-            return;
-        }
-        */
-
     err = pipe(in_pipe);
     if (err != 0)
     {
-        return;
+        return {"", 5};
     }
 
     auto se01 = std::experimental::fundamentals_v3::scope_exit(
@@ -188,7 +135,7 @@ void CodeEditorGo::go_fmt_buffer()
     err = pipe(out_pipe);
     if (err != 0)
     {
-        return;
+        return {"", 4};
     }
 
     auto se02 = std::experimental::fundamentals_v3::scope_exit(
@@ -203,7 +150,7 @@ void CodeEditorGo::go_fmt_buffer()
 
     if (pid < 0)
     {
-        return;
+        return {"", 3};
     }
 
     if (pid == 0)
@@ -211,7 +158,7 @@ void CodeEditorGo::go_fmt_buffer()
         se01.release();
         se02.release();
 
-        std::filesystem::current_path(pp);
+        std::filesystem::current_path(wd);
 
         auto dup_r1 = dup2(in_pipe[0], 0);
         auto dup_r2 = dup2(out_pipe[1], 1);
@@ -220,7 +167,7 @@ void CodeEditorGo::go_fmt_buffer()
         ::close(out_pipe[0]);
         ::close(out_pipe[1]);
         execlp("gofmt", (char *)NULL);
-        return;
+        return {"", 2};
     }
 
     if (pid != 0)
@@ -231,7 +178,7 @@ void CodeEditorGo::go_fmt_buffer()
         ::close(in_pipe[0]);
         ::close(out_pipe[1]);
 
-        std::string str_to_write(subject->getText());
+        std::string str_to_write(txt);
         std::string str_to_read("");
 
         std::thread w_t(
@@ -304,74 +251,13 @@ void CodeEditorGo::go_fmt_buffer()
         auto res = waitpid(pid, &exitstatus, 0);
         if (exitstatus == 0)
         {
-            subject->setText(str_to_read);
-            subject->modified(true);
+            return {str_to_read, 0};
         }
 
-        return;
+        return {"", 2};
     }
 
-    return;
-}
-
-std::vector<std::tuple<unsigned int, std::string>>
-    CodeEditorGo::genOutlineContents()
-{
-
-    std::vector<std::tuple<unsigned int, std::string>> ret;
-
-    auto text_TextBuffer = subject->getTextBuffer();
-    auto text            = subject->getText();
-
-    std::vector<std::tuple<boost::regex, boost::regex_constants::match_flag_type>> rexps = {
-        {boost::regex(
-             R"%(^.*?(public|private|protected).*?\:)%",
-         boost::regex_constants::ECMAScript
-         ),
-         boost::regex_constants::match_not_dot_newline},
-
-        {boost::regex(
-             R"%(^.*?(class|struct)(.|\n)*?[{;])%",
-         boost::regex_constants::ECMAScript
-         ),
-         boost::regex_constants::match_not_dot_newline},
-        {boost::regex(
-             R"%(^\s*[a-zA-Z_0-9]+(<(.|\n)*?>)\((.|\n)*?\)(.|\n)*?[{;]?)%",
-         boost::regex_constants::ECMAScript
-         ),
-         boost::regex_constants::match_not_dot_newline},
-
-        // todo: next regex requires improvments
-        // todo: clang-format settings also requires improvments
-        {boost::regex(
-             R"%((\@\w+\s*)?)%"
-             R"%(((public|protected|private|abstract|static|final|strictfp)\s+)*)%"
-             R"%(\w+\s*(?!(new|catch|if|for|while)\s+)\(.*?\).*?[{;])%",
-         boost::regex_constants::ECMAScript
-         ),
-         boost::regex_constants::match_not_dot_newline}
-    };
-
-    auto match_end = boost::sregex_iterator();
-
-    std::cout << "for" << std::endl;
-    for (auto i = rexps.begin(); i != rexps.end(); i++)
-    {
-        std::cout << "iter" << std::endl;
-        auto match_begin = boost::sregex_iterator(text.begin(), text.end(), std::get<0>(*i), std::get<1>(*i));
-        for (auto j = match_begin; j != match_end; j++)
-        {
-            auto match     = *j;
-            auto pos       = match.position();
-            auto iter      = text_TextBuffer->get_iter_at_offset(pos);
-            auto iter_line = iter.get_line();
-            auto text      = match.str();
-
-            ret.push_back({iter_line, text});
-        }
-    }
-
-    return ret;
+    return {"", 1};
 }
 
 } // namespace wayround_i2p::ccedit

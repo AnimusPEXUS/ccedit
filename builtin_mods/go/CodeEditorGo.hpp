@@ -10,47 +10,19 @@
 namespace wayround_i2p::ccedit
 {
 
-class CodeEditorGo;
-using CodeEditorGo_shared = std::shared_ptr<CodeEditorGo>;
-using CodeEditorGo_weak   = std::weak_ptr<CodeEditorGo>;
+void golang_menu_maker_cb(CommonEditorWindow *ed_win);
+void golang_actions_maker_cb(CommonEditorWindow *ed_win);
+void golang_hotkeys_maker_cb(CommonEditorWindow *ed_win);
 
-class CodeEditorGo : public CommonEditorWindow
-{
-  public:
-    static CodeEditorGo_shared create(
-        ProjectCtl_shared  project_ctl,
-        WorkSubject_shared subject
-    );
+std::tuple<std::string, int> golang_fmt_txt(
+    std::string           txt,
+    std::filesystem::path wd
+);
 
-  protected:
-    CodeEditorGo(
-        ProjectCtl_shared  project_ctl,
-        WorkSubject_shared subject
-    );
-
-  public:
-    ~CodeEditorGo();
-
-    CodeEditorAbstract_shared getOwnPtr();
-
-  private:
-    CodeEditorGo_shared own_ptr;
-
-    RunOnce destroyer;
-
-    ProjectCtl_shared  project_ctl;
-    WorkSubject_shared subject;
-
-
-    Glib::RefPtr<Gio::Menu>     mm_special;
-    Glib::RefPtr<Gio::MenuItem> mm_special_go_fmt;
-
-    void go_fmt_buffer();
-
-    void make_special_menu();
-    void make_special_actions();
-    void make_special_hotkeys();
-};
+CommonEditorWindow_shared createGolangEditor(
+    ProjectCtl_shared  project_ctl,
+    WorkSubject_shared subject
+);
 
 } // namespace wayround_i2p::ccedit
 
