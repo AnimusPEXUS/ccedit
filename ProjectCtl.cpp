@@ -8,7 +8,10 @@
 #include "ProjectCtlWin.hpp"
 #include "WorkSubject.hpp"
 
-using namespace wayround_i2p::ccedit;
+namespace wayround_i2p::ccedit
+{
+
+// todo: order functions
 
 ProjectCtl_shared ProjectCtl::create(Controller_shared controller)
 {
@@ -54,7 +57,8 @@ void ProjectCtl::destroy()
     destroyer.run();
 }
 
-Controller_shared ProjectCtl::getController()
+Controller_shared
+    ProjectCtl::getController()
 {
     return controller;
 }
@@ -64,7 +68,8 @@ bool ProjectCtl::isGlobalProject()
     return controller->isGlobalProjCtl(own_ptr);
 }
 
-std::string ProjectCtl::getProjectName()
+std::string
+    ProjectCtl::getProjectName()
 {
     auto [name, err] = controller->getNameProject(own_ptr);
     if (err != 0)
@@ -76,7 +81,8 @@ std::string ProjectCtl::getProjectName()
     return name;
 }
 
-std::filesystem::path ProjectCtl::getProjectPath()
+std::filesystem::path
+    ProjectCtl::getProjectPath()
 {
     auto [pth, err] = controller->getPathProject(own_ptr);
     if (err != 0)
@@ -96,9 +102,10 @@ bool ProjectCtl::workSubjectExists(
     return bool(getWorkSubject(fpth));
 }
 
-WorkSubject_shared ProjectCtl::getWorkSubject(
-    std::filesystem::path fpth
-)
+WorkSubject_shared
+    ProjectCtl::getWorkSubject(
+        std::filesystem::path fpth
+    )
 {
     // todo: fpth value checks here and for WorkSubject
     for (
@@ -118,9 +125,10 @@ WorkSubject_shared ProjectCtl::getWorkSubject(
     return nullptr;
 }
 
-WorkSubject_shared ProjectCtl::workSubjectEnsureExistance(
-    std::filesystem::path fpth
-)
+WorkSubject_shared
+    ProjectCtl::workSubjectEnsureExistance(
+        std::filesystem::path fpth
+    )
 {
     // todo: fpth value checks
     WorkSubject_shared ret;
@@ -131,7 +139,6 @@ WorkSubject_shared ProjectCtl::workSubjectEnsureExistance(
     }
     else
     {
-
         ret = WorkSubject::create(
             own_ptr,
             fpth
@@ -141,9 +148,10 @@ WorkSubject_shared ProjectCtl::workSubjectEnsureExistance(
     }
 }
 
-CodeEditorAbstract_shared ProjectCtl::workSubjectExistingOrNewEditor(
-    std::filesystem::path fpth
-)
+CodeEditorAbstract_shared
+    ProjectCtl::workSubjectExistingOrNewEditor(
+        std::filesystem::path fpth
+    )
 {
     std::cout << "workSubjectExistingOrNewEditor(" << fpth << ")" << std::endl;
     // todo: fpth value checks
@@ -155,9 +163,10 @@ CodeEditorAbstract_shared ProjectCtl::workSubjectExistingOrNewEditor(
     return workSubjectExistingOrNewEditor(subj);
 }
 
-CodeEditorAbstract_shared ProjectCtl::workSubjectNewEditor(
-    std::filesystem::path fpth
-)
+CodeEditorAbstract_shared
+    ProjectCtl::workSubjectNewEditor(
+        std::filesystem::path fpth
+    )
 {
     std::cout << "workSubjectNewEditor(" << fpth << ")" << std::endl;
     // todo: fpth value checks
@@ -170,9 +179,10 @@ CodeEditorAbstract_shared ProjectCtl::workSubjectNewEditor(
     return workSubjectNewEditor(subj);
 }
 
-CodeEditorAbstract_shared ProjectCtl::workSubjectExistingOrNewEditor(
-    WorkSubject_shared val
-)
+CodeEditorAbstract_shared
+    ProjectCtl::workSubjectExistingOrNewEditor(
+        WorkSubject_shared val
+    )
 {
     std::cout << "workSubjectExistingOrNewEditor(" << val << ")" << std::endl;
     for (unsigned int i = 0; i != editors_list_store->get_n_items(); i++)
@@ -209,6 +219,60 @@ CodeEditorAbstract_shared
     // registerEditor(ed);
     ed->show();
     return ed;
+}
+
+void ProjectCtl::editorShiftUpDown(
+    CodeEditorAbstract_shared val,
+    bool                      move_down
+)
+{
+    auto [pos, err] = editorFindPos(val);
+    if (err != 0)
+    {
+        return;
+    }
+
+    if ((!move_down) && pos == 0)
+    {
+        return;
+    }
+
+    if (move_down && pos == editorCount())
+    {
+        return;
+    }
+
+    auto o = editors_list_store->get_item(pos);
+    editors_list_store->remove(pos);
+    editors_list_store->insert(pos + (move_down ? 1 : -1), o);
+}
+
+void ProjectCtl::editorShiftUp(CodeEditorAbstract_shared val)
+{
+    editorShiftUpDown(val, false);
+}
+
+void ProjectCtl::editorShiftDown(CodeEditorAbstract_shared val)
+{
+    editorShiftUpDown(val, true);
+}
+
+void ProjectCtl::workSubjectMoveUp(WorkSubject_shared val)
+{
+    auto [pos, err] = workSubjectFindPos(val);
+    if (err != 0)
+    {
+        return;
+    }
+
+    if (pos == 0)
+    {
+        return;
+    }
+
+    auto o = work_subj_list_store->get_item(pos);
+    work_subj_list_store->remove(pos);
+    work_subj_list_store->insert(0, o);
 }
 
 CodeEditorAbstract_shared
@@ -518,3 +582,51 @@ sigc::signal<void()> &ProjectCtl::signal_updated_path()
 {
     return priv_signal_updated_path;
 }
+
+std::size_t ProjectCtl::workSubjectCount()
+{
+    return work_subj_list_store->get_n_items();
+}
+
+std::size_t ProjectCtl::editorCount()
+{
+    return editors_list_store->get_n_items();
+}
+
+std::tuple<std::size_t, int> ProjectCtl::workSubjectFindPos(WorkSubject_shared val)
+{
+    for (
+        std::size_t i = 0;
+        i < work_subj_list_store->get_n_items();
+        i++
+    )
+    {
+        auto x   = work_subj_list_store->get_item(i);
+        auto sbj = x->value;
+        if (val == sbj)
+        {
+            return {i, 0};
+        }
+    }
+    return {0, -1};
+}
+
+std::tuple<std::size_t, int> ProjectCtl::editorFindPos(CodeEditorAbstract_shared val)
+{
+    for (
+        std::size_t i = 0;
+        i < editors_list_store->get_n_items();
+        i++
+    )
+    {
+        auto x   = editors_list_store->get_item(i);
+        auto sbj = x->value;
+        if (val == sbj)
+        {
+            return {i, 0};
+        }
+    }
+    return {0, -1};
+}
+
+} // namespace wayround_i2p::ccedit

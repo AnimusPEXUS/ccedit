@@ -25,15 +25,38 @@ struct CommonEditorWindowStateStorage
     double       scroll_adj          = 0;
 };
 
+struct CommonEditorWindowParams
+{
+    std::function<void(CommonEditorWindow *ed_win)> menu_maker_cb;
+    std::function<void(CommonEditorWindow *ed_win)> actions_maker_cb;
+    std::function<void(CommonEditorWindow *ed_win)> hotkeys_maker_cb;
+};
+
 class CommonEditorWindow : public CodeEditorAbstract
 {
   public:
-    CommonEditorWindow(
-        ProjectCtl_shared     project_ctl,
-        WorkSubject_shared    subject,
-        std::function<void()> callback_on_destroy
+    static CommonEditorWindow_shared create(
+        ProjectCtl_shared               project_ctl,
+        WorkSubject_shared              subject,
+        const CommonEditorWindowParams &params
     );
+
+  protected:
+    CommonEditorWindow(
+        ProjectCtl_shared               project_ctl,
+        WorkSubject_shared              subject,
+        const CommonEditorWindowParams &params
+    );
+
+  public:
     ~CommonEditorWindow();
+
+    CodeEditorAbstract_shared getOwnPtr() const;
+
+    ProjectCtl_shared getProjectCtl() const;
+
+    WorkSubject_shared getWorkSubject() const;
+    bool               workSubjectIs(WorkSubject_shared) const;
 
     // todo: this 'todo:' should be ok
     // ⬇️ {CodeEditorAbstract overrides} ⬇️
@@ -41,38 +64,33 @@ class CommonEditorWindow : public CodeEditorAbstract
     //       search. check: use FindFile to search for 'todo:' and try to 'Go'
     //       to this 'todo:' - if first 'todo:' not highlited - bug present
 
-    void show() override;
-    void destroy() override;
+    void show();
+    void destroy();
 
     // void setTransientWindow(Gtk::Window &win) override;
 
-    Gtk::Window *getWindowPtr() override;
-    Gtk::Window &getWindowRef() override;
+    Gtk::Window *getWindowPtr();
+    Gtk::Window &getWindowRef();
 
-    std::size_t getCursorOffsetPosition() override;
-    void        setCursorOffsetPosition(std::size_t new_pos, bool scroll = true) override;
-    std::size_t getCurrentLine() override;
-    void        setCurrentLine(std::size_t line, bool scroll = true) override;
-    void        selectSlice(std::size_t start, std::size_t end) override;
-    void        unselect() override;
-    std::string getText() override;
+    Glib::RefPtr<Gio::Menu> getMenuModel() const;
+
+    std::size_t getCursorOffsetPosition() const;
+    void        setCursorOffsetPosition(std::size_t new_pos, bool scroll = true);
+    std::size_t getCurrentLine() const;
+    void        setCurrentLine(std::size_t line, bool scroll = true);
+    void        selectSlice(std::size_t start, std::size_t end);
+    void        unselect();
+    std::string getText() const;
 
     // ⬆️ {CodeEditorAbstract overrides} ⬆️
 
     void updateTitle(); // todo: make it private?
 
-                        /*
-                        void setOutlineContents(
-                            std::vector<std::tuple<std::size_t, std::string>> val
-                        );
-                        void setOutlineCurrentLine(std::size_t val);
-                    
-                        virtual std::vector<std::tuple<std::size_t, std::string>>
-                            genOutlineContents() = 0;
-                        */
-
   private:
-    std::function<void()> callback_on_destroy;
+    CommonEditorWindow_shared       own_ptr;
+    const CommonEditorWindowParams &params;
+
+    // std::function<void()> callback_on_destroy;
 
     ProjectMenuGenerator wmg;
 
@@ -85,22 +103,11 @@ class CommonEditorWindow : public CodeEditorAbstract
     Gtk::ApplicationWindow win;
 
     Gtk::Box            main_box;
-   // Gtk::Paned          paned;
     Gtk::Box            text_view_box_upper;
     Gtk::Box            text_view_box;
     Gtk::DrawingArea    linum_area;
     Gtk::ScrolledWindow text_view_sw;
     Gtk::TextView       text_view;
-    /*
-        Gtk::Box                                      outline_box;
-        Gtk::ScrolledWindow                           outline_view_sw;
-        Gtk::ColumnView                               outline_view;
-        Gtk::Button                                   outline_view_refresh_btn;
-        Glib::RefPtr<Gtk::SingleSelection>            outline_view_selection;
-        Glib::RefPtr<Gio::ListStore<OutlineTableRow>> outline_list_store;
-    */
-
-    //  void setup_outline_columns();
 
     void make_menubar();
     void make_actions();
@@ -137,21 +144,8 @@ class CommonEditorWindow : public CodeEditorAbstract
 
     void force_redraw_linum();
 
-    /*
-        void on_outline_refresh_btn();
-        void on_outline_activate(guint val);
-    */
-
     void on_destroy_sig();
     bool on_signal_close_request();
-
-  protected:
-    Glib::RefPtr<Gio::Menu> getMenuModel();
-
-  private:
-    virtual void make_special_menu()    = 0;
-    virtual void make_special_actions() = 0;
-    virtual void make_special_hotkeys() = 0;
 };
 
 } // namespace wayround_i2p::ccedit

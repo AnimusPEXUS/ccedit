@@ -20,109 +20,78 @@ extern "C" {
 namespace wayround_i2p::ccedit
 {
 
-CodeEditorCCPP_shared CodeEditorCCPP::create(
+CommonEditorWindow_shared createCCPPeditor(
     ProjectCtl_shared  project_ctl,
     WorkSubject_shared subject
 )
 {
-    auto ret = CodeEditorCCPP_shared(
-        new CodeEditorCCPP(project_ctl, subject)
-    );
-    ret->own_ptr = ret;
-
-    project_ctl->registerEditor(ret);
-
-    // todo: move this to constructor?
-    project_ctl->getController()->registerWindow(ret->getWindowPtr());
-
-    return ret;
-}
-
-CodeEditorCCPP::CodeEditorCCPP(
-    ProjectCtl_shared  project_ctl,
-    WorkSubject_shared subject
-) :
-    CommonEditorWindow(
+    auto ed = CommonEditorWindow::create(
         project_ctl,
         subject,
-        [this]()
         {
-            std::cout << "CodeEditorCCPP::CommonEditorWindow::destroyer_cb"
-                      << std::endl;
-            destroyer.run();
+            menu_maker_cb : &ccpp_menu_maker_cb,
+            actions_maker_cb : &ccpp_actions_maker_cb,
+            hotkeys_maker_cb : &ccpp_hotkeys_maker_cb
         }
-    ),
-    destroyer(
-        [this]()
-        {
-            std::cout << "CodeEditorCCPP::destroyer.run()" << std::endl;
-            this->project_ctl->unregisterEditor(
-                this->own_ptr
-            );
-            CommonEditorWindow::destroy();
-            own_ptr.reset();
-        }
-    )
-{
-
-    this->project_ctl = project_ctl;
-    this->subject     = subject;
-
-    make_special_menu();
-    make_special_actions();
-    make_special_hotkeys();
+    );
+    return ed;
 }
 
-CodeEditorCCPP::~CodeEditorCCPP()
+void ccpp_menu_maker_cb(CommonEditorWindow *ed_win)
 {
-    std::cout << "CodeEditorCCPP::~CodeEditorCCPP()" << std::endl;
-    destroyer.run();
-}
-
-void CodeEditorCCPP::destroy()
-{
-    std::cout << "CodeEditorCCPP::destroy()" << std::endl;
-    destroyer.run();
-}
-
-CodeEditorAbstract_shared CodeEditorCCPP::getOwnPtr()
-{
-    return dynamic_pointer_cast<CodeEditorAbstract>(own_ptr);
-}
-
-void CodeEditorCCPP::make_special_menu()
-{
-    mm_special_clang_format = Gio::MenuItem::create(
+    auto mm_special_clang_format = Gio::MenuItem::create(
         "clang-format on buffer",
         "editor_window_special.clang_format_buffer"
     );
 
-    mm_special = Gio::Menu::create();
+    auto mm_special = Gio::Menu::create();
 
     mm_special->append_item(mm_special_clang_format);
 
-    getMenuModel()->append_submenu("C/C++", mm_special);
+    auto target_menu = ed_win->getMenuModel();
 
-    return;
+    target_menu->append_submenu("C/C++", mm_special);
 }
 
-void CodeEditorCCPP::make_special_actions()
+void ccpp_actions_maker_cb(CommonEditorWindow *ed_win)
 {
     auto action_group = Gio::SimpleActionGroup::create();
+
     action_group->add_action(
         "clang_format_buffer",
-        sigc::mem_fun(*this, &CodeEditorCCPP::clang_format_buffer)
+        [ed_win]()
+        {
+            auto subj = ed_win->getWorkSubject();
+
+            auto txt = subj->getText();
+
+            // todo: check what dir is correctly calculated here and in
+            //       Subject
+            auto [ret, err] = clang_format_txt(
+                txt,
+                subj->getFullPath().parent_path()
+            );
+            if (err != 0)
+            {
+                // todo: report
+                return;
+            }
+
+            subj->setText(ret);
+            subj->modified(true);
+        }
     );
-    getWindowRef().insert_action_group(
+
+    ed_win->getWindowRef().insert_action_group(
         "editor_window_special",
         action_group
     );
-    return;
 }
 
-void CodeEditorCCPP::make_special_hotkeys()
+void ccpp_hotkeys_maker_cb(CommonEditorWindow *ed_win)
 {
     auto controller = Gtk::ShortcutController::create();
+
     controller->add_shortcut(
         Gtk::Shortcut::create(
             Gtk::KeyvalTrigger::create(
@@ -135,46 +104,24 @@ void CodeEditorCCPP::make_special_hotkeys()
             )
         )
     );
-    getWindowRef().add_controller(controller);
-    return;
+
+    ed_win->getWindowRef().add_controller(controller);
 }
 
-std::shared_ptr<WorkSubject> CodeEditorCCPP::getWorkSubject()
+std::tuple<std::string, int> clang_format_txt(
+    std::string           txt,
+    std::filesystem::path wd
+)
 {
-    return subject;
-}
-
-bool CodeEditorCCPP::workSubjectIs(std::shared_ptr<WorkSubject> subj)
-{
-    if (!subj || !subject)
-    {
-        return false;
-    }
-    return subj == subject;
-}
-
-void CodeEditorCCPP::clang_format_buffer()
-{
-    // todo: display error messages
     int err = 0;
 
     int in_pipe[2];
     int out_pipe[2];
 
-    auto pp = subject->getFullPath().parent_path();
-
-    /*
-        auto [proj_pth, err] = project_ctl->getProjectPath();
-        if (err != 0)
-        {
-            return;
-        }
-        */
-
     err = pipe(in_pipe);
     if (err != 0)
     {
-        return;
+        return {"", 9};
     }
 
     auto se01 = std::experimental::fundamentals_v3::scope_exit(
@@ -188,7 +135,7 @@ void CodeEditorCCPP::clang_format_buffer()
     err = pipe(out_pipe);
     if (err != 0)
     {
-        return;
+        return {"", 8};
     }
 
     auto se02 = std::experimental::fundamentals_v3::scope_exit(
@@ -203,7 +150,7 @@ void CodeEditorCCPP::clang_format_buffer()
 
     if (pid < 0)
     {
-        return;
+        return {"", 7};
     }
 
     if (pid == 0)
@@ -211,7 +158,7 @@ void CodeEditorCCPP::clang_format_buffer()
         se01.release();
         se02.release();
 
-        std::filesystem::current_path(pp);
+        std::filesystem::current_path(wd);
 
         auto dup_r1 = dup2(in_pipe[0], 0);
         auto dup_r2 = dup2(out_pipe[1], 1);
@@ -219,8 +166,9 @@ void CodeEditorCCPP::clang_format_buffer()
         ::close(in_pipe[1]);
         ::close(out_pipe[0]);
         ::close(out_pipe[1]);
+        // todo: compiler says null is wrong here
         execlp("clang-format", (char *)NULL);
-        return;
+        return {"", 6};
     }
 
     if (pid != 0)
@@ -231,8 +179,8 @@ void CodeEditorCCPP::clang_format_buffer()
         ::close(in_pipe[0]);
         ::close(out_pipe[1]);
 
-        std::string str_to_write(subject->getText());
-        std::string str_to_read("");
+        std::string str_to_write(txt);
+        std::string str_to_read;
 
         std::thread w_t(
             [str_to_write, in_pipe]()
@@ -261,7 +209,7 @@ void CodeEditorCCPP::clang_format_buffer()
         std::thread r_t(
             [&str_to_read, out_pipe]()
             {
-                std::string ret("");
+                std::string ret;
 
                 auto sg03 = std::experimental::fundamentals_v3::scope_exit(
                     [&str_to_read, &ret]()
@@ -276,8 +224,11 @@ void CodeEditorCCPP::clang_format_buffer()
                 char *buff = new char[256];
 
                 auto sg02 = std::experimental::fundamentals_v3::scope_exit(
-                    [buff]()
-                    { delete[] buff; }
+                    [&buff]()
+                    {
+                        delete[] buff;
+                        buff = nullptr;
+                    }
                 );
 
                 while (true)
@@ -304,14 +255,13 @@ void CodeEditorCCPP::clang_format_buffer()
         auto res = waitpid(pid, &exitstatus, 0);
         if (exitstatus == 0)
         {
-            subject->setText(str_to_read);
-            subject->modified(true);
+            return {str_to_read, 0};
         }
 
-        return;
+        return {"", 1};
     }
 
-    return;
+    return {"", 2};
 }
 
 /*

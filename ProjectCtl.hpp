@@ -95,6 +95,15 @@ class ProjectCtl
 
     // ----------
 
+    void editorShiftUp(CodeEditorAbstract_shared val);
+    void editorShiftDown(CodeEditorAbstract_shared val);
+
+    // ----------
+
+    void workSubjectMoveUp(WorkSubject_shared val);
+
+    // ----------
+
     void
         destroyEditor(CodeEditorAbstract_shared);
 
@@ -116,6 +125,12 @@ class ProjectCtl
         createBestEditorForWorkSubject(
             WorkSubject_shared
         );
+
+    std::size_t workSubjectCount();
+    std::size_t editorCount();
+
+    std::tuple<std::size_t, int> workSubjectFindPos(WorkSubject_shared val);
+    std::tuple<std::size_t, int> editorFindPos(CodeEditorAbstract_shared val);
 
     void destroyWorkSubjectEditors(WorkSubject_shared val);
 
@@ -144,6 +159,11 @@ class ProjectCtl
     Controller_shared controller;
 
     ProjectCtlWin_shared proj_ctl_win;
+
+    void editorShiftUpDown(
+        CodeEditorAbstract_shared val,
+        bool                      move_down
+    );
 
     std::deque<FileExplorer_shared>                                       explorers;
     Glib::RefPtr<Gio::ListStore<TableItemTpl<WorkSubject_shared>>>        work_subj_list_store;

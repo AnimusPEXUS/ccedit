@@ -12,77 +12,67 @@
 namespace wayround_i2p::ccedit
 {
 
+CommonEditorWindow_shared CommonEditorWindow::create(
+    ProjectCtl_shared               project_ctl,
+    WorkSubject_shared              subject,
+    const CommonEditorWindowParams &params
+)
+{
+    auto ret = CommonEditorWindow_shared(
+        new CommonEditorWindow(
+            project_ctl,
+            subject,
+            params
+        )
+    );
+    ret->own_ptr = ret;
+
+    project_ctl->registerEditor(ret);
+    project_ctl->getController()->registerWindow(ret->getWindowPtr());
+
+    return ret;
+}
+
 CommonEditorWindow::CommonEditorWindow(
-    ProjectCtl_shared     project_ctl,
-    WorkSubject_shared    subject,
-    std::function<void()> callback_on_destroy
+    ProjectCtl_shared               project_ctl,
+    WorkSubject_shared              subject,
+    const CommonEditorWindowParams &params
 ) :
     destroyer(
         [this]()
         {
             std::cout << "CommonEditorWindow::destroyer.run()" << std::endl;
-            if (this->callback_on_destroy)
-            {
-                this->callback_on_destroy();
-            }
+            destroy();
             win.destroy();
+            own_ptr.reset();
         }
     ),
     wmg(project_ctl),
-    callback_on_destroy(callback_on_destroy),
+    // callback_on_destroy(callback_on_destroy),
     main_box(Gtk::Orientation::VERTICAL, 0),
     text_view_box_upper(Gtk::Orientation::VERTICAL, 0),
-    text_view_box(Gtk::Orientation::HORIZONTAL, 0)
-// ,    outline_box(Gtk::Orientation::VERTICAL, 0)
+    text_view_box(Gtk::Orientation::HORIZONTAL, 0),
+    params(params)
 {
     this->project_ctl = project_ctl;
     this->subject     = subject;
 
-    /*
-        outline_list_store = Gio::ListStore<OutlineTableRow>::create();
-
-        outline_view_selection = Gtk::SingleSelection::create(
-            outline_list_store
-        );
-
-        outline_view.set_model(outline_view_selection);
-    */
-
-    // maximize();
-
-    // win.set_hide_on_close(false);
     win.set_child(main_box);
 
-    //  outline_view_refresh_btn.set_label("Refresh");
-
     main_box.append(menu_bar);
-    // main_box.append(paned);
     main_box.append(text_view_box_upper);
 
     text_view_box.set_vexpand(true);
 
     text_view_box_upper.append(text_view_box);
-    // text_view_box_upper.append(search_exp);
 
     text_view_box.append(linum_area);
     text_view_box.append(text_view_sw);
-
-    //  paned.set_start_child(text_view_box_upper);
-    //  paned.set_end_child(outline_box);
-
-    //   outline_box.append(outline_view_refresh_btn);
-    //   outline_box.append(outline_view_sw);
 
     text_view_sw.set_policy(
         Gtk::PolicyType::ALWAYS,
         Gtk::PolicyType::ALWAYS
     );
-/*
-    outline_view_sw.set_policy(
-        Gtk::PolicyType::ALWAYS,
-        Gtk::PolicyType::ALWAYS
-    );
-*/
 
     linum_area.set_content_width(50);
 
@@ -96,24 +86,11 @@ CommonEditorWindow::CommonEditorWindow(
     text_view_sw.set_valign(Gtk::Align::FILL);
     text_view_sw.set_halign(Gtk::Align::FILL);
 
-    /*
-        outline_view_sw.set_vexpand(true);
-        outline_view_sw.set_valign(Gtk::Align::FILL);
-    */
-
     text_view_sw.set_overlay_scrolling(false);
-    //   outline_view_sw.set_overlay_scrolling(false);
 
     text_view_sw.set_kinetic_scrolling(false);
-    //  outline_view_sw.set_kinetic_scrolling(false);
-
-/*
-    paned.set_vexpand(true);
-    paned.set_resize_end_child(false);
-*/
 
     text_view_sw.set_child(text_view);
-    //  outline_view_sw.set_child(outline_view);
 
     text_view.set_monospace(true);
     text_view.set_buffer(subject->getTextBuffer());
@@ -121,8 +98,6 @@ CommonEditorWindow::CommonEditorWindow(
     make_menubar();
     make_actions();
     make_hotkeys();
-
-  //  setup_outline_columns();
 
     linum_area.set_draw_func(
         sigc::mem_fun(*this, &CommonEditorWindow::redraw_linum)
@@ -143,16 +118,6 @@ CommonEditorWindow::CommonEditorWindow(
     project_ctl->signal_updated_name().connect(
         sigc::mem_fun(*this, &CommonEditorWindow::updateTitle)
     );
-
-/*
-    outline_view_refresh_btn.signal_clicked().connect(
-        sigc::mem_fun(*this, &CommonEditorWindow::on_outline_refresh_btn)
-    );
-
-    outline_view.signal_activate().connect(
-        sigc::mem_fun(*this, &CommonEditorWindow::on_outline_activate)
-    );
-*/
 
     win.signal_destroy().connect(
         sigc::mem_fun(*this, &CommonEditorWindow::on_destroy_sig)
@@ -180,6 +145,16 @@ CommonEditorWindow::~CommonEditorWindow()
     destroyer.run();
 }
 
+CodeEditorAbstract_shared CommonEditorWindow::getOwnPtr() const
+{
+    return own_ptr;
+}
+
+ProjectCtl_shared CommonEditorWindow::getProjectCtl() const
+{
+    return project_ctl;
+}
+
 void CommonEditorWindow::show()
 {
     std::cout << "CommonEditorWindow::show()" << std::endl;
@@ -204,92 +179,6 @@ bool CommonEditorWindow::on_signal_close_request()
     destroyer.run();
     return false;
 }
-
-/*
-void CommonEditorWindow::setup_outline_columns()
-{
-    auto factory = Gtk::SignalListItemFactory::create();
-    factory->signal_setup().connect(
-        sigc::bind(
-            [](
-                const Glib::RefPtr<Gtk::ListItem> &list_item
-            )
-            {
-                list_item->set_child(
-                    *Gtk::make_managed<Gtk::Label>(
-                        "",
-                        Gtk::Align::START
-                    )
-                );
-            }
-        )
-    );
-    // sigc::mem_fun(*this, &CommonEditorWindow::table_cell_setup),
-    // Gtk::Align::START
-    factory->signal_bind().connect(
-        sigc::bind(
-            [](const Glib::RefPtr<Gtk::ListItem> &list_item)
-            {
-                auto col = std::dynamic_pointer_cast<OutlineTableRow>(
-                    list_item->get_item()
-                );
-                if (!col)
-                    return;
-                auto label = dynamic_cast<Gtk::Label *>(
-                    list_item->get_child()
-                );
-                if (!label)
-                    return;
-                label->set_text(std::format("{}", col->line));
-            }
-        )
-    );
-
-    auto column = Gtk::ColumnViewColumn::create("Line", factory);
-    column->set_fixed_width(50);
-    column->set_resizable(true);
-    outline_view.append_column(column);
-
-    // -------------
-    factory = Gtk::SignalListItemFactory::create();
-    factory->signal_setup().connect(
-        sigc::bind(
-            [](
-                const Glib::RefPtr<Gtk::ListItem> &list_item
-            )
-            {
-                list_item->set_child(*Gtk::make_managed<Gtk::Label>(
-                    "",
-                    Gtk::Align::START
-                )
-                );
-            }
-        )
-    );
-    factory->signal_bind().connect(
-        sigc::bind(
-            [](const Glib::RefPtr<Gtk::ListItem> &list_item)
-            {
-                auto col = std::dynamic_pointer_cast<OutlineTableRow>(
-                    list_item->get_item()
-                );
-                if (!col)
-                    return;
-                auto label = dynamic_cast<Gtk::Label *>(
-                    list_item->get_child()
-                );
-                if (!label)
-                    return;
-                label->set_text(col->text);
-            }
-        )
-    );
-
-    column = Gtk::ColumnViewColumn::create("Text", factory);
-    column->set_expand(true);
-    outline_view.append_column(column);
-}
-*/
 
 void CommonEditorWindow::make_menubar()
 {
@@ -339,13 +228,17 @@ void CommonEditorWindow::make_menubar()
     menu_model->append_submenu("Project Menu", mm_project_mnu);
 
     menu_bar.set_menu_model(menu_model);
+
+    params.menu_maker_cb(this);
 };
 
+/*
 void CommonEditorWindow::make_special_menu()
 {
     // note: this is to be overriden by inheriting class
     return;
 }
+*/
 
 void CommonEditorWindow::make_actions()
 {
@@ -399,13 +292,17 @@ void CommonEditorWindow::make_actions()
     wmg.addActionsToActionGroup(action_group);
 
     win.insert_action_group("editor_window", action_group);
+
+    params.actions_maker_cb(this);
 }
 
+/*
 void CommonEditorWindow::make_special_actions()
 {
     // note: this is to be overriden by inheriting class
     return;
 }
+*/
 
 void CommonEditorWindow::make_hotkeys()
 {
@@ -442,15 +339,32 @@ void CommonEditorWindow::make_hotkeys()
         Gtk::NamedAction::create("editor_window.search_show_window")
     ));
     win.add_controller(controller);
+
+    params.hotkeys_maker_cb(this);
 }
 
+WorkSubject_shared CommonEditorWindow::getWorkSubject() const
+{
+    return subject;
+}
+
+bool CommonEditorWindow::workSubjectIs(WorkSubject_shared subj) const
+{
+    if (!subj || !subject)
+    {
+        return false;
+    }
+    return subj == subject;
+}
+
+/*
 void CommonEditorWindow::make_special_hotkeys()
 {
     // note: this is to be overriden by inheriting class
     return;
-}
+}*/
 
-Glib::RefPtr<Gio::Menu> CommonEditorWindow::getMenuModel()
+Glib::RefPtr<Gio::Menu> CommonEditorWindow::getMenuModel() const
 {
     return menu_model;
 }
@@ -521,59 +435,6 @@ void CommonEditorWindow::restoreState()
     );
 }
 
-/*
-void CommonEditorWindow::setOutlineContents(
-    std::vector<std::tuple<std::size_t, std::string>> val
-)
-{
-    // todo: save and restore current view
-    outline_list_store->remove_all();
-
-    auto i = val.begin();
-    while (i != val.end())
-    {
-        auto x = OutlineTableRow::create();
-
-        std::tie(x->line, x->text) = *i;
-        outline_list_store->append(x);
-        ++i;
-    }
-
-    outline_list_store->sort(
-        sigc::slot<
-            int(
-                const Glib::RefPtr<const OutlineTableRow> &,
-                const Glib::RefPtr<const OutlineTableRow> &
-            )>(
-            [](const Glib::RefPtr<const OutlineTableRow> &p1,
-               const Glib::RefPtr<const OutlineTableRow> &p2)
-            {
-                if (p1->line == p2->line)
-                {
-                    return 0;
-                }
-                if (p1->line < p2->line)
-                {
-                    return -1;
-                }
-                if (p1->line > p2->line)
-                {
-                    return 1;
-                }
-                return 0;
-            }
-        )
-    );
-}
-*/
-/*
-std::vector<std::tuple<std::size_t, std::string>>
-    CommonEditorWindow::genOutlineContents()
-{
-    return {};
-}
-*/
-
 void CommonEditorWindow::redraw_linum(
     const Cairo::RefPtr<Cairo::Context> &cont,
     int                                  width,
@@ -620,7 +481,7 @@ Gtk::Window &CommonEditorWindow::getWindowRef()
     return win;
 }
 
-std::size_t CommonEditorWindow::getCursorOffsetPosition()
+std::size_t CommonEditorWindow::getCursorOffsetPosition() const
 {
     auto tb = subject->getTextBuffer();
 
@@ -645,7 +506,7 @@ void CommonEditorWindow::setCursorOffsetPosition(
     }
 }
 
-std::size_t CommonEditorWindow::getCurrentLine()
+std::size_t CommonEditorWindow::getCurrentLine() const
 {
     auto tb = subject->getTextBuffer();
 
@@ -694,7 +555,7 @@ void CommonEditorWindow::unselect()
     tb->place_cursor(tb->get_iter_at_mark(tb->get_insert())); // is there better way to deselect?
 }
 
-std::string CommonEditorWindow::getText()
+std::string CommonEditorWindow::getText() const
 {
     return subject->getText();
 }
@@ -724,8 +585,7 @@ void CommonEditorWindow::action_work_subject_close()
 
 void CommonEditorWindow::action_search_show_window()
 {
-    auto ed1 = dynamic_cast<CodeEditorAbstract *>(this);
-    auto w   = FindText::create(ed1->getOwnPtr());
+    auto w = FindText::create(own_ptr);
     w->show();
 
     // todo: move registration inside of FindText constructor
@@ -737,13 +597,13 @@ void CommonEditorWindow::action_search_show_window()
 void CommonEditorWindow::action_windows_prev_window()
 {
     std::cout << "CommonEditorWindow::action_windows_prev_window" << std::endl;
-    project_ctl->showPrevEditor(getOwnPtr());
+    project_ctl->showPrevEditor(own_ptr);
 }
 
 void CommonEditorWindow::action_windows_next_window()
 {
     std::cout << "CommonEditorWindow::action_windows_next_window" << std::endl;
-    project_ctl->showNextEditor(getOwnPtr());
+    project_ctl->showNextEditor(own_ptr);
 }
 
 void CommonEditorWindow::action_windows_duplicate_window()
@@ -755,27 +615,5 @@ void CommonEditorWindow::action_windows_close_window()
 {
     destroy();
 }
-
-/*
-void CommonEditorWindow::on_outline_refresh_btn()
-{
-    auto oc = genOutlineContents();
-    setOutlineContents(oc);
-}
-*/
-
-/*
-void CommonEditorWindow::on_outline_activate(guint val)
-{
-    auto x = outline_list_store->get_item(val);
-    // std::cout << "x == " << x->line << std::endl;
-
-    auto tb = subject->getTextBuffer();
-
-    auto iter_at_line = tb->get_iter_at_line(x->line);
-    text_view.scroll_to(iter_at_line, 0, 0.5, 0.5);
-    tb->place_cursor(iter_at_line);
-}
-*/
 
 } // namespace wayround_i2p::ccedit

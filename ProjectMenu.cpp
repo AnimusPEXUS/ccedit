@@ -21,6 +21,13 @@ Glib::RefPtr<Gio::Menu> ProjectMenuGenerator::createProjectMenu(
 {
     auto sect_m = Gio::Menu::create();
 
+    auto sect_m0 = Gio::Menu::create();
+
+    sect_m0->append(
+        "New FileExplorer",
+        group_name + ".action_create_new_explorer"
+    );
+
     auto sect_m1 = Gio::Menu::create();
 
     sect_m1->append(
@@ -30,10 +37,6 @@ Glib::RefPtr<Gio::Menu> ProjectMenuGenerator::createProjectMenu(
     sect_m1->append(
         "Project Controller",
         group_name + ".action_show_project_ctl"
-    );
-    sect_m1->append(
-        "Create New FileExplorer",
-        group_name + ".action_create_new_explorer"
     );
 
     auto sect_m2 = Gio::Menu::create();
@@ -51,10 +54,11 @@ Glib::RefPtr<Gio::Menu> ProjectMenuGenerator::createProjectMenu(
     );
 
     sect_m3->append(
-        "Close ccedit",
+        "Quit Program",
         group_name + ".action_close_ccedit"
     );
 
+    sect_m->append_section(sect_m0);
     sect_m->append_section(sect_m1);
     sect_m->append_section(sect_m2);
     sect_m->append_section(sect_m3);

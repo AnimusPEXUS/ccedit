@@ -44,6 +44,8 @@ ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared project_ctl) :
     main_box.append(b_box);
 
     b_box.append(show_windows_btn);
+    b_box.append(rotate_paned_btn);
+
     b_box.add_css_class("toolbar");
 
     main_box.append(ws_ed_paned);
@@ -55,10 +57,13 @@ ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared project_ctl) :
     show_windows_btn.set_menu_model(
         wmg.createProjectMenu("project_ctl_window")
     );
-    show_windows_btn.add_css_class("circular");
-    show_windows_btn.set_has_frame(true);
+    // show_windows_btn.add_css_class("circular");
+    // show_windows_btn.set_has_frame(true);
     show_windows_btn.set_icon_name("applications-utilities");
     show_windows_btn.set_tooltip_text("Project Menu");
+
+    rotate_paned_btn.set_icon_name("object-rotate-right");
+    rotate_paned_btn.set_tooltip_text("Rorate Lists");
 
     // ------- work subjects -------
 
@@ -114,6 +119,11 @@ ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared project_ctl) :
         true
     );
 
+    rotate_paned_btn.signal_clicked().connect(
+        [this]()
+        { on_rotate_paned_btn(); }
+    );
+
     auto action_group = Gio::SimpleActionGroup::create();
     wmg.addActionsToActionGroup(action_group);
     win.insert_action_group("project_ctl_window", action_group);
@@ -148,6 +158,17 @@ bool ProjectCtlWin::on_signal_close_request()
     return false;
 }
 
+void ProjectCtlWin::on_rotate_paned_btn()
+{
+    ws_ed_paned.set_orientation(
+        (
+            ws_ed_paned.get_orientation() == Gtk::Orientation::HORIZONTAL ?
+                Gtk::Orientation::VERTICAL :
+                Gtk::Orientation::HORIZONTAL
+        )
+    );
+}
+
 void ProjectCtlWin::ws_add_columns()
 {
     auto factory = Gtk::SignalListItemFactory::create();
@@ -172,7 +193,7 @@ void ProjectCtlWin::ws_add_columns()
         }
     );
 
-    auto column = Gtk::ColumnViewColumn::create("Work Subject", factory);
+    auto column = Gtk::ColumnViewColumn::create("Open Work Subjects", factory);
     column->set_expand(true);
     ws_view.append_column(column);
 }
@@ -201,7 +222,7 @@ void ProjectCtlWin::eds_add_columns()
         }
     );
 
-    auto column = Gtk::ColumnViewColumn::create("Editor", factory);
+    auto column = Gtk::ColumnViewColumn::create("Open Editors", factory);
     column->set_expand(true);
     eds_view.append_column(column);
 }

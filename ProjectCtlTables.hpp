@@ -48,10 +48,9 @@ class CodeEditorTableRowWidget : public Gtk::Box
     void unbind(const Glib::RefPtr<Gtk::ListItem> &list_item);
 
   private:
-    CodeEditorAbstract_shared editor;
+    CodeEditorAbstract_shared bond_ed;
 
-    Gtk::Box    button_box1;
-    Gtk::Box    button_box2;
+    Gtk::Grid   btn_grid;
     Gtk::Button btn_close;
     Gtk::Button btn_show;
     Gtk::Button btn_up;

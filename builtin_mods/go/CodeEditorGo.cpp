@@ -8,34 +8,60 @@ extern "C" {
 #include <experimental/scope>
 
 #include <format>
-// #include <regex>
 #include <thread>
 
 #include <boost/regex.hpp>
 
 #include "../../utils.hpp"
+
 #include "CodeEditorGo.hpp"
 
 namespace wayround_i2p::ccedit
 {
 
-std::shared_ptr<CodeEditorAbstract> CodeEditorGo::create(
-    std::shared_ptr<ProjectCtl>  proj_ctl,
-    std::shared_ptr<WorkSubject> subj
+CodeEditorGo_shared create(
+    ProjectCtl_shared  project_ctl,
+    WorkSubject_shared subject
 )
 {
-    auto x = std::shared_ptr<CodeEditorGo>(
+    auto ret = CodeEditorGo_shared(
         new CodeEditorGo(proj_ctl, subj)
     );
-    x->own_ptr = x;
-    return std::dynamic_pointer_cast<CodeEditorAbstract>(x);
+    ret->own_ptr = ret;
+
+    // todo: move this to constructor? also somehow need to move this to
+    //       CommonEditor or into some better place
+    project_ctl->registerEditor(ret);
+    project_ctl->getController()->registerWindow(ret->getWindowPtr());
+
+    return ret;
 }
 
 CodeEditorGo::CodeEditorGo(
-    std::shared_ptr<ProjectCtl>  project_ctl,
-    std::shared_ptr<WorkSubject> subject
+    ProjectCtl_shared  project_ctl,
+    WorkSubject_shared subject
 ) :
-    CommonEditorWindow(project_ctl, subject)
+    CommonEditorWindow(
+        project_ctl,
+        subject,
+        [this]()
+        {
+            std::cout << "CodeEditorGo::CommonEditorWindow::destroyer_cb"
+                      << std::endl;
+            destroyer.run();
+        }
+    ),
+    destroyer(
+        [this]()
+        {
+            std::cout << "CodeEditorGo::destroyer.run()" << std::endl;
+            this->project_ctl->unregisterEditor(
+                this->own_ptr
+            );
+            CommonEditorWindow::destroy();
+            own_ptr.reset();
+        }
+    )
 {
 
     this->project_ctl = project_ctl;
@@ -48,18 +74,21 @@ CodeEditorGo::CodeEditorGo(
 
 CodeEditorGo::~CodeEditorGo()
 {
-    std::cout << "~CodeEditorGo()" << std::endl;
+    std::cout << "CodeEditorGo::~CodeEditorGo()" << std::endl;
+    destroyer.run();
 }
 
-std::shared_ptr<CodeEditorAbstract> CodeEditorGo::getOwnPtr()
+void CodeEditorGo::destroy()
+{
+    std::cout << "CodeEditorGo::destroy()" << std::endl;
+    destroyer.run();
+}
+
+CodeEditorAbstract_shared CodeEditorGo::getOwnPtr()
 {
     return dynamic_pointer_cast<CodeEditorAbstract>(own_ptr);
 }
 
-void CodeEditorGo::resetOwnPtr()
-{
-    own_ptr.reset();
-}
 void CodeEditorGo::make_special_menu()
 {
 
@@ -84,7 +113,10 @@ void CodeEditorGo::make_special_actions()
         "go_fmt_buffer",
         sigc::mem_fun(*this, &CodeEditorGo::go_fmt_buffer)
     );
-    insert_action_group("editor_window_special", action_group);
+    getWindowRef().insert_action_group(
+        "editor_window_special",
+        action_group
+    );
     return;
 }
 

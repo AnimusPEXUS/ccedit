@@ -48,6 +48,7 @@ class ProjectCtlWin
     Gtk::Box b_box;
 
     Gtk::MenuButton show_windows_btn;
+    Gtk::Button     rotate_paned_btn;
 
     Gtk::Paned ws_ed_paned;
 
@@ -92,6 +93,8 @@ class ProjectCtlWin
     );
 
     // -------------------------
+
+    void on_rotate_paned_btn();
 
     void on_hide_sig();
     void on_destroy_sig();

@@ -5,49 +5,51 @@
 
 #include "../../CommonEditorWindow.hpp"
 
+#include "../../utils.hpp"
+
 namespace wayround_i2p::ccedit
 {
+
+class CodeEditorGo;
+using CodeEditorGo_shared = std::shared_ptr<CodeEditorGo>;
+using CodeEditorGo_weak   = std::weak_ptr<CodeEditorGo>;
 
 class CodeEditorGo : public CommonEditorWindow
 {
   public:
-    static std::shared_ptr<CodeEditorAbstract> create(
-        std::shared_ptr<ProjectCtl>  proj_ctl,
-        std::shared_ptr<WorkSubject> subj
+    static CodeEditorGo_shared create(
+        ProjectCtl_shared  project_ctl,
+        WorkSubject_shared subject
     );
-
-    ~CodeEditorGo();
-
-    std::shared_ptr<CodeEditorAbstract> getOwnPtr() override;
-    void                                resetOwnPtr() override;
-
-    std::shared_ptr<WorkSubject> getWorkSubject() override;
-    bool                         workSubjectIs(std::shared_ptr<WorkSubject>) override;
-
-    // todo: is this good place for this?
-    std::vector<std::tuple<unsigned int, std::string>>
-        genOutlineContents() override;
 
   protected:
     CodeEditorGo(
-        std::shared_ptr<ProjectCtl>  project_ctl,
-        std::shared_ptr<WorkSubject> subject
+        ProjectCtl_shared  project_ctl,
+        WorkSubject_shared subject
     );
 
-  private:
-    std::shared_ptr<ProjectCtl>  project_ctl;
-    std::shared_ptr<WorkSubject> subject;
+  public:
+    ~CodeEditorGo();
 
-    std::shared_ptr<CodeEditorGo> own_ptr;
+    CodeEditorAbstract_shared getOwnPtr();
+
+  private:
+    CodeEditorGo_shared own_ptr;
+
+    RunOnce destroyer;
+
+    ProjectCtl_shared  project_ctl;
+    WorkSubject_shared subject;
+
 
     Glib::RefPtr<Gio::Menu>     mm_special;
     Glib::RefPtr<Gio::MenuItem> mm_special_go_fmt;
 
     void go_fmt_buffer();
 
-    void make_special_menu() override;
-    void make_special_actions() override;
-    void make_special_hotkeys() override;
+    void make_special_menu();
+    void make_special_actions();
+    void make_special_hotkeys();
 };
 
 } // namespace wayround_i2p::ccedit
