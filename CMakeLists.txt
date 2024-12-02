@@ -52,8 +52,8 @@ add_executable(
   builtin_mods/ccpp/mod_ccpp.cpp
   builtin_mods/go/CodeEditorGo.cpp
   builtin_mods/go/mod_go.cpp
-  # builtin_mods/python/CodeEditorPy.cpp
-  # builtin_mods/python/mod_py.cpp
+  builtin_mods/python/CodeEditorPy.cpp
+  builtin_mods/python/mod_python.cpp
 )
 
 #target_compile_options(

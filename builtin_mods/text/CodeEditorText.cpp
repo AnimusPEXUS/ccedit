@@ -13,14 +13,14 @@ extern "C" {
 
 #include <boost/regex.hpp>
 
-#include "../../utils.hpp"
+#include "CodeEditorCCPP.hpp"
 
-#include "CodeEditorPy.hpp"
+#include "../../Controller.hpp"
 
 namespace wayround_i2p::ccedit
 {
 
-CommonEditorWindow_shared createPythonEditor(
+CommonEditorWindow_shared createCCPPEditor(
     ProjectCtl_shared  project_ctl,
     WorkSubject_shared subject
 )
@@ -29,36 +29,36 @@ CommonEditorWindow_shared createPythonEditor(
         project_ctl,
         subject,
         {
-            menu_maker_cb : &python_menu_maker_cb,
-            actions_maker_cb : &python_actions_maker_cb,
-            hotkeys_maker_cb : &python_hotkeys_maker_cb
+            menu_maker_cb : &ccpp_menu_maker_cb,
+            actions_maker_cb : &ccpp_actions_maker_cb,
+            hotkeys_maker_cb : &ccpp_hotkeys_maker_cb
         }
     );
     return ed;
 }
 
-void python_menu_maker_cb(CommonEditorWindow *ed_win)
+void ccpp_menu_maker_cb(CommonEditorWindow *ed_win)
 {
-    auto mm_special_autopep8 = Gio::MenuItem::create(
-        "use autopep8 on buffer",
-        "editor_window_special.autopep8_buffer"
+    auto mm_special_clang_format = Gio::MenuItem::create(
+        "use clang-format on buffer",
+        "editor_window_special.clang_format_buffer"
     );
 
     auto mm_special = Gio::Menu::create();
 
-    mm_special->append_item(mm_special_autopep8);
+    mm_special->append_item(mm_special_clang_format);
 
     auto target_menu = ed_win->getMenuModel();
 
-    target_menu->append_submenu("Python", mm_special);
+    target_menu->append_submenu("C/C++", mm_special);
 }
 
-void python_actions_maker_cb(CommonEditorWindow *ed_win)
+void ccpp_actions_maker_cb(CommonEditorWindow *ed_win)
 {
     auto action_group = Gio::SimpleActionGroup::create();
 
     action_group->add_action(
-        "autopep8_buffer",
+        "clang_format_buffer",
         [ed_win]()
         {
             auto subj = ed_win->getWorkSubject();
@@ -67,7 +67,7 @@ void python_actions_maker_cb(CommonEditorWindow *ed_win)
 
             // todo: check what dir is correctly calculated here and in
             //       Subject
-            auto [ret, err] = autopep8_text(
+            auto [ret, err] = clang_format_txt(
                 txt,
                 subj->getFullPath().parent_path()
             );
@@ -88,7 +88,7 @@ void python_actions_maker_cb(CommonEditorWindow *ed_win)
     );
 }
 
-void python_hotkeys_maker_cb(CommonEditorWindow *ed_win)
+void ccpp_hotkeys_maker_cb(CommonEditorWindow *ed_win)
 {
     auto controller = Gtk::ShortcutController::create();
 
@@ -100,7 +100,7 @@ void python_hotkeys_maker_cb(CommonEditorWindow *ed_win)
                     | Gdk::ModifierType::SHIFT_MASK
             ),
             Gtk::NamedAction::create(
-                "editor_window_special.autopep8_buffer"
+                "editor_window_special.clang_format_buffer"
             )
         )
     );
@@ -108,12 +108,11 @@ void python_hotkeys_maker_cb(CommonEditorWindow *ed_win)
     ed_win->getWindowRef().add_controller(controller);
 }
 
-std::tuple<std::string, int> autopep8_text(
+std::tuple<std::string, int> clang_format_txt(
     std::string           txt,
     std::filesystem::path wd
 )
 {
-    // todo: display error messages
     int err = 0;
 
     int in_pipe[2];
@@ -122,7 +121,7 @@ std::tuple<std::string, int> autopep8_text(
     err = pipe(in_pipe);
     if (err != 0)
     {
-        return {"", 6};
+        return {"", 9};
     }
 
     auto se01 = std::experimental::fundamentals_v3::scope_exit(
@@ -136,7 +135,7 @@ std::tuple<std::string, int> autopep8_text(
     err = pipe(out_pipe);
     if (err != 0)
     {
-        return {"", 5};
+        return {"", 8};
     }
 
     auto se02 = std::experimental::fundamentals_v3::scope_exit(
@@ -151,7 +150,7 @@ std::tuple<std::string, int> autopep8_text(
 
     if (pid < 0)
     {
-        return {"", 4};
+        return {"", 7};
     }
 
     if (pid == 0)
@@ -167,15 +166,9 @@ std::tuple<std::string, int> autopep8_text(
         ::close(in_pipe[1]);
         ::close(out_pipe[0]);
         ::close(out_pipe[1]);
-        // todo:
-        // fixme: this doens't work: autopep8 doesn't accept stdin/stdout pipes
-        // and shows help
-        execlp(
-            "autopep8",
-            "-",
-            (char *)NULL
-        );
-        return {"", 3};
+        // todo: compiler says null is wrong here
+        execlp("clang-format", (char *)NULL);
+        return {"", 6};
     }
 
     if (pid != 0)
@@ -265,10 +258,72 @@ std::tuple<std::string, int> autopep8_text(
             return {str_to_read, 0};
         }
 
-        return {"", 2};
+        return {"", 1};
     }
 
-    return {"", 1};
+    return {"", 2};
 }
+
+/*
+std::vector<std::tuple<std::size_t, std::string>>
+    CodeEditorCCPP::genOutlineContents()
+{
+
+    std::vector<std::tuple<std::size_t, std::string>> ret;
+
+    auto text_TextBuffer = subject->getTextBuffer();
+    auto text            = subject->getText();
+
+    std::vector<std::tuple<boost::regex, boost::regex_constants::match_flag_type>> rexps = {
+        {boost::regex(
+             R"%(^.*?(public|private|protected).*?\:)%",
+         boost::regex_constants::ECMAScript
+         ),
+         boost::regex_constants::match_not_dot_newline},
+
+        {boost::regex(
+             R"%(^.*?(class|struct)(.|\n)*?[{;])%",
+         boost::regex_constants::ECMAScript
+         ),
+         boost::regex_constants::match_not_dot_newline},
+        {boost::regex(
+             R"%(^\s*[a-zA-Z_0-9]+(<(.|\n)*?>)\((.|\n)*?\)(.|\n)*?[{;]?)%",
+         boost::regex_constants::ECMAScript
+         ),
+         boost::regex_constants::match_not_dot_newline},
+
+        // todo: next regex requires improvments
+        // todo: clang-format settings also requires improvments
+        {boost::regex(
+             R"%((\@\w+\s*)?)%"
+             R"%(((public|protected|private|abstract|static|final|strictfp)\s+)*)%"
+             R"%(\w+\s*(?!(new|catch|if|for|while)\s+)\(.*?\).*?[{;])%",
+         boost::regex_constants::ECMAScript
+         ),
+         boost::regex_constants::match_not_dot_newline}
+    };
+
+    auto match_end = boost::sregex_iterator();
+
+    std::cout << "for" << std::endl;
+    for (auto i = rexps.begin(); i != rexps.end(); i++)
+    {
+        std::cout << "iter" << std::endl;
+        auto match_begin = boost::sregex_iterator(text.begin(), text.end(), std::get<0>(*i), std::get<1>(*i));
+        for (auto j = match_begin; j != match_end; j++)
+        {
+            auto match     = *j;
+            auto pos       = match.position();
+            auto iter      = text_TextBuffer->get_iter_at_offset(pos);
+            auto iter_line = iter.get_line();
+            auto text      = match.str();
+
+            ret.push_back({iter_line, text});
+        }
+    }
+
+    return ret;
+}
+*/
 
 } // namespace wayround_i2p::ccedit
