@@ -232,7 +232,10 @@ void CommonEditorWindow::make_menubar()
 
     menu_bar.set_menu_model(menu_model);
 
-    params.menu_maker_cb(this);
+    if (params.menu_maker_cb)
+    {
+        params.menu_maker_cb(this);
+    }
 };
 
 /*
@@ -296,7 +299,10 @@ void CommonEditorWindow::make_actions()
 
     win.insert_action_group("editor_window", action_group);
 
-    params.actions_maker_cb(this);
+    if (params.actions_maker_cb)
+    {
+        params.actions_maker_cb(this);
+    }
 }
 
 /*
@@ -343,7 +349,10 @@ void CommonEditorWindow::make_hotkeys()
     ));
     win.add_controller(controller);
 
-    params.hotkeys_maker_cb(this);
+    if (params.hotkeys_maker_cb)
+    {
+        params.hotkeys_maker_cb(this);
+    }
 }
 
 WorkSubject_shared CommonEditorWindow::getWorkSubject() const

@@ -13,7 +13,7 @@ CodeEditorMod mod_info_go = {
     name : "Golang",
     title : "Golang",
     description : "Golang editor",
-    supported_extensions : {".go"},
+    supported_fn_masks : {"*.go"},
     newEditorForSubject : &createGolangEditor
 };
 

@@ -14,6 +14,7 @@
 #include "builtin_mods/ccpp/mod_ccpp.hpp"
 #include "builtin_mods/go/mod_go.hpp"
 #include "builtin_mods/python/mod_python.hpp"
+#include "builtin_mods/text/mod_text.hpp"
 
 namespace wayround_i2p::ccedit
 {
@@ -22,6 +23,7 @@ namespace wayround_i2p::ccedit
 //       so it would be easier to find
 int Controller::addBuiltinMods()
 {
+    addBuiltinMod(get_mod_info_text());
     addBuiltinMod(get_mod_info_ccpp());
     addBuiltinMod(get_mod_info_go());
     addBuiltinMod(get_mod_info_python());

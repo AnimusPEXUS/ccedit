@@ -8,6 +8,8 @@
 #include "ProjectCtlWin.hpp"
 #include "WorkSubject.hpp"
 
+#include "posix_interface.hpp"
+
 namespace wayround_i2p::ccedit
 {
 
@@ -283,13 +285,15 @@ CodeEditorAbstract_shared
     // todo: plain text or hex viewver should be used by default
     CodeEditorMod *best_editor_mod = nullptr;
 
-    auto subj_pth = subj->getPath().string();
+    auto subj_pth      = subj->getPath().string();
+    auto subj_filename = subj->getPath().filename();
 
     for (CodeEditorMod *x : controller->getBuiltinMods())
     {
-        for (auto ext : x->supported_extensions)
+        for (auto msk : x->supported_fn_masks)
         {
-            if (subj_pth.ends_with(ext))
+            auto [ok, fn_res] = fnmatch_simple(msk, subj_filename);
+            if (fn_res == 0 && ok)
             {
                 best_editor_mod = x;
                 break;

@@ -20,7 +20,7 @@ struct CodeEditorMod
     std::string             title;
     std::string             description;
     std::deque<std::string> tags;
-    std::deque<std::string> supported_extensions;
+    std::deque<std::string> supported_fn_masks;
 
     bool feature_text_editor;
     bool feature_binary_editor;

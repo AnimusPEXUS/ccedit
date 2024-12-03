@@ -15,7 +15,7 @@ CodeEditorMod mod_info_python = {
     name : "PyEdit",
     title : "Python",
     description : "Python editor",
-    supported_extensions : {".py", ".pyx", ".pyd"},
+    supported_fn_masks : {"*.py", "*.pyx", "*.pyd"},
     newEditorForSubject : &createPythonEditor
 };
 

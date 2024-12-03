@@ -15,7 +15,15 @@ namespace ccedit
         name : "CCPP",
         title : "C/C++",
         description : "C/C++ editor",
-        supported_extensions : {".cpp", ".c", ".cc", ".hpp", ".h", ".hh"},
+        supported_fn_masks :
+            {
+               "*.cpp",
+               "*.c",
+               "*.cc",
+               "*.hpp",
+               "*.h",
+               "*.hh"
+            },
         newEditorForSubject : &createCCPPEditor
     };
 

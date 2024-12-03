@@ -3,26 +3,25 @@
 #include <tuple>
 
 #include "../../CommonEditorWindow.hpp"
-#include "CodeEditorCCPP.hpp"
-#include "mod_ccpp.hpp"
 
-namespace wayround_i2p
+#include "CodeEditorText.hpp"
+
+#include "mod_text.hpp"
+
+namespace wayround_i2p::ccedit
 {
-namespace ccedit
+
+CodeEditorMod mod_info_text = {
+    name : "text",
+    title : "Plain Text Editor",
+    description : "Editor for editing plain texts",
+    supported_fn_masks : {"*.txt", "*.md", "README"},
+    newEditorForSubject : &createTextEditor
+};
+
+CodeEditorMod *get_mod_info_text()
 {
+    return &mod_info_text;
+}
 
-    CodeEditorMod mod_info_ccpp = {
-        name : "CCPP",
-        title : "C/C++",
-        description : "C/C++ editor",
-        supported_extensions : {".cpp", ".c", ".cc", ".hpp", ".h", ".hh"},
-        newEditorForSubject : &createCCPPEditor
-    };
-
-    CodeEditorMod *get_mod_info_ccpp()
-    {
-        return &mod_info_ccpp;
-    }
-
-} // namespace ccedit
-} // namespace wayround_i2p
+} // namespace wayround_i2p::ccedit
