@@ -31,6 +31,7 @@ add_executable(
   Controller.cpp
   FileExplorer.cpp
   FileExplorerTables.cpp
+  FileExplorerMakeFileDir.cpp
   FindFile.cpp
   FindTables.cpp
   FindText.cpp

@@ -1,5 +1,5 @@
-#ifndef zzz
-#define zzz
+#ifndef WAYROUND_I2P_20241204_051018_602264
+#define WAYROUND_I2P_20241204_051018_602264
 
 #include <string>
 #include <tuple>

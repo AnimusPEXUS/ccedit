@@ -1,5 +1,5 @@
-#ifndef WAYROUND_I2P_20241125_061830_591310
-#define WAYROUND_I2P_20241125_061830_591310
+#ifndef WAYROUND_I2P_20241204_051018_589693
+#define WAYROUND_I2P_20241204_051018_589693
 
 #include <iostream>
 
@@ -83,8 +83,8 @@ class FileExplorer
     // Gtk::Separator sep2;
     Gtk::Box    fb3;
     Gtk::Button make_file_or_directory_btn;
-    Gtk::Button rename_file_or_directory_btn;
-    Gtk::Button remove_file_or_directory_btn;
+    // Gtk::Button rename_file_or_directory_btn;
+    // Gtk::Button remove_file_or_directory_btn;
     // Gtk::Separator sep3;
 
     Gtk::MenuButton show_windows_btn;
@@ -129,7 +129,8 @@ class FileExplorer
     void on_find_file_btn();
 
     void on_make_file_or_directory_btn();
-    void on_rename_file_or_directory_btn();
+
+    // void on_rename_file_or_directory_btn();
 
     void on_destroy_sig();
 
@@ -138,63 +139,6 @@ class FileExplorer
     // working variables
 
     std::filesystem::path opened_subdir;
-};
-
-class FileExplorerMakeFileDir
-{
-  public:
-    static FileExplorerMakeFileDir_shared create(
-        FileExplorer_shared   expl,
-        std::filesystem::path subdir
-    );
-
-    ~FileExplorerMakeFileDir();
-
-    void show();
-    void destroy();
-
-  protected:
-    FileExplorerMakeFileDir(
-        FileExplorer_shared   expl,
-        std::filesystem::path subdir
-    );
-
-  private:
-    FileExplorerMakeFileDir_shared own_ptr;
-
-    RunOnce destroyer;
-
-    FileExplorer_shared   expl;
-    std::filesystem::path subdir;
-
-    Gtk::Window win;
-
-    Gtk::Box  main_box;
-    Gtk::Grid main_grid;
-
-    Gtk::Label placement_lbl;
-    Gtk::Label placement_lbl2;
-
-    Gtk::Label type_name_lbl;
-    Gtk::Entry name_ent;
-
-    Gtk::Box    btn_box;
-    Gtk::Button mk_dir_btn;
-    Gtk::Button mk_file_btn;
-    Gtk::Button cancel_btn;
-
-    void on_mk_dir_btn();
-    void on_mk_file_btn();
-    void on_cancel_btn();
-
-    void on_destroy_sig();
-
-    int common_func(bool file);
-};
-
-class FileExplorerRenameFileDir : public Gtk::Window
-{
-  public:
 };
 
 } // namespace wayround_i2p::ccedit
