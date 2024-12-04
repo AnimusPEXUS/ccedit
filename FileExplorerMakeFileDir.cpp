@@ -1,5 +1,7 @@
 #include "FileExplorerMakeFileDir.hpp"
 
+#include "FileExplorer.hpp"
+
 namespace wayround_i2p::ccedit
 {
 
@@ -33,12 +35,17 @@ FileExplorerMakeFileDir::FileExplorerMakeFileDir(
     this->expl   = expl;
     this->subdir = subdir; // todo: rename to subpath
 
+    win.set_title("Touch File or Make Directory");
+
     win.set_child(main_box);
 
     main_box.set_margin(5);
     main_box.set_spacing(5);
 
-    btn_box.set_spacing(5);
+    // btn_box.set_spacing();
+
+    btn_box.add_css_class("linked");
+    btn_box.set_homogeneous(true);
 
     main_box.set_orientation(Gtk::Orientation::VERTICAL);
     btn_box.set_orientation(Gtk::Orientation::HORIZONTAL);
@@ -52,10 +59,18 @@ FileExplorerMakeFileDir::FileExplorerMakeFileDir(
     main_box.append(main_grid);
     main_box.append(btn_box);
 
-    placement_lbl2.set_text(subdir.string());
+    placement_ent.set_text(subdir.string());
+    placement_ent.set_editable(false);
+
+    main_grid.set_vexpand(true);
+
+    main_grid.set_row_homogeneous(true);
+
+    main_grid.set_column_spacing(5);
+    main_grid.set_row_spacing(5);
 
     main_grid.attach(placement_lbl, 0, 0);
-    main_grid.attach(placement_lbl2, 1, 0);
+    main_grid.attach(placement_ent, 1, 0);
 
     main_grid.attach(type_name_lbl, 0, 1);
     main_grid.attach(name_ent, 1, 1);
@@ -71,23 +86,35 @@ FileExplorerMakeFileDir::FileExplorerMakeFileDir(
     mk_file_btn.set_label("Make File");
     cancel_btn.set_label("Cancel");
 
+    win.set_focus(name_ent);
+
+    win.set_transient_for(expl->getWindowRef());
+    win.set_destroy_with_parent(true);
+
     mk_dir_btn.signal_clicked().connect(
-        sigc::mem_fun(*this, &FileExplorerMakeFileDir::on_mk_dir_btn)
+        [this]()
+        { on_mk_dir_btn(); }
     );
 
     mk_file_btn.signal_clicked().connect(
-        sigc::mem_fun(*this, &FileExplorerMakeFileDir::on_mk_file_btn)
+        [this]()
+        { on_mk_file_btn(); }
     );
 
     cancel_btn.signal_clicked().connect(
-        sigc::mem_fun(*this, &FileExplorerMakeFileDir::on_cancel_btn)
+        [this]()
+        { on_cancel_btn(); }
     );
 
     win.signal_destroy().connect(
-        sigc::mem_fun(
-            *this,
-            &FileExplorerMakeFileDir::on_destroy_sig
-        )
+        [this]()
+        { on_destroy_sig(); }
+    );
+
+    win.signal_close_request().connect(
+        [this]() -> bool
+        { return on_signal_close_request(); },
+        true
     );
 }
 
@@ -99,7 +126,7 @@ FileExplorerMakeFileDir::~FileExplorerMakeFileDir()
 
 void FileExplorerMakeFileDir::show()
 {
-    win.show();
+    win.present();
 }
 
 void FileExplorerMakeFileDir::destroy()
@@ -114,6 +141,13 @@ void FileExplorerMakeFileDir::on_destroy_sig()
     std::cout << "FileExplorerMakeFileDir sig destroy exit" << std::endl;
 }
 
+bool FileExplorerMakeFileDir::on_signal_close_request()
+{
+    std::cout << "FileExplorerMakeFileDir::on_signal_close_request()" << std::endl;
+    destroyer.run();
+    return false;
+}
+
 int FileExplorerMakeFileDir::common_func(bool file)
 {
     // todo: maybe additional name_from_user cleanups needed
@@ -121,24 +155,40 @@ int FileExplorerMakeFileDir::common_func(bool file)
 
     // todo: show messages if error?
 
+    auto x = expl.lock();
+    if (!x)
+    {
+        return 10;
+    }
+
     auto new_name = subdir / std::filesystem::path(name_ent.get_text());
 
-    auto ret = expl->touchFileOrMkDirRelToProject(new_name, file);
+    auto ret = x->touchFileOrMkDirRelToProject(new_name, file);
 
     return ret;
 }
 
 void FileExplorerMakeFileDir::on_mk_dir_btn()
 {
+    auto x = expl.lock();
+    if (!x)
+    {
+        return;
+    }
     common_func(false);
-    expl->fileListRefresh();
+    x->fileListRefresh();
     destroy();
 }
 
 void FileExplorerMakeFileDir::on_mk_file_btn()
 {
+    auto x = expl.lock();
+    if (!x)
+    {
+        return;
+    }
     common_func(true);
-    expl->fileListRefresh();
+    x->fileListRefresh();
     destroy();
 }
 

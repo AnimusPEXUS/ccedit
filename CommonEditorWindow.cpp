@@ -103,40 +103,59 @@ CommonEditorWindow::CommonEditorWindow(
     make_hotkeys();
 
     linum_area.set_draw_func(
-        sigc::mem_fun(*this, &CommonEditorWindow::redraw_linum)
+        [this](
+            const Cairo::RefPtr<Cairo::Context> &cont,
+            int                                  width,
+            int                                  height
+        )
+        {
+            redraw_linum(
+                cont,
+                width,
+                height
+            );
+        }
     );
 
     subject->signal_modified_changed().connect(
-        sigc::mem_fun(*this, &CommonEditorWindow::updateTitle)
+        [this]()
+        { updateTitle(); }
     );
 
     subject->signal_editors_save_state().connect(
-        sigc::mem_fun(*this, &CommonEditorWindow::saveState)
+        [this]()
+        { saveState(); }
     );
 
     subject->signal_editors_restore_state().connect(
-        sigc::mem_fun(*this, &CommonEditorWindow::restoreState)
+        [this]()
+        { restoreState(); }
     );
 
     project_ctl->signal_updated_name().connect(
-        sigc::mem_fun(*this, &CommonEditorWindow::updateTitle)
+        [this]()
+        { updateTitle(); }
     );
 
     win.signal_destroy().connect(
-        sigc::mem_fun(*this, &CommonEditorWindow::on_destroy_sig)
+        [this]()
+        { on_destroy_sig(); }
     );
 
     win.signal_close_request().connect(
-        sigc::mem_fun(*this, &CommonEditorWindow::on_signal_close_request),
+        [this]() -> bool
+        { return on_signal_close_request(); },
         true
     );
 
     text_view_sw.get_vscrollbar()->get_adjustment()->signal_changed().connect(
-        sigc::mem_fun(*this, &CommonEditorWindow::force_redraw_linum)
+        [this]()
+        { force_redraw_linum(); }
     );
 
     text_view_sw.get_vscrollbar()->get_adjustment()->signal_value_changed().connect(
-        sigc::mem_fun(*this, &CommonEditorWindow::force_redraw_linum)
+        [this]()
+        { force_redraw_linum(); }
     );
 
     updateTitle();

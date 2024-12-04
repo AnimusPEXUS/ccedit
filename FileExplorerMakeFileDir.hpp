@@ -1,7 +1,14 @@
 #ifndef WAYROUND_I2P_20241204_051018_574830
 #define WAYROUND_I2P_20241204_051018_574830
 
+#include <filesystem>
+#include <iostream>
+
+#include <gtkmm.h>
+
 #include "forward_declarations.hpp"
+
+#include "utils.hpp"
 
 namespace wayround_i2p::ccedit
 {
@@ -30,7 +37,7 @@ class FileExplorerMakeFileDir
 
     RunOnce destroyer;
 
-    FileExplorer_shared   expl;
+    FileExplorer_weak     expl;
     std::filesystem::path subdir;
 
     Gtk::Window win;
@@ -39,7 +46,7 @@ class FileExplorerMakeFileDir
     Gtk::Grid main_grid;
 
     Gtk::Label placement_lbl;
-    Gtk::Label placement_lbl2;
+    Gtk::Entry placement_ent;
 
     Gtk::Label type_name_lbl;
     Gtk::Entry name_ent;
@@ -54,6 +61,7 @@ class FileExplorerMakeFileDir
     void on_cancel_btn();
 
     void on_destroy_sig();
+    bool on_signal_close_request();
 
     int common_func(bool file);
 };

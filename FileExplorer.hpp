@@ -33,6 +33,9 @@ class FileExplorer
     void show();
     void destroy();
 
+    Gtk::Window &getWindowRef();
+    Gtk::Window *getWindowPtr();
+
     int touchFileOrMkDirRelToProject(
         std::filesystem::path subpath,
         bool                  file
@@ -63,10 +66,7 @@ class FileExplorer
 
     ProjectMenuGenerator wmg;
 
-    // widgets
     Gtk::ApplicationWindow win;
-
-    // Gtk::PopoverMenuBar menu_bar;
 
     Gtk::Box main_box;
 
@@ -133,6 +133,7 @@ class FileExplorer
     // void on_rename_file_or_directory_btn();
 
     void on_destroy_sig();
+    bool on_signal_close_request();
 
     Glib::RefPtr<Gtk::FileDialog> select_file_dialog;
 

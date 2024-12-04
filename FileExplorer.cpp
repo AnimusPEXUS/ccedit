@@ -7,9 +7,9 @@
 
 #include "Controller.hpp"
 #include "FileExplorer.hpp"
+#include "FileExplorerMakeFileDir.hpp"
 #include "FindFile.hpp"
 #include "ProjectCtl.hpp"
-#include "FileExplorerMakeFileDir.hpp"
 
 #include "utils.hpp"
 
@@ -32,8 +32,9 @@ FileExplorer::FileExplorer(ProjectCtl_shared project_ctl) :
     destroyer(
         [this]()
         {
-            win.destroy();
+            std::cout << "FileExplorer::destroyer.run()" << std::endl;
             this->project_ctl->unregisterFileExplorer(own_ptr);
+            win.destroy();
             own_ptr.reset();
         }
     )
@@ -72,21 +73,9 @@ FileExplorer::FileExplorer(ProjectCtl_shared project_ctl) :
     make_file_or_directory_btn.set_image_from_icon_name("document-new");
     make_file_or_directory_btn.set_tooltip_text("mk dir/file..");
 
-    /*
-    rename_file_or_directory_btn.set_label("rename");
-    rename_file_or_directory_btn.set_tooltip_text("Rename.. (todo)");
-    rename_file_or_directory_btn.set_sensitive(false);
-
-    remove_file_or_directory_btn.set_image_from_icon_name("edit-delete");
-    remove_file_or_directory_btn.set_tooltip_text("Delete File or Dir.. (todo)");
-    remove_file_or_directory_btn.add_css_class("destructive-action");
-    remove_file_or_directory_btn.set_sensitive(false);
-*/
-
     show_windows_btn.set_menu_model(
         wmg.createProjectMenu("file_explorer_window")
     );
-    // show_windows_btn.add_css_class("raised");
     show_windows_btn.add_css_class("circular");
     show_windows_btn.set_has_frame(true);
     show_windows_btn.set_icon_name("applications-utilities");
@@ -111,8 +100,8 @@ FileExplorer::FileExplorer(ProjectCtl_shared project_ctl) :
     // path_box.append(sep2);
 
     fb3.append(make_file_or_directory_btn);
-    fb3.append(rename_file_or_directory_btn);
-    fb3.append(remove_file_or_directory_btn);
+    // fb3.append(rename_file_or_directory_btn);
+    // fb3.append(remove_file_or_directory_btn);
 
     path_box.append(fb3);
     // path_box.append(sep3);
@@ -152,43 +141,59 @@ FileExplorer::FileExplorer(ProjectCtl_shared project_ctl) :
     win.set_child(main_box);
 
     reset_view_btn.signal_clicked().connect(
-        sigc::mem_fun(*this, &FileExplorer::on_reset_view_btn)
+        [this]()
+        { on_reset_view_btn(); }
     );
 
     go_root_btn.signal_clicked().connect(
-        sigc::mem_fun(*this, &FileExplorer::on_go_root_btn)
+        [this]()
+        { on_go_root_btn(); }
     );
 
     refresh_btn.signal_clicked().connect(
-        sigc::mem_fun(*this, &FileExplorer::on_refresh_btn)
+        [this]()
+        { on_refresh_btn(); }
     );
 
     filelauncher_dir_btn.signal_clicked().connect(
-        sigc::mem_fun(*this, &FileExplorer::on_filelauncher_dir_btn)
+        [this]()
+        { on_filelauncher_dir_btn(); }
     );
 
     find_file_btn.signal_clicked().connect(
-        sigc::mem_fun(*this, &FileExplorer::on_find_file_btn)
+        [this]()
+        { on_find_file_btn(); }
     );
 
     project_ctl->signal_updated_name().connect(
-        sigc::mem_fun(*this, &FileExplorer::updateTitle)
+        [this]()
+        { updateTitle(); }
     );
 
     dir_tree_view.signal_activate().connect(
-        sigc::mem_fun(*this, &FileExplorer::on_dir_tree_view_activate)
+        [this](guint pos)
+        { on_dir_tree_view_activate(pos); }
     );
 
     file_list_view.signal_activate().connect(
-        sigc::mem_fun(*this, &FileExplorer::on_file_list_view_activate)
+        [this](guint pos)
+        { on_file_list_view_activate(pos); }
     );
 
     make_file_or_directory_btn.signal_clicked().connect(
-        sigc::mem_fun(*this, &FileExplorer::on_make_file_or_directory_btn)
+        [this]()
+        { on_make_file_or_directory_btn(); }
     );
 
     win.signal_destroy().connect(
-        sigc::mem_fun(*this, &FileExplorer::on_destroy_sig)
+        [this]()
+        { on_destroy_sig(); }
+    );
+
+    win.signal_close_request().connect(
+        [this]() -> bool
+        { return on_signal_close_request(); },
+        true
     );
 }
 
@@ -196,6 +201,40 @@ FileExplorer::~FileExplorer()
 {
     std::cout << "~FileExplorer()" << std::endl;
     destroyer.run();
+}
+
+void FileExplorer::show()
+{
+    win.present();
+}
+
+void FileExplorer::destroy()
+{
+    destroyer.run();
+}
+
+void FileExplorer::on_destroy_sig()
+{
+    std::cout << "FileExplorer sig destroy" << std::endl;
+    destroyer.run();
+    std::cout << "FileExplorer sig destroy exit" << std::endl;
+}
+
+bool FileExplorer::on_signal_close_request()
+{
+    std::cout << "FileExplorer::on_signal_close_request()" << std::endl;
+    destroyer.run();
+    return false;
+}
+
+Gtk::Window &FileExplorer::getWindowRef()
+{
+    return win;
+}
+
+Gtk::Window *FileExplorer::getWindowPtr()
+{
+    return &win;
 }
 
 void FileExplorer::setupDirTreeView()
@@ -394,16 +433,6 @@ void FileExplorer::updateTitle()
     }
 
     win.set_title(new_title);
-}
-
-void FileExplorer::show()
-{
-    win.present();
-}
-
-void FileExplorer::destroy()
-{
-    destroyer.run();
 }
 
 int FileExplorer::touchFileOrMkDirRelToProject(
@@ -629,13 +658,6 @@ void FileExplorer::on_make_file_or_directory_btn()
 {
     auto x = FileExplorerMakeFileDir::create(own_ptr, opened_subdir);
     x->show();
-}
-
-void FileExplorer::on_destroy_sig()
-{
-    std::cout << "FileExplorer sig destroy" << std::endl;
-    destroyer.run();
-    std::cout << "FileExplorer sig destroy exit" << std::endl;
 }
 
 std::filesystem::path calcSubpathByDirTreeRow(Glib::RefPtr<Gtk::TreeListRow> row)
