@@ -13,7 +13,7 @@ ProjectMgr_shared ProjectMgr::create(Controller_shared controller)
 {
     ProjectMgr_shared ret = ProjectMgr_shared(new ProjectMgr(controller));
     ret->own_ptr          = ret;
-    controller->registerWindow(ret->getWindowPtr());
+    // controller->registerWindow(ret->getWindowPtr());
     return ret;
 }
 
@@ -175,14 +175,9 @@ ProjectMgr::ProjectMgr(Controller_shared controller) :
     // project_list.set_model(project_list_store);
 }
 
-void ProjectMgr::show()
+ProjectMgr::~ProjectMgr()
 {
-    win.present();
-}
-
-void ProjectMgr::destroy()
-{
-    std::cout << "ProjectMgr::destroy()" << std::endl;
+    std::cout << "ProjectMgr::~ProjectMgr()" << std::endl;
     destroyer.run();
 }
 
@@ -197,6 +192,17 @@ bool ProjectMgr::on_signal_close_request()
     std::cout << "ProjectMgr::on_signal_close_request()" << std::endl;
     destroyer.run();
     return false;
+}
+
+void ProjectMgr::show()
+{
+    win.present();
+}
+
+void ProjectMgr::destroy()
+{
+    std::cout << "ProjectMgr::destroy()" << std::endl;
+    destroyer.run();
 }
 
 Controller_shared ProjectMgr::getController()

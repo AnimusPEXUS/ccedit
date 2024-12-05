@@ -1,29 +1,27 @@
 #include "posix_interface.hpp"
 
-#include <iostream>
+// #include <iostream>
 
 #include <fnmatch.h>
 
 namespace wayround_i2p::ccedit
 {
 
-// result:
-//   1 - match/dismatch (bool)
-//   2 - fnmatch error code
 std::tuple<bool, int> fnmatch_simple(
     std::string pattern,
     std::string value
 )
 {
-    std::cout << "fnmatch(" << pattern << ", " << value << ")" << std::endl;
+    // std::cout << "fnmatch(" << pattern << ", " << value << ")" << std::endl;
 
+    // todo: fnmatch maybe not good to work with utf8
     auto fn_res = ::fnmatch(
         pattern.c_str(),
         value.c_str(),
         0
     );
 
-    std::cout << "   fn_res:" << fn_res << std::endl;
+    // std::cout << "   fn_res:" << fn_res << std::endl;
 
     switch (fn_res)
     {

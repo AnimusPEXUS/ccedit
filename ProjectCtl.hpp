@@ -165,7 +165,9 @@ class ProjectCtl
         bool                      move_down
     );
 
-    std::deque<FileExplorer_shared>                                       explorers;
+    std::deque<FileExplorer_shared>                                       explorer_wins;
+    std::deque<FindFile_shared>                                           findfile_wins;
+    std::deque<FindText_shared>                                           findtext_wins;
     Glib::RefPtr<Gio::ListStore<TableItemTpl<WorkSubject_shared>>>        work_subj_list_store;
     Glib::RefPtr<Gio::ListStore<TableItemTpl<CodeEditorAbstract_shared>>> editors_list_store;
 

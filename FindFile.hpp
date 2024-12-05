@@ -46,7 +46,7 @@ class FindFile
     RunOnce         destroyer;
     FindFile_shared own_ptr;
 
-    ProjectCtl_shared       p_ctl;
+    ProjectCtl_weak         p_ctl;
     CodeEditorAbstract_weak target_editor;
 
     Gtk::Window win;

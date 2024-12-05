@@ -77,6 +77,8 @@ class WorkSubject
     sigc::signal<void()> priv_signal_modified_changed;
 
     void emit_signal_modified_changed();
+
+    void sanitizeFilePath(std::filesystem::path &fpth);
 };
 
 } // namespace wayround_i2p::ccedit

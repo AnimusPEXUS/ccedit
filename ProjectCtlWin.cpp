@@ -135,7 +135,7 @@ ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared project_ctl) :
 
 ProjectCtlWin::~ProjectCtlWin()
 {
-    std::cout << "~ProjectCtlWin()" << std::endl;
+    std::cout << "ProjectCtlWin::~ProjectCtlWin()" << std::endl;
     destroyer.run();
 }
 

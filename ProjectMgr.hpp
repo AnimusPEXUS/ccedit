@@ -21,6 +21,8 @@ class ProjectMgr
     ProjectMgr(Controller_shared controller);
 
   public:
+    ~ProjectMgr();
+
     Controller_shared getController();
 
     void show();

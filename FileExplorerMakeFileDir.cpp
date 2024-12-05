@@ -90,6 +90,7 @@ FileExplorerMakeFileDir::FileExplorerMakeFileDir(
 
     win.set_transient_for(expl->getWindowRef());
     win.set_destroy_with_parent(true);
+    win.set_modal(true);
 
     mk_dir_btn.signal_clicked().connect(
         [this]()

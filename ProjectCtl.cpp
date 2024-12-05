@@ -455,7 +455,7 @@ void ProjectCtl::destroyWorkSubjectEditors(WorkSubject_shared val)
 
 void ProjectCtl::destroyAllExplorers()
 {
-    auto e = explorers;
+    auto e = explorer_wins;
     for (auto &i : e)
     {
         i->destroy();
@@ -558,18 +558,18 @@ FileExplorer_shared ProjectCtl::createNewFileExplorer()
 
 void ProjectCtl::registerFileExplorer(FileExplorer_shared fe)
 {
-    explorers.push_back(fe);
+    explorer_wins.push_back(fe);
 }
 
 void ProjectCtl::unregisterFileExplorer(FileExplorer_shared fe)
 {
-    auto i = explorers.begin();
+    auto i = explorer_wins.begin();
 
-    while (i != explorers.end())
+    while (i != explorer_wins.end())
     {
         if (*i == fe)
         {
-            i = explorers.erase(i);
+            i = explorer_wins.erase(i);
             continue;
         }
 

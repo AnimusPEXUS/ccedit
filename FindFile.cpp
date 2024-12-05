@@ -6,14 +6,14 @@
 #include <queue>
 #include <thread>
 
-#include <fnmatch.h>
-
 #include "CodeEditorAbstract.hpp"
 #include "Controller.hpp"
 #include "FindFile.hpp"
 #include "ProjectCtl.hpp"
 
 #include "utils.hpp"
+
+#include "posix_interface.hpp"
 
 namespace wayround_i2p::ccedit
 {
@@ -74,7 +74,10 @@ FindFile::FindFile(ProjectCtl_shared p_ctl) :
     editors_grid.attach(subpath_w, 1, 1);
 
     use_fnmatch_on_path_part_cb.set_label("File Path Checked By Mask Too");
-    use_fnmatch_on_path_part_cb.set_tooltip_text("File Mask Checks not only filename, but entire path, starting from project root");
+    use_fnmatch_on_path_part_cb.set_tooltip_text(
+        "File Mask Checks not only filename, but entire path, "
+        "starting from project root"
+    );
     recurcive_cb.set_label("Recurcive");
     delve_hidden_cb.set_label("Delve into Hidden Dirs");
     delve_hidden_cb.set_tooltip_text("dirs, which names starting with dot");
@@ -166,7 +169,10 @@ FindFile::FindFile(ProjectCtl_shared p_ctl) :
         sigc::mem_fun(*this, &FindFile::on_destroy_sig)
     );
 
-    this->p_ctl->getController()->registerWindow(&win);
+    if (auto x = this->p_ctl.lock(); x)
+    {
+        x->getController()->registerWindow(&win);
+    }
 }
 
 void FindFile::setup_result_filelist()
@@ -179,13 +185,20 @@ void FindFile::setup_result_filelist()
                 list_item,
                 [this](FindFileResultTreeItemP item)
                 {
-                    auto ed = p_ctl->workSubjectExistingOrNewEditor(
+                    auto x = p_ctl.lock();
+                    if (!x)
+                    {
+                        return;
+                    }
+
+                    auto ed = x->workSubjectExistingOrNewEditor(
                         item->subpath
                     );
                     if (!ed)
                     {
                         return;
                     }
+
                     ed->show();
                 }
             );
@@ -220,16 +233,27 @@ void FindFile::setup_result_linelist()
                 list_item,
                 [this](FindFileResultTreeItemItemP item)
                 {
-                    auto ed = p_ctl->workSubjectExistingOrNewEditor(item->subpath);
+                    auto x = p_ctl.lock();
+                    if (!x)
+                    {
+                        return;
+                    }
+
+                    auto ed = x->workSubjectExistingOrNewEditor(
+                        item->subpath
+                    );
                     if (!ed)
                     {
                         return;
                     }
+
                     ed->show();
+
                     ed->setCurrentLine(
                         item->line,
                         true
                     );
+
                     ed->selectSlice(
                         item->start_offset,
                         item->end_offset
@@ -448,6 +472,14 @@ void FindFile::stop_search_thread()
 
 void FindFile::search_thread()
 {
+
+    auto p_ctl_locked = p_ctl.lock();
+
+    if (!p_ctl_locked)
+    {
+        return;
+    }
+
     int err = 0;
     if (search_working)
     {
@@ -485,6 +517,7 @@ void FindFile::search_thread()
     auto m1     = std::promise<void>();
     auto m1_fut = m1.get_future();
 
+    // todo: find better soultion to this than using signal_idle()
     Glib::MainContext::get_default()->signal_idle().connect_once(
         [this, &m1, &sel]()
         {
@@ -501,7 +534,7 @@ void FindFile::search_thread()
 
     m1_fut.wait();
 
-    auto proj_path = p_ctl->getProjectPath();
+    auto proj_path = p_ctl_locked->getProjectPath();
 
     std::queue<std::filesystem::path> dir_subpaths_to_search_q;
     // std::queue<std::filesystem::path> files_to_grep_q;
@@ -643,16 +676,17 @@ void FindFile::search_thread()
             }
             else
             {
-                auto x = std::string("");
-                // todo: fnmatch maybe not good to work with utf8
-                if (
-                    fnmatch(
-                        work_time_query.fnmatch_pattern.toUTF8String(x).c_str(),
-                        (work_time_query.use_fnmatch_on_path_part ? work_path_full_name_rel.c_str() : name.c_str()),
-                        0
-                    )
-                    == 0
-                )
+                std::string x;
+
+                if (auto [ok, err] = fnmatch_simple(
+                        work_time_query.fnmatch_pattern.toUTF8String(x),
+                        (
+                            work_time_query.use_fnmatch_on_path_part ?
+                                work_path_full_name_rel.string() :
+                                name
+                        )
+                    );
+                    ok && err == 0)
                 {
                     matched_filenames.push_back(work_path_full_name_rel);
                     files_count++;
@@ -781,7 +815,13 @@ int FindFile::search_thread_search_contents(
     int                err = 0;
     icu::UnicodeString cont_txt;
 
-    auto proj_path = p_ctl->getProjectPath();
+    auto p_ctl_locked = p_ctl.lock();
+    if (!p_ctl_locked)
+    {
+        return 5;
+    }
+
+    auto proj_path = p_ctl_locked->getProjectPath();
 
     auto item_subpath   = item->subpath;
     auto full_file_name = proj_path / item_subpath;

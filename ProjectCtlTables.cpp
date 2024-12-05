@@ -196,6 +196,7 @@ void CodeEditorTableRowWidget::bind(const Glib::RefPtr<Gtk::ListItem> &list_item
 
 void CodeEditorTableRowWidget::unbind(const Glib::RefPtr<Gtk::ListItem> &list_item)
 {
+    bond_ed.reset();
 }
 
 void CodeEditorTableRowWidget::on_btn_show()

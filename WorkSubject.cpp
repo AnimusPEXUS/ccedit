@@ -31,6 +31,9 @@ WorkSubject::WorkSubject(
     destroyer(
         [this]()
         {
+            priv_signal_editors_save_state.clear();
+            priv_signal_editors_restore_state.clear();
+            priv_signal_modified_changed.clear();
             this->project_ctl->destroyWorkSubjectEditors(own_ptr);
             this->project_ctl->unregisterWorkSubject(own_ptr);
             own_ptr.reset();
@@ -47,7 +50,7 @@ WorkSubject::WorkSubject(
 
 WorkSubject::~WorkSubject()
 {
-    std::cout << "~WorkSubject()" << std::endl;
+    std::cout << "WorkSubject::~WorkSubject()" << std::endl;
     destroyer.run();
 }
 
@@ -85,10 +88,8 @@ void WorkSubject::createNew()
     txt_buff = Gtk::TextBuffer::create();
 
     txt_buff->signal_modified_changed().connect(
-        sigc::mem_fun(
-            *this,
-            &WorkSubject::emit_signal_modified_changed
-        )
+        [this]()
+        { emit_signal_modified_changed(); }
     );
 }
 
@@ -176,4 +177,8 @@ sigc::signal<void()> &WorkSubject::signal_editors_restore_state()
 sigc::signal<void()> &WorkSubject::signal_modified_changed()
 {
     return priv_signal_modified_changed;
+}
+
+void WorkSubject::sanitizeFilePath(std::filesystem::path &fpth) 
+{
 }

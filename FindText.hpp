@@ -162,6 +162,12 @@ class FindText
         CodeEditorAbstract_shared editor_window
     );
 
+  protected:
+    FindText(
+        CodeEditorAbstract_weak editor_window
+    );
+
+  public:
     ~FindText();
 
     FindTextQuery getFindTextQuery();
@@ -169,11 +175,6 @@ class FindText
 
     void show();
     void destroy();
-
-  protected:
-    FindText(
-        CodeEditorAbstract_weak editor_window
-    );
 
   private:
     FindText_shared own_ptr;
