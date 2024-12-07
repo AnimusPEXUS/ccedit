@@ -56,11 +56,12 @@ class Controller
         bool                  save_to_config
     );
 
-    // project name will not be changed if
-    //   (new_name == "" || new_name == name)
-    // can't be edited project which name not exists
-    // if trying to change name - function fails if
-    //   project with such name already exists
+    // Project name will not be changed if
+    //   (new_name == "" || new_name == name).
+    // Can't be edited project which name not exists.
+    // If trying to change name - function fails if
+    //   project with such name already exists.
+    // saveConfig called automatically on success
     int editProject(
         std::string           name,
         std::string           new_name,

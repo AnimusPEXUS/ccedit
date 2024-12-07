@@ -1,5 +1,6 @@
 
 #include <format>
+#include <iostream>
 
 #include "CodeEditorAbstract.hpp"
 #include "Controller.hpp"
@@ -76,8 +77,9 @@ std::string
     auto [name, err] = controller->getNameProject(own_ptr);
     if (err != 0)
     {
-        // todo: better action needed. atlease message to user
+        // todo: better action needed. at least message to user
         destroy();
+        throw "error";
     }
 
     return name;
@@ -92,9 +94,87 @@ std::filesystem::path
         // todo: better action needed. at least message to user
         // close();
         destroy();
+        throw "error";
     }
 
-    return pth;
+    auto x = pth.lexically_normal();
+    if (x.string() != pth.string())
+    {
+        // todo: check error?
+        controller->editProject(getProjectName(), "", x);
+    }
+
+    return x;
+}
+
+std::tuple<
+    std::filesystem::path,
+    int>
+    ProjectCtl::pathNormalizeAndTrimPrefix(std::filesystem::path fpth)
+{
+    if (fpth.begin() == fpth.end())
+    {
+        // fpth.begin() == fpth.end()
+        return {"", 1};
+    }
+
+    std::filesystem::path result;
+
+    auto fpth_first_val = (*(fpth.begin())).string();
+
+    // std::cout << "fpth_first_val: " << fpth_first_val << std::endl;
+
+    if (fpth_first_val == "..")
+    {
+        //  "not allowed to go outside of project path"
+        return {"", 2};
+    }
+
+    if (fpth_first_val == "/")
+    {
+        // std::cout << R"--(fpth_first_val == "/")--" << std::endl;
+
+        auto pp       = getProjectPath();
+        auto pp_len   = std::distance(pp.begin(), pp.end());
+        auto fpth_len = std::distance(fpth.begin(), fpth.end());
+        if (fpth_len <= pp_len)
+        {
+            // "fpth_len <= pp_len";
+            return {"", 3};
+        }
+
+        auto pp_it_b   = pp.begin();
+        auto fpth_it_b = fpth.begin();
+
+        for (std::size_t i = 0; i != pp_len; i++)
+        {
+            if ((*pp_it_b).string() != (*fpth_it_b).string())
+            {
+                // throw "(*pp_it_b).string() !=(*fpth_it_b).string()";
+                return {"", 4};
+            }
+            pp_it_b++;
+            fpth_it_b++;
+        }
+
+        // fpth_it_b = fpth.begin();
+        while (true)
+        {
+            if (fpth_it_b == fpth.end())
+            {
+                break;
+            }
+            // std::cout << "result 1: " << result << std::endl;
+            // std::cout << "  adding: " << *fpth_it_b << std::endl;
+            result /= *fpth_it_b;
+            // std::cout << "result 2: " << result << std::endl;
+            ++fpth_it_b;
+        }
+
+        return {result, 0};
+    }
+
+    return {fpth, 0};
 }
 
 bool ProjectCtl::workSubjectExists(
@@ -141,10 +221,16 @@ WorkSubject_shared
     }
     else
     {
-        ret = WorkSubject::create(
+        auto [ws, err] = WorkSubject::create(
             own_ptr,
             fpth
         );
+        if (err != 0)
+        {
+            // todo: report
+            return nullptr;
+        }
+        ret = ws;
         ret->reload();
         return ret;
     }

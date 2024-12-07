@@ -135,6 +135,7 @@ class FileExplorer
     void on_destroy_sig();
     bool on_signal_close_request();
 
+    // todo: is it really have to be as class member?
     Glib::RefPtr<Gtk::FileDialog> select_file_dialog;
 
     // working variables

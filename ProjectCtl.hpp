@@ -42,6 +42,14 @@ class ProjectCtl
 
     // ----------
 
+    // second parameter is error value. 0 is ok
+    std::tuple<
+        std::filesystem::path,
+        int>
+        pathNormalizeAndTrimPrefix(std::filesystem::path fpth);
+
+    // ----------
+
     bool
         workSubjectExists(std::filesystem::path fpth);
 

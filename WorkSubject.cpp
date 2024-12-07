@@ -6,13 +6,24 @@
 
 #include "utils.hpp"
 
-using namespace wayround_i2p::ccedit;
-
-WorkSubject_shared WorkSubject::create(
-    ProjectCtl_shared     project_ctl,
-    std::filesystem::path fpth
-)
+namespace wayround_i2p::ccedit
 {
+
+std::tuple<WorkSubject_shared, int>
+    WorkSubject::create(
+        ProjectCtl_shared     project_ctl,
+        std::filesystem::path fpth
+    )
+{
+
+    auto [norm_path, err]
+        = project_ctl->pathNormalizeAndTrimPrefix(fpth);
+
+    if (err != 0)
+    {
+        return {nullptr, err};
+    }
+
     auto ret = WorkSubject_shared(
         new WorkSubject(
             project_ctl,
@@ -21,7 +32,7 @@ WorkSubject_shared WorkSubject::create(
     );
     ret->own_ptr = ret;
     project_ctl->registerWorkSubject(ret);
-    return ret;
+    return {ret, 0};
 }
 
 WorkSubject::WorkSubject(
@@ -40,12 +51,18 @@ WorkSubject::WorkSubject(
         }
     )
 {
+
     this->project_ctl = project_ctl;
-    this->fpth        = fpth;
+    this->fpth        = fpth.lexically_normal();
 
     this->controller = project_ctl->getController();
 
     createNew();
+    std::cout << "project path: " << project_ctl->getProjectPath() << std::endl;
+    std::cout << "   fpth        : " << fpth << std::endl;
+    std::cout << "   this->fpth  : " << this->fpth << std::endl;
+    std::cout << "   ws rel  path: " << getPath() << std::endl;
+    std::cout << "   ws full path: " << getFullPath() << std::endl;
 }
 
 WorkSubject::~WorkSubject()
@@ -179,6 +196,4 @@ sigc::signal<void()> &WorkSubject::signal_modified_changed()
     return priv_signal_modified_changed;
 }
 
-void WorkSubject::sanitizeFilePath(std::filesystem::path &fpth) 
-{
-}
+} // namespace wayround_i2p::ccedit

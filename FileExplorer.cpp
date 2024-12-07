@@ -584,19 +584,36 @@ void FileExplorer::on_file_list_view_activate(guint pos)
 
     std::cout << "on_file_list_view_activate: " << item->pth << std::endl;
 
-    auto pth = project_ctl->getProjectPath() / item->pth;
-    std::cout << "on_file_list_view_activate trying to open " << pth;
+    auto pth      = item->pth;
+    auto pth_full = project_ctl->getProjectPath() / pth;
+
+    std::cout << "on_file_list_view_activate trying to open " << pth_full << std::endl;
 
     // todo: add correctness checks
 
-    auto f = Gio::File::create_for_path(pth.string());
+    auto f = Gio::File::create_for_path(pth_full.string());
+
+    /*
+    auto sg01 = std::experimental::fundamentals_v3::scope_exit(
+        [&f]()
+        {
+            f->close();
+        }
+    );
+    */
+
     if (f->query_info()->get_file_type() == Gio::FileType::DIRECTORY)
     {
         dirTreeNavigateTo(pth);
     }
     else
     {
-        project_ctl->workSubjectEnsureExistance(pth);
+        auto res = project_ctl->workSubjectEnsureExistance(pth);
+        if (!res)
+        {
+            // todo: report
+            return;
+        }
         project_ctl->workSubjectNewEditor(pth);
         // project_ctl->workSubjectExistingOrNewEditor(pth);
     }
@@ -744,7 +761,7 @@ int FileExplorer::dirTreeNavigateTo(std::filesystem::path subpath)
     subpath = subpath.relative_path();
 
     auto proj_path = proj_ctl->getProjectPath();
-*/
+    */
 
     // todo: todo
 

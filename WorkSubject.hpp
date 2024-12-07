@@ -5,6 +5,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <tuple>
 
 #include <gtkmm.h>
 #include <sigc++/sigc++.h>
@@ -19,11 +20,14 @@ namespace wayround_i2p::ccedit
 class WorkSubject
 {
   public:
-    // path(fpth) should be always relative to project root
-    static WorkSubject_shared create(
-        ProjectCtl_shared     project_ctl,
-        std::filesystem::path fpth
-    );
+    // path(fpth) may be absolute or relative, but must be inside
+    // of project directory. internally path converted to relative.
+    // second result non 0 on error.
+    static std::tuple<WorkSubject_shared, int>
+        create(
+            ProjectCtl_shared     project_ctl,
+            std::filesystem::path fpth
+        );
 
   protected:
     WorkSubject(
