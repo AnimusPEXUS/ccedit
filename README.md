@@ -28,4 +28,5 @@ As I don't like M$ Code, I preferred to write my own code editor as I see it fit
   One editor visible<br/>
   Using Gnome 47 window tilling capabilities<br/>
 
-[![screenshot](docs/Screenshot From 2024-12-07 18-16-33.png)](docs/Screenshot From 2024-12-07 18-16-33.png)
+
+<a target="_blank" href="docs/Screenshot From 2024-12-07 18-16-33.png"><img alt="screenshot" src="docs/Screenshot From 2024-12-07 18-16-33.png" /></a>
