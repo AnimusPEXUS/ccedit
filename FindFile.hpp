@@ -1,5 +1,5 @@
-#ifndef WAYROUND_I2P_20241204_051018_586434
-#define WAYROUND_I2P_20241204_051018_586434
+#ifndef WAYROUND_I2P_20241208_155643_190086
+#define WAYROUND_I2P_20241208_155643_190086
 
 #include <filesystem>
 #include <memory>
@@ -134,7 +134,9 @@ class FindFile
 
     void on_start_btn();
     void on_stop_btn();
+
     void on_destroy_sig();
+    bool on_signal_close_request();
 };
 
 } // namespace wayround_i2p::ccedit

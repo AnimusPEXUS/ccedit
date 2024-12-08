@@ -103,6 +103,11 @@ ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared project_ctl) :
 
     // -------------------------
 
+    rotate_paned_btn.signal_clicked().connect(
+        [this]()
+        { on_rotate_paned_btn(); }
+    );
+
     project_ctl->signal_updated_name().connect(
         [this]()
         { updateTitle(); }
@@ -119,16 +124,11 @@ ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared project_ctl) :
         true
     );
 
-    rotate_paned_btn.signal_clicked().connect(
-        [this]()
-        { on_rotate_paned_btn(); }
-    );
-
     auto action_group = Gio::SimpleActionGroup::create();
     wmg.addActionsToActionGroup(action_group);
     win.insert_action_group("project_ctl_window", action_group);
 
-    controller->registerWindow(&win);
+    // controller->registerWindow(&win);
 
     updateTitle();
 }

@@ -5,6 +5,8 @@
 #include "CodeEditorAbstract.hpp"
 #include "Controller.hpp"
 #include "FileExplorer.hpp"
+#include "FindFile.hpp"
+#include "FindText.hpp"
 #include "ProjectCtl.hpp"
 #include "ProjectCtlWin.hpp"
 #include "WorkSubject.hpp"
@@ -29,7 +31,9 @@ ProjectCtl::ProjectCtl(Controller_shared controller) :
         {
             std::cout << "ProjectCtl::destroyer.run()" << std::endl;
             this->controller->destroyProjCtl(this->own_ptr);
-            this->destroyAllExplorers();
+            this->destroyAllFileExplorer();
+            this->destroyAllFindFile();
+            this->destroyAllFindText();
             this->destroyAllEditors();
             this->destroyAllWorkSubjects();
 
@@ -539,14 +543,50 @@ void ProjectCtl::destroyWorkSubjectEditors(WorkSubject_shared val)
     }
 }
 
-void ProjectCtl::destroyAllExplorers()
-{
-    auto e = explorer_wins;
-    for (auto &i : e)
-    {
-        i->destroy();
+#define GEN_SUBWINDOW_FUNCTIONS(entity_name, entity_name_lower)        \
+                                                                       \
+    void ProjectCtl::destroyAll##entity_name()                         \
+    {                                                                  \
+        auto deq = entity_name_lower##_wins;                           \
+        for (auto &i : deq)                                            \
+        {                                                              \
+            i->destroy();                                              \
+        }                                                              \
+    }                                                                  \
+                                                                       \
+    void ProjectCtl::register##entity_name(entity_name##_shared val)   \
+    {                                                                  \
+        for (auto &i : entity_name_lower##_wins)                       \
+        {                                                              \
+            if (i == val)                                              \
+            {                                                          \
+                return;                                                \
+            }                                                          \
+        }                                                              \
+        entity_name_lower##_wins.push_back(val);                       \
+    }                                                                  \
+                                                                       \
+    void ProjectCtl::unregister##entity_name(entity_name##_shared val) \
+    {                                                                  \
+        auto i = entity_name_lower##_wins.begin();                     \
+                                                                       \
+        while (i != entity_name_lower##_wins.end())                    \
+        {                                                              \
+            if (*i == val)                                             \
+            {                                                          \
+                i = entity_name_lower##_wins.erase(i);                 \
+                continue;                                              \
+            }                                                          \
+                                                                       \
+            ++i;                                                       \
+        }                                                              \
     }
-}
+
+GEN_SUBWINDOW_FUNCTIONS(FileExplorer, fileexplorer);
+GEN_SUBWINDOW_FUNCTIONS(FindFile, findfile);
+GEN_SUBWINDOW_FUNCTIONS(FindText, findtext);
+
+#undef GEN_SUBWINDOW_FUNCTIONS
 
 void ProjectCtl::destroyAllEditors()
 {
@@ -640,27 +680,6 @@ FileExplorer_shared ProjectCtl::createNewFileExplorer()
     auto ret = FileExplorer::create(own_ptr);
     ret->show();
     return ret;
-}
-
-void ProjectCtl::registerFileExplorer(FileExplorer_shared fe)
-{
-    explorer_wins.push_back(fe);
-}
-
-void ProjectCtl::unregisterFileExplorer(FileExplorer_shared fe)
-{
-    auto i = explorer_wins.begin();
-
-    while (i != explorer_wins.end())
-    {
-        if (*i == fe)
-        {
-            i = explorer_wins.erase(i);
-            continue;
-        }
-
-        ++i;
-    }
 }
 
 sigc::signal<void()> &ProjectCtl::signal_updated_name()

@@ -1,5 +1,5 @@
-#ifndef WAYROUND_I2P_20241204_051018_586914
-#define WAYROUND_I2P_20241204_051018_586914
+#ifndef WAYROUND_I2P_20241208_155643_191482
+#define WAYROUND_I2P_20241208_155643_191482
 
 #include <filesystem>
 #include <iostream>
@@ -142,19 +142,34 @@ class ProjectCtl
 
     void destroyWorkSubjectEditors(WorkSubject_shared val);
 
-    void destroyAllExplorers();
+    // void destroyAllExplorers();
 
     void destroyAllWorkSubjects();
     void destroyAllEditors();
-
-    void registerFileExplorer(FileExplorer_shared fe);
-    void unregisterFileExplorer(FileExplorer_shared fe);
 
     void registerWorkSubject(WorkSubject_shared val);
     void unregisterWorkSubject(WorkSubject_shared val);
 
     void registerEditor(CodeEditorAbstract_shared val);
     void unregisterEditor(CodeEditorAbstract_shared val);
+
+#define GEN_SUBWINDOW_FUNCTIONS(entity_name, entity_name_lower) \
+                                                                \
+  public:                                                       \
+    void destroyAll##entity_name();                             \
+    void register##entity_name(entity_name##_shared val);       \
+    void unregister##entity_name(entity_name##_shared val);     \
+                                                                \
+  private:                                                      \
+    std::deque<entity_name##_shared> entity_name_lower##_wins;  \
+                                                                \
+  public:
+
+    GEN_SUBWINDOW_FUNCTIONS(FileExplorer, fileexplorer);
+    GEN_SUBWINDOW_FUNCTIONS(FindFile, findfile);
+    GEN_SUBWINDOW_FUNCTIONS(FindText, findtext);
+
+#undef GEN_SUBWINDOW_FUNCTIONS
 
     void showPrevNextEditor(CodeEditorAbstract_shared val, bool prev);
     void showPrevEditor(CodeEditorAbstract_shared val);
@@ -173,9 +188,6 @@ class ProjectCtl
         bool                      move_down
     );
 
-    std::deque<FileExplorer_shared>                                       explorer_wins;
-    std::deque<FindFile_shared>                                           findfile_wins;
-    std::deque<FindText_shared>                                           findtext_wins;
     Glib::RefPtr<Gio::ListStore<TableItemTpl<WorkSubject_shared>>>        work_subj_list_store;
     Glib::RefPtr<Gio::ListStore<TableItemTpl<CodeEditorAbstract_shared>>> editors_list_store;
 

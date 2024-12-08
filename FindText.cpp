@@ -14,6 +14,7 @@
 #include "CodeEditorAbstract.hpp"
 #include "FindTables.hpp"
 #include "FindText.hpp"
+#include "ProjectCtl.hpp"
 
 namespace wayround_i2p::ccedit
 {
@@ -745,19 +746,33 @@ FindText_shared FindText::create(
     CodeEditorAbstract_shared editor_window
 )
 {
-    auto n     = FindText_shared(new FindText(editor_window));
-    n->own_ptr = n;
-    return n;
+    auto ret     = FindText_shared(new FindText(editor_window));
+    ret->own_ptr = ret;
+
+    auto p_ctl = editor_window->getProjectCtl();
+    p_ctl->registerFindText(ret);
+    return ret;
 }
 
-FindText::FindText(CodeEditorAbstract_weak editor_window) :
+FindText::FindText(CodeEditorAbstract_shared editor_window) :
     main_box(Gtk::Orientation::VERTICAL, 5),
     search_box(Gtk::Orientation::VERTICAL, 5),
     text_search_btn_box(Gtk::Orientation::HORIZONTAL, 5),
     find_text_widget(EDIT),
-    destroyer([this]() {})
+    destroyer(
+        [this]()
+        {
+            if (auto l = p_ctl.lock(); l)
+            {
+                l->unregisterFindText(own_ptr);
+            }
+            win.destroy();
+            own_ptr.reset();
+        }
+    )
 {
     this->editor_window = editor_window;
+    this->p_ctl         = editor_window->getProjectCtl();
 
     win.set_child(main_box);
 
@@ -864,6 +879,24 @@ FindText::~FindText()
 {
 }
 
+void FindText::destroy()
+{
+    destroyer.run();
+}
+
+void FindText::on_destroy_sig()
+{
+    std::cout << "FindText::on_destroy_sig()" << std::endl;
+    destroyer.run();
+}
+
+bool FindText::on_signal_close_request()
+{
+    std::cout << "FindText::on_signal_close_request()" << std::endl;
+    destroyer.run();
+    return false;
+}
+
 FindTextQuery FindText::getFindTextQuery()
 {
     return find_text_widget.getFindTextQuery();
@@ -877,11 +910,6 @@ int FindText::setFindTextQuery(FindTextQuery q)
 void FindText::show()
 {
     win.present();
-}
-
-void FindText::destroy()
-{
-    destroyer.run();
 }
 
 void FindText::saveEditorLine()
@@ -1059,11 +1087,6 @@ void FindText::on_restore_cursor_position()
     {
         // todo: exception?
     }
-}
-
-void FindText::on_destroy_sig()
-{
-    own_ptr.reset();
 }
 
 } // namespace wayround_i2p::ccedit

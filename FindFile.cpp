@@ -22,6 +22,7 @@ FindFile_shared FindFile::create(ProjectCtl_shared p_ctl)
 {
     auto ret     = FindFile_shared(new FindFile(p_ctl));
     ret->own_ptr = ret;
+    p_ctl->registerFindFile(ret);
     return ret;
 }
 
@@ -29,6 +30,10 @@ FindFile::FindFile(ProjectCtl_shared p_ctl) :
     destroyer(
         [this]()
         {
+            if (auto l = this->p_ctl.lock(); l)
+            {
+                l->unregisterFindFile(own_ptr);
+            }
             win.destroy();
             own_ptr.reset();
         }
@@ -154,19 +159,29 @@ FindFile::FindFile(ProjectCtl_shared p_ctl) :
     setFindFileQuery(FindFileQuery());
 
     result_files.signal_activate().connect(
-        sigc::mem_fun(*this, &FindFile::on_filelist_activate)
+        [this](gint i)
+        { on_filelist_activate(i); }
     );
 
     start_btn.signal_clicked().connect(
-        sigc::mem_fun(*this, &FindFile::on_start_btn)
+        [this]()
+        { on_start_btn(); }
     );
 
     stop_btn.signal_clicked().connect(
-        sigc::mem_fun(*this, &FindFile::on_stop_btn)
+        [this]()
+        { on_stop_btn(); }
     );
 
     win.signal_destroy().connect(
-        sigc::mem_fun(*this, &FindFile::on_destroy_sig)
+        [this]()
+        { on_destroy_sig(); }
+    );
+
+    win.signal_close_request().connect(
+        [this]() -> bool
+        { return on_signal_close_request(); },
+        true
     );
 
     if (auto x = this->p_ctl.lock(); x)
@@ -286,6 +301,24 @@ FindFile::~FindFile()
     std::cout << "~FindFile()" << std::endl;
 }
 
+void FindFile::destroy()
+{
+    destroyer.run();
+}
+
+void FindFile::on_destroy_sig()
+{
+    std::cout << "FindFile::on_destroy_sig()" << std::endl;
+    destroyer.run();
+}
+
+bool FindFile::on_signal_close_request()
+{
+    std::cout << "FindFile::on_signal_close_request()" << std::endl;
+    destroyer.run();
+    return false;
+}
+
 void FindFile::start()
 {
     // todo: todo
@@ -299,11 +332,6 @@ void FindFile::stop()
 void FindFile::show()
 {
     win.present();
-}
-
-void FindFile::destroy()
-{
-    destroyer.run();
 }
 
 FindFileQuery FindFile::getFindFileQuery()
@@ -894,11 +922,6 @@ int FindFile::search_thread_search_contents(
     );
 
     return 0;
-}
-
-void FindFile::on_destroy_sig()
-{
-    destroyer.run();
 }
 
 FindFileResultTreeItemP FindFileResultTreeItem::create(

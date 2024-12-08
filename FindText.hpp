@@ -1,5 +1,5 @@
-#ifndef WAYROUND_I2P_20241204_051018_588483
-#define WAYROUND_I2P_20241204_051018_588483
+#ifndef WAYROUND_I2P_20241208_155643_193957
+#define WAYROUND_I2P_20241208_155643_193957
 
 #include <future>
 #include <memory>
@@ -164,7 +164,7 @@ class FindText
 
   protected:
     FindText(
-        CodeEditorAbstract_weak editor_window
+        CodeEditorAbstract_shared editor_window
     );
 
   public:
@@ -181,6 +181,7 @@ class FindText
 
     RunOnce destroyer;
 
+    ProjectCtl_weak         p_ctl;
     CodeEditorAbstract_weak editor_window;
     unsigned int            saved_cursor_line;
 
@@ -221,6 +222,7 @@ class FindText
     void on_restore_cursor_position();
 
     void on_destroy_sig();
+    bool on_signal_close_request();
 };
 
 } // namespace wayround_i2p::ccedit
