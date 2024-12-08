@@ -65,10 +65,6 @@ class ProjectMgr
     Gtk::Box    bb3;
     Gtk::Button btn_open_global;
 
-    Gtk::Box    bb4;
-    Gtk::Button btn_modules_info_print;
-    Gtk::Button btn_save_cfg;
-
     Gtk::Box    bb5;
     Gtk::Button btn_quit;
 
@@ -89,9 +85,6 @@ class ProjectMgr
     void on_btn_edit_click();
     void on_btn_open_click();
     void on_btn_open_global_click();
-
-    void on_btn_modules_info_print();
-    void on_btn_save_cfg_click();
 
     void on_btn_quit_click();
 

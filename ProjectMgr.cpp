@@ -88,12 +88,10 @@ ProjectMgr::ProjectMgr(Controller_shared controller) :
     bb1.add_css_class("linked");
     bb2.add_css_class("linked");
     bb3.add_css_class("linked");
-    bb4.add_css_class("linked");
     bb5.add_css_class("linked");
     bb1.set_orientation(Gtk::Orientation::HORIZONTAL);
     bb2.set_orientation(Gtk::Orientation::HORIZONTAL);
     bb3.set_orientation(Gtk::Orientation::HORIZONTAL);
-    bb4.set_orientation(Gtk::Orientation::HORIZONTAL);
     bb5.set_orientation(Gtk::Orientation::HORIZONTAL);
 
     bb1.append(btn_add_proj);
@@ -104,16 +102,12 @@ ProjectMgr::ProjectMgr(Controller_shared controller) :
 
     bb3.append(btn_open_global);
 
-    bb4.append(btn_modules_info_print);
-    bb4.append(btn_save_cfg);
-
     bb5.append(btn_quit);
 
     button_box.append(bb1);
     button_box.append(bb2);
     button_box.append(bb3);
     button_box.append(button_box_separator);
-    button_box.append(bb4);
     button_box.append(bb5);
 
     btn_add_proj.set_label("add");
@@ -122,9 +116,6 @@ ProjectMgr::ProjectMgr(Controller_shared controller) :
     btn_open_proj.set_label("open proj ctrl");
 
     btn_open_global.set_label("open global ctrl");
-
-    btn_modules_info_print.set_label("print mods");
-    btn_save_cfg.set_label("rewrite config");
 
     btn_quit.set_label("quit");
 
@@ -151,16 +142,8 @@ ProjectMgr::ProjectMgr(Controller_shared controller) :
         sigc::mem_fun(*this, &ProjectMgr::on_btn_open_global_click)
     );
 
-    btn_save_cfg.signal_clicked().connect(
-        sigc::mem_fun(*this, &ProjectMgr::on_btn_save_cfg_click)
-    );
-
     btn_quit.signal_clicked().connect(
         sigc::mem_fun(*this, &ProjectMgr::on_btn_quit_click)
-    );
-
-    btn_modules_info_print.signal_clicked().connect(
-        sigc::mem_fun(*this, &ProjectMgr::on_btn_modules_info_print)
     );
 
     win.signal_destroy().connect(
@@ -171,8 +154,6 @@ ProjectMgr::ProjectMgr(Controller_shared controller) :
         sigc::mem_fun(*this, &ProjectMgr::on_signal_close_request),
         true
     );
-
-    // project_list.set_model(project_list_store);
 }
 
 ProjectMgr::~ProjectMgr()
@@ -384,23 +365,6 @@ void ProjectMgr::on_btn_open_click()
 void ProjectMgr::on_btn_open_global_click()
 {
     controller->showGlobalProjCtlWin();
-}
-
-void ProjectMgr::on_btn_save_cfg_click()
-{
-    controller->saveConfig();
-}
-
-void ProjectMgr::on_btn_modules_info_print()
-{
-    auto mods = controller->getBuiltinMods();
-
-    std::cout << "mod count: " << mods.size() << std::endl;
-
-    for (auto x : mods)
-    {
-        printInfoCodeEditorMod(x);
-    }
 }
 
 void ProjectMgr::on_btn_quit_click()
