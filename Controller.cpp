@@ -64,6 +64,8 @@ void Controller::destroy()
 
 int Controller::run(int argc, char *argv[])
 {
+    std::cout << "ccedit version: " << ccedit_version_string << std::endl;
+
     ensureConfigDirExists();
     // if (ensureConfigDirExists()!= 0) {
     //     // std::cout << format("couldn't ensure directory existance: {}")

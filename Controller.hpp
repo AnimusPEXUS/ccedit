@@ -7,6 +7,8 @@
 
 #include <gtkmm.h>
 
+#include "build_num.hpp"
+
 #include "forward_declarations.hpp"
 
 #include "modularity.hpp"
