@@ -46,6 +46,7 @@ add_executable(
   ProjectMgr.cpp
   ProjectMgrEditor.cpp
   ProjectMgrTables.cpp
+  signal.cpp
   utils.cpp
   WorkSubject.cpp
 
