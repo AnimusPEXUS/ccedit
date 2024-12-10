@@ -115,25 +115,48 @@ ProjectMgrEditor::ProjectMgrEditor(
     button_box.append(btn_cancel);
 
     btn_ok.signal_clicked().connect(
-        sigc::mem_fun(*this, &ProjectMgrEditor::on_ok_click)
+        [this]()
+        { on_ok_click(); }
     );
 
     btn_cancel.signal_clicked().connect(
-        sigc::mem_fun(*this, &ProjectMgrEditor::on_cancel_click)
+        [this]()
+        { on_cancel_click(); }
     );
 
     btn_browse.signal_clicked().connect(
-        sigc::mem_fun(*this, &ProjectMgrEditor::on_browse_click)
+        [this]()
+        { on_browse_click(); }
     );
 
     win.signal_destroy().connect(
-        sigc::mem_fun(*this, &ProjectMgrEditor::on_destroy_sig)
+        [this]()
+        { on_destroy_sig(); }
+    );
+
+    win.signal_close_request().connect(
+        [this]() -> bool
+        { return on_signal_close_request(); },
+        true
     );
 }
 
 ProjectMgrEditor::~ProjectMgrEditor()
 {
-    std::cout << "~ProjectMgrEditor()" << std::endl;
+    std::cout << "ProjectMgrEditor::~ProjectMgrEditor()" << std::endl;
+}
+
+void ProjectMgrEditor::on_destroy_sig()
+{
+    std::cout << "ProjectMgrEditor::on_destroy_sig()" << std::endl;
+    destroyer.run();
+}
+
+bool ProjectMgrEditor::on_signal_close_request()
+{
+    std::cout << "ProjectMgrEditor::on_signal_close_request()" << std::endl;
+    destroyer.run();
+    return false;
 }
 
 void ProjectMgrEditor::show()
@@ -216,11 +239,6 @@ void ProjectMgrEditor::on_browse_click_finish(
     project_path.set_text(result->get_path());
 
     select_dir_dialog.reset();
-}
-
-void ProjectMgrEditor::on_destroy_sig()
-{
-    delete (this);
 }
 
 } // namespace wayround_i2p::ccedit

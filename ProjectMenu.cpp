@@ -77,43 +77,44 @@ void ProjectMenuGenerator::addActionsToActionGroup(
 {
     action_group->add_action(
         "action_show_project_mgr",
-        sigc::mem_fun(*this, &ProjectMenuGenerator::action_show_project_mgr)
+        [this]()
+        { action_show_project_mgr(); }
     );
 
     action_group->add_action(
         "action_show_project_ctl",
-        sigc::mem_fun(*this, &ProjectMenuGenerator::action_show_project_ctl)
+        [this]()
+        { action_show_project_ctl(); }
     );
 
     action_group->add_action(
         "action_create_new_explorer",
-        sigc::mem_fun(*this, &ProjectMenuGenerator::action_create_new_explorer)
+        [this]()
+        { action_create_new_explorer(); }
     );
 
     action_group->add_action(
         "action_close_project_work_subjects",
-        sigc::mem_fun(
-            *this,
-            &ProjectMenuGenerator::action_close_project_work_subjects
-        )
+        [this]()
+        { action_close_project_work_subjects(); }
     );
 
     action_group->add_action(
         "action_close_project_editors",
-        sigc::mem_fun(
-            *this,
-            &ProjectMenuGenerator::action_close_project_editors
-        )
+        [this]()
+        { action_close_project_editors(); }
     );
 
     action_group->add_action(
         "action_close_project",
-        sigc::mem_fun(*this, &ProjectMenuGenerator::action_close_project)
+        [this]()
+        { action_close_project(); }
     );
 
     action_group->add_action(
         "action_close_ccedit",
-        sigc::mem_fun(*this, &ProjectMenuGenerator::action_close_ccedit)
+        [this]()
+        { action_close_ccedit(); }
     );
 }
 

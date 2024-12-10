@@ -123,35 +123,43 @@ ProjectMgr::ProjectMgr(Controller_shared controller) :
     // save_cfg.set_halign(Gtk::Align::END);
 
     btn_add_proj.signal_clicked().connect(
-        sigc::mem_fun(*this, &ProjectMgr::on_btn_add_click)
+        [this]()
+        { on_btn_add_click(); }
     );
 
     btn_rm_proj.signal_clicked().connect(
-        sigc::mem_fun(*this, &ProjectMgr::on_btn_rm_click)
+        [this]()
+        { on_btn_rm_click(); }
     );
 
     btn_edit_proj.signal_clicked().connect(
-        sigc::mem_fun(*this, &ProjectMgr::on_btn_edit_click)
+        [this]()
+        { on_btn_edit_click(); }
     );
 
     btn_open_proj.signal_clicked().connect(
-        sigc::mem_fun(*this, &ProjectMgr::on_btn_open_click)
+        [this]()
+        { on_btn_open_click(); }
     );
 
     btn_open_global.signal_clicked().connect(
-        sigc::mem_fun(*this, &ProjectMgr::on_btn_open_global_click)
+        [this]()
+        { on_btn_open_global_click(); }
     );
 
     btn_quit.signal_clicked().connect(
-        sigc::mem_fun(*this, &ProjectMgr::on_btn_quit_click)
+        [this]()
+        { on_btn_quit_click(); }
     );
 
     win.signal_destroy().connect(
-        sigc::mem_fun(*this, &ProjectMgr::on_destroy_sig)
+        [this]()
+        { on_destroy_sig(); }
     );
 
     win.signal_close_request().connect(
-        sigc::mem_fun(*this, &ProjectMgr::on_signal_close_request),
+        [this]()
+        { return on_signal_close_request(); },
         true
     );
 }
@@ -205,20 +213,42 @@ void ProjectMgr::add_columns()
 {
     auto factory = Gtk::SignalListItemFactory::create();
     factory->signal_setup().connect(
-        sigc::bind(
-            sigc::mem_fun(*this, &ProjectMgr::table_cell_setup),
-            Gtk::Align::START
-        )
+        [](const Glib::RefPtr<Gtk::ListItem> &list_item)
+        {
+            list_item->set_child(
+                *Gtk::make_managed<Gtk::Label>(
+                    "",
+                    Gtk::Align::START
+                )
+            );
+        }
     );
     factory->signal_bind().connect(
-        sigc::bind(
-            sigc::mem_fun(*this, &ProjectMgr::table_name_cell_bind)
-        )
+        [this](const Glib::RefPtr<Gtk::ListItem> &list_item)
+        {
+            auto col = std::dynamic_pointer_cast<ProjectTableRow>(list_item->get_item());
+            if (!col)
+                return;
+            auto label = dynamic_cast<Gtk::Label *>(list_item->get_child());
+            if (!label)
+                return;
+            label->set_text(col->proj_name());
+            col->signal_proj_name_changed().connect(
+                [label, col]() -> void
+                {
+                    label->set_text(col->proj_name());
+                }
+            );
+        }
     );
     factory->signal_unbind().connect(
-        sigc::bind(
-            sigc::mem_fun(*this, &ProjectMgr::table_name_cell_unbind)
-        )
+        [this](const Glib::RefPtr<Gtk::ListItem> &list_item)
+        {
+            auto col = std::dynamic_pointer_cast<ProjectTableRow>(list_item->get_item());
+            if (!col)
+                return;
+            col->signal_proj_name_changed().clear();
+        }
     );
 
     auto column = Gtk::ColumnViewColumn::create("Project", factory);
@@ -229,80 +259,47 @@ void ProjectMgr::add_columns()
     // -------------
     factory = Gtk::SignalListItemFactory::create();
     factory->signal_setup().connect(
-        sigc::bind(
-            sigc::mem_fun(*this, &ProjectMgr::table_cell_setup),
-            Gtk::Align::START
-        )
+        [](const Glib::RefPtr<Gtk::ListItem> &list_item)
+        {
+            list_item->set_child(
+                *Gtk::make_managed<Gtk::Label>(
+                    "",
+                    Gtk::Align::START
+                )
+            );
+        }
     );
     factory->signal_bind().connect(
-        sigc::bind(
-            sigc::mem_fun(*this, &ProjectMgr::table_path_cell_bind)
-        )
+        [this](const Glib::RefPtr<Gtk::ListItem> &list_item)
+        {
+            auto col = std::dynamic_pointer_cast<ProjectTableRow>(list_item->get_item());
+            if (!col)
+                return;
+            auto label = dynamic_cast<Gtk::Label *>(list_item->get_child());
+            if (!label)
+                return;
+            label->set_text(col->proj_path().string());
+            col->signal_proj_path_changed().connect(
+                [label, col]() -> void
+                {
+                    label->set_text(col->proj_path().string());
+                }
+            );
+        }
     );
     factory->signal_unbind().connect(
-        sigc::bind(
-            sigc::mem_fun(*this, &ProjectMgr::table_path_cell_unbind)
-        )
+        [this](const Glib::RefPtr<Gtk::ListItem> &list_item)
+        {
+            auto col = std::dynamic_pointer_cast<ProjectTableRow>(list_item->get_item());
+            if (!col)
+                return;
+            col->signal_proj_path_changed().clear();
+        }
     );
 
     column = Gtk::ColumnViewColumn::create("Path", factory);
     column->set_expand(true);
     project_list_view.append_column(column);
-}
-
-void ProjectMgr::table_cell_setup(const Glib::RefPtr<Gtk::ListItem> &list_item, Gtk::Align halign)
-{
-    list_item->set_child(*Gtk::make_managed<Gtk::Label>("", halign));
-}
-
-void ProjectMgr::table_name_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_item)
-{
-    auto col = std::dynamic_pointer_cast<ProjectTableRow>(list_item->get_item());
-    if (!col)
-        return;
-    auto label = dynamic_cast<Gtk::Label *>(list_item->get_child());
-    if (!label)
-        return;
-    label->set_text(col->proj_name());
-    col->signal_proj_name_changed().connect(
-        [label, col]() -> void
-        {
-            label->set_text(col->proj_name());
-        }
-    );
-}
-
-void ProjectMgr::table_name_cell_unbind(const Glib::RefPtr<Gtk::ListItem> &list_item)
-{
-    auto col = std::dynamic_pointer_cast<ProjectTableRow>(list_item->get_item());
-    if (!col)
-        return;
-    col->signal_proj_name_changed().clear();
-}
-
-void ProjectMgr::table_path_cell_bind(const Glib::RefPtr<Gtk::ListItem> &list_item)
-{
-    auto col = std::dynamic_pointer_cast<ProjectTableRow>(list_item->get_item());
-    if (!col)
-        return;
-    auto label = dynamic_cast<Gtk::Label *>(list_item->get_child());
-    if (!label)
-        return;
-    label->set_text(col->proj_path().string());
-    col->signal_proj_path_changed().connect(
-        [label, col]() -> void
-        {
-            label->set_text(col->proj_path().string());
-        }
-    );
-}
-
-void ProjectMgr::table_path_cell_unbind(const Glib::RefPtr<Gtk::ListItem> &list_item)
-{
-    auto col = std::dynamic_pointer_cast<ProjectTableRow>(list_item->get_item());
-    if (!col)
-        return;
-    col->signal_proj_path_changed().clear();
 }
 
 void ProjectMgr::on_btn_add_click()

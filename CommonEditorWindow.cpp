@@ -137,10 +137,10 @@ CommonEditorWindow::CommonEditorWindow(
         { updateTitle(); }
     );
 
-    win.signal_destroy().connect(
-        [this]()
-        { on_destroy_sig(); }
-    );
+    on_destroy_sig_slot = [this]()
+    { on_destroy_sig_slot(); };
+
+    win.signal_destroy().connect(on_destroy_sig_slot);
 
     win.signal_close_request().connect(
         [this]() -> bool
@@ -271,47 +271,56 @@ void CommonEditorWindow::make_actions()
 
     action_group->add_action(
         "work_subject_reload",
-        sigc::mem_fun(*this, &CommonEditorWindow::action_work_subject_reload)
+        [this]()
+        { action_work_subject_reload(); }
     );
 
     action_group->add_action(
         "work_subject_save",
-        sigc::mem_fun(*this, &CommonEditorWindow::action_work_subject_save)
+        [this]()
+        { action_work_subject_save(); }
     );
 
     action_group->add_action(
         "work_subject_save_as",
-        sigc::mem_fun(*this, &CommonEditorWindow::action_work_subject_save_as)
+        [this]()
+        { action_work_subject_save_as(); }
     );
 
     action_group->add_action(
         "work_subject_close",
-        sigc::mem_fun(*this, &CommonEditorWindow::action_work_subject_close)
+        [this]()
+        { action_work_subject_close(); }
     );
 
     action_group->add_action(
         "search_show_window",
-        sigc::mem_fun(*this, &CommonEditorWindow::action_search_show_window)
+        [this]()
+        { action_search_show_window(); }
     );
 
     action_group->add_action(
         "windows_prev_window",
-        sigc::mem_fun(*this, &CommonEditorWindow::action_windows_prev_window)
+        [this]()
+        { action_windows_prev_window(); }
     );
 
     action_group->add_action(
         "windows_next_window",
-        sigc::mem_fun(*this, &CommonEditorWindow::action_windows_next_window)
+        [this]()
+        { action_windows_next_window(); }
     );
 
     action_group->add_action(
         "windows_duplicate_window",
-        sigc::mem_fun(*this, &CommonEditorWindow::action_windows_duplicate_window)
+        [this]()
+        { action_windows_duplicate_window(); }
     );
 
     action_group->add_action(
         "windows_close_window",
-        sigc::mem_fun(*this, &CommonEditorWindow::action_windows_close_window)
+        [this]()
+        { action_windows_close_window(); }
     );
 
     wmg.addActionsToActionGroup(action_group);

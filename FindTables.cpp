@@ -103,7 +103,8 @@ FindFileResultTreeItemWidget::FindFileResultTreeItemWidget(
     append(found_count);
 
     go_btn.signal_clicked().connect(
-        sigc::mem_fun(*this, &FindFileResultTreeItemWidget::on_go_btn)
+        [this]()
+        { on_go_btn(); }
     );
 }
 
@@ -160,7 +161,8 @@ FindFileResultTreeItemItemWidget::FindFileResultTreeItemItemWidget(
     append(text);
 
     go_btn.signal_clicked().connect(
-        sigc::mem_fun(*this, &FindFileResultTreeItemItemWidget::on_go_btn)
+        [this]()
+        { on_go_btn(); }
     );
 }
 

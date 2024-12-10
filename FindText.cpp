@@ -116,7 +116,8 @@ FindTextWidget::FindTextWidget(FindTextWidgetMode mode) :
     apply_search_method_visual();
 
     search_method.property_selected_item().signal_changed().connect(
-        sigc::mem_fun(*this, &FindTextWidget::on_search_method_changed)
+        [this]()
+        { on_search_method_changed(); }
     );
 }
 
@@ -811,23 +812,34 @@ FindText::FindText(CodeEditorAbstract_shared editor_window) :
     saveEditorLine();
 
     start_btn.signal_clicked().connect(
-        sigc::mem_fun(*this, &FindText::on_start_btn)
+        [this]()
+        { on_start_btn(); }
     );
 
     stop_btn.signal_clicked().connect(
-        sigc::mem_fun(*this, &FindText::on_stop_btn)
+        [this]()
+        { on_stop_btn(); }
     );
 
     acquire_cursor_position_btn.signal_clicked().connect(
-        sigc::mem_fun(*this, &FindText::on_acquire_cursor_position)
+        [this]()
+        { on_acquire_cursor_position(); }
     );
 
     restore_cursor_position_btn.signal_clicked().connect(
-        sigc::mem_fun(*this, &FindText::on_restore_cursor_position)
+        [this]()
+        { on_restore_cursor_position(); }
     );
 
     win.signal_destroy().connect(
-        sigc::mem_fun(*this, &FindText::on_destroy_sig)
+        [this]()
+        { on_destroy_sig(); }
+    );
+
+    win.signal_close_request().connect(
+        [this]() -> bool
+        { return on_signal_close_request(); },
+        true
     );
 }
 

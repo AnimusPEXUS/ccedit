@@ -144,6 +144,8 @@ class CommonEditorWindow : public CodeEditorAbstract
 
     void force_redraw_linum();
 
+    sigc::slot<void()> on_destroy_sig_slot;
+
     void on_destroy_sig();
     bool on_signal_close_request();
 };

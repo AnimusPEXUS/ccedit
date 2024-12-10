@@ -72,6 +72,7 @@ class ProjectMgrEditor
     void on_browse_click_finish(std::shared_ptr<Gio::AsyncResult> res);
 
     void on_destroy_sig();
+    bool on_signal_close_request();
 
     Glib::RefPtr<Gtk::FileDialog> select_dir_dialog;
 };

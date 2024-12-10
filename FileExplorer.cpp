@@ -241,72 +241,68 @@ void FileExplorer::setupDirTreeView()
 {
     auto factory = Gtk::SignalListItemFactory::create();
     factory->signal_setup().connect(
-        sigc::bind( // todo: sigc::bind needed?
-            [](
-                const Glib::RefPtr<Gtk::ListItem> &list_item
-            )
-            {
-                auto exp = Gtk::make_managed<Gtk::TreeExpander>();
-                auto box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, 5);
-                auto pic = Gtk::make_managed<Gtk::Image>();
-                auto lbl = Gtk::make_managed<Gtk::Label>("", Gtk::Align::START);
-                box->append(*pic);
-                box->append(*lbl);
-                exp->set_child(*box);
-                list_item->set_child(*exp);
-                // exp->set_list_row(tlr);
-            }
+        [](
+            const Glib::RefPtr<Gtk::ListItem> &list_item
         )
+        {
+            auto exp = Gtk::make_managed<Gtk::TreeExpander>();
+            auto box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, 5);
+            auto pic = Gtk::make_managed<Gtk::Image>();
+            auto lbl = Gtk::make_managed<Gtk::Label>("", Gtk::Align::START);
+            box->append(*pic);
+            box->append(*lbl);
+            exp->set_child(*box);
+            list_item->set_child(*exp);
+            // exp->set_list_row(tlr);
+        }
     );
 
     factory->signal_bind().connect(
-        sigc::bind( // todo: sigc::bind needed?
-            [this](const Glib::RefPtr<Gtk::ListItem> &list_item)
+        [this](const Glib::RefPtr<Gtk::ListItem> &list_item)
+        {
+            auto list_item_item = list_item->get_item();
+
+            auto tlr = std::dynamic_pointer_cast<Gtk::TreeListRow>(list_item_item);
+            if (!tlr)
             {
-                auto list_item_item = list_item->get_item();
-
-                auto tlr = std::dynamic_pointer_cast<Gtk::TreeListRow>(list_item_item);
-                if (!tlr)
-                {
-                    return;
-                }
-
-                auto exp = dynamic_cast<Gtk::TreeExpander *>(list_item->get_child());
-                if (!exp)
-                {
-                    return;
-                }
-                exp->set_list_row(tlr);
-
-                auto box = dynamic_cast<Gtk::Box *>(exp->get_child());
-                if (!box)
-                {
-                    return;
-                }
-
-                auto pic = dynamic_cast<Gtk::Image *>(box->get_first_child());
-                if (!pic)
-                {
-                    return;
-                }
-
-                auto label = dynamic_cast<Gtk::Label *>(box->get_last_child());
-                if (!label)
-                {
-                    return;
-                }
-
-                auto f_path = std::dynamic_pointer_cast<FileExplorerDirTreeRow>(
-                                  tlr->get_item()
-                )
-                                  ->pth;
-
-                pic->set_from_icon_name("folder");
-
-                std::string new_text = f_path.filename();
-                label->set_text(new_text);
+                return;
             }
-        )
+
+            auto exp = dynamic_cast<Gtk::TreeExpander *>(list_item->get_child());
+            if (!exp)
+            {
+                return;
+            }
+            exp->set_list_row(tlr);
+
+            auto box = dynamic_cast<Gtk::Box *>(exp->get_child());
+            if (!box)
+            {
+                return;
+            }
+
+            auto pic = dynamic_cast<Gtk::Image *>(box->get_first_child());
+            if (!pic)
+            {
+                return;
+            }
+
+            auto label = dynamic_cast<Gtk::Label *>(box->get_last_child());
+            if (!label)
+            {
+                return;
+            }
+
+            auto f_path = std::dynamic_pointer_cast<FileExplorerDirTreeRow>(
+                              tlr->get_item()
+            )
+                              ->pth;
+
+            pic->set_from_icon_name("folder");
+
+            std::string new_text = f_path.filename();
+            label->set_text(new_text);
+        }
     );
 
     dir_tree_view.set_factory(factory);
@@ -316,66 +312,62 @@ void FileExplorer::setupFileListView()
 {
     auto factory = Gtk::SignalListItemFactory::create();
     factory->signal_setup().connect(
-        sigc::bind(
-            [](
-                const Glib::RefPtr<Gtk::ListItem> &list_item
-            )
-            {
-                auto box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, 5);
-                auto pic = Gtk::make_managed<Gtk::Image>();
-                auto lbl = Gtk::make_managed<Gtk::Label>("", Gtk::Align::START);
-                box->append(*pic);
-                box->append(*lbl);
-                box->set_margin(0);
-                box->set_hexpand(false);
-                box->set_vexpand(false);
-                list_item->set_child(*box);
-            }
+        [](
+            const Glib::RefPtr<Gtk::ListItem> &list_item
         )
+        {
+            auto box = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, 5);
+            auto pic = Gtk::make_managed<Gtk::Image>();
+            auto lbl = Gtk::make_managed<Gtk::Label>("", Gtk::Align::START);
+            box->append(*pic);
+            box->append(*lbl);
+            box->set_margin(0);
+            box->set_hexpand(false);
+            box->set_vexpand(false);
+            list_item->set_child(*box);
+        }
     );
 
     factory->signal_bind().connect(
-        sigc::bind(
-            [this](const Glib::RefPtr<Gtk::ListItem> &list_item)
+        [this](const Glib::RefPtr<Gtk::ListItem> &list_item)
+        {
+            auto list_item_item = list_item->get_item();
+
+            auto tlr = std::dynamic_pointer_cast<FileExplorerFileListRow>(list_item_item);
+            if (!tlr)
             {
-                auto list_item_item = list_item->get_item();
-
-                auto tlr = std::dynamic_pointer_cast<FileExplorerFileListRow>(list_item_item);
-                if (!tlr)
-                {
-                    return;
-                }
-
-                auto box = dynamic_cast<Gtk::Box *>(list_item->get_child());
-                if (!box)
-                {
-                    return;
-                }
-
-                auto pic = dynamic_cast<Gtk::Image *>(box->get_first_child());
-                if (!pic)
-                {
-                    return;
-                }
-
-                auto label = dynamic_cast<Gtk::Label *>(box->get_last_child());
-                if (!label)
-                {
-                    return;
-                }
-
-                auto f_path = project_ctl->getProjectPath() / tlr->pth;
-
-                auto fi   = Gio::File::create_for_path(f_path);
-                auto fii  = fi->query_info();
-                auto icon = fii->get_icon();
-
-                pic->set(icon);
-
-                std::string new_text = f_path.filename();
-                label->set_text(new_text);
+                return;
             }
-        )
+
+            auto box = dynamic_cast<Gtk::Box *>(list_item->get_child());
+            if (!box)
+            {
+                return;
+            }
+
+            auto pic = dynamic_cast<Gtk::Image *>(box->get_first_child());
+            if (!pic)
+            {
+                return;
+            }
+
+            auto label = dynamic_cast<Gtk::Label *>(box->get_last_child());
+            if (!label)
+            {
+                return;
+            }
+
+            auto f_path = project_ctl->getProjectPath() / tlr->pth;
+
+            auto fi   = Gio::File::create_for_path(f_path);
+            auto fii  = fi->query_info();
+            auto icon = fii->get_icon();
+
+            pic->set(icon);
+
+            std::string new_text = f_path.filename();
+            label->set_text(new_text);
+        }
     );
 
     file_list_view.set_factory(factory);
@@ -388,11 +380,6 @@ void FileExplorer::setup_main_menu()
 void FileExplorer::setup_actions()
 {
     auto action_group = Gio::SimpleActionGroup::create();
-
-    //    action_group->add_action(
-    //        "work_subject_reload",
-    //        sigc::mem_fun(*this, &CommonEditorWindow::action_work_subject_reload)
-    //    );
 
     wmg.addActionsToActionGroup(action_group);
 
