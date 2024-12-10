@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include <gtkmm.h>
+#include <sigc++/sigc++.h>
 
 #include "ProjectMenu.hpp"
 

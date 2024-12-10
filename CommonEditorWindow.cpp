@@ -45,7 +45,13 @@ CommonEditorWindow::CommonEditorWindow(
             this->project_ctl->unregisterEditor(
                 this->own_ptr
             );
-            destroy();
+            subject_signal_modified_changed_slot.disconnect();
+            subject_signal_editors_save_state_slot.disconnect();
+            subject_signal_editors_restore_state_slot.disconnect();
+            project_ctl_signal_updated_name_slot.disconnect();
+            on_destroy_sig_slot.disconnect();
+            on_signal_close_request_slot.disconnect();
+
             win.destroy();
             own_ptr.reset();
         }
@@ -117,34 +123,44 @@ CommonEditorWindow::CommonEditorWindow(
         }
     );
 
+    subject_signal_modified_changed_slot = [this]()
+    { updateTitle(); };
+
     subject->signal_modified_changed().connect(
-        [this]()
-        { updateTitle(); }
+        subject_signal_modified_changed_slot
     );
+
+    subject_signal_editors_save_state_slot = [this]()
+    { saveState(); };
 
     subject->signal_editors_save_state().connect(
-        [this]()
-        { saveState(); }
+        subject_signal_editors_save_state_slot
     );
+
+    subject_signal_editors_restore_state_slot = [this]()
+    { restoreState(); };
 
     subject->signal_editors_restore_state().connect(
-        [this]()
-        { restoreState(); }
+        subject_signal_editors_restore_state_slot
     );
 
+    project_ctl_signal_updated_name_slot = [this]()
+    { updateTitle(); };
+
     project_ctl->signal_updated_name().connect(
-        [this]()
-        { updateTitle(); }
+        project_ctl_signal_updated_name_slot
     );
 
     on_destroy_sig_slot = [this]()
-    { on_destroy_sig_slot(); };
+    { on_destroy_sig(); };
 
     win.signal_destroy().connect(on_destroy_sig_slot);
 
+    on_signal_close_request_slot = [this]() -> bool
+    { return on_signal_close_request(); };
+
     win.signal_close_request().connect(
-        [this]() -> bool
-        { return on_signal_close_request(); },
+        on_signal_close_request_slot,
         true
     );
 

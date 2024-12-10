@@ -41,6 +41,8 @@ Controller::Controller(Glib::RefPtr<Gtk::Application> app) :
     destroyer(
         [this]()
         {
+            app_signal_startup_slot.disconnect();
+
             this->app->release();
             this->app->quit();
             own_ptr.reset();
@@ -77,9 +79,11 @@ int Controller::run(int argc, char *argv[])
 
     icon_theme = Gtk::IconTheme::create();
 
+    app_signal_startup_slot = [this]()
+    { on_app_startup(); };
+
     app->signal_startup().connect(
-        [this]()
-        { on_app_startup(); }
+        app_signal_startup_slot
     );
 
     app->hold();

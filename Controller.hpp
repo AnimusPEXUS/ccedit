@@ -6,6 +6,7 @@
 #include <vector>
 
 #include <gtkmm.h>
+#include <sigc++/sigc++.h>
 
 #include "build_num.hpp"
 
@@ -134,14 +135,16 @@ class Controller
 
     Glib::RefPtr<Gio::ListStore<ProjectTableRow>> project_list_store;
 
-    void on_app_startup();
-
     std::tuple<std::filesystem::path, int> getConfigDir();
     std::tuple<std::filesystem::path, int> getConfigFullPath();
     int                                    ensureConfigDirExists();
 
     int addBuiltinMods();
     int addBuiltinMod(CodeEditorMod *mod);
+
+    sigc::slot<void()> app_signal_startup_slot;
+
+    void on_app_startup();
 };
 } // namespace wayround_i2p::ccedit
 

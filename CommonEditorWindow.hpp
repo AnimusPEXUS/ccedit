@@ -144,7 +144,12 @@ class CommonEditorWindow : public CodeEditorAbstract
 
     void force_redraw_linum();
 
+    sigc::slot<void()> subject_signal_modified_changed_slot;
+    sigc::slot<void()> subject_signal_editors_save_state_slot;
+    sigc::slot<void()> subject_signal_editors_restore_state_slot;
+    sigc::slot<void()> project_ctl_signal_updated_name_slot;
     sigc::slot<void()> on_destroy_sig_slot;
+    sigc::slot<bool()> on_signal_close_request_slot;
 
     void on_destroy_sig();
     bool on_signal_close_request();
