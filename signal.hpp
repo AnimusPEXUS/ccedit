@@ -99,7 +99,8 @@ class Signal<RetT(Args...)>
 
     Signal(
         cb_on_result_function cb_on_result
-    )
+    ) :
+        cb_on_result(cb_on_result)
     {
     }
 
