@@ -126,8 +126,17 @@ CommonEditorWindow::CommonEditorWindow(
     subject_signal_modified_changed_slot = [this]()
     { updateTitle(); };
 
+    subject_signal_modified_changed_slot2->setFun(
+        [this]()
+        { updateTitle(); }
+    );
+
     subject->signal_modified_changed().connect(
         subject_signal_modified_changed_slot
+    );
+
+    subject->signal_modified_changed2().connect(
+        subject_signal_modified_changed_slot2
     );
 
     subject_signal_editors_save_state_slot = [this]()

@@ -11,7 +11,7 @@
 #include <sigc++/sigc++.h>
 
 #include "forward_declarations.hpp"
-
+#include "signal.hpp"
 #include "utils.hpp"
 
 namespace wayround_i2p::ccedit
@@ -79,6 +79,7 @@ class WorkSubject
     sigc::signal<void()> priv_signal_editors_restore_state;
 
     sigc::signal<void()> priv_signal_modified_changed;
+    Signal<void()>       priv_signal_modified_changed2;
 
     void emit_signal_modified_changed();
 
