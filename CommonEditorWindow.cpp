@@ -128,7 +128,10 @@ CommonEditorWindow::CommonEditorWindow(
 
     subject_signal_modified_changed_slot2->setFun(
         [this]()
-        { updateTitle(); }
+        {
+            std::cout << "subject_signal_modified_changed_slot2" << std::endl;
+            updateTitle();
+        }
     );
 
     subject->signal_modified_changed().connect(

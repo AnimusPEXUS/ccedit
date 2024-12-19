@@ -7,48 +7,52 @@
 #include <functional>
 #include <memory>
 
-#include <sigc++/sigc++.h>
-
 namespace wayround_i2p::ccedit
 {
 
 template <class>
 class Slot;
 
-template <class RetT, class... Args>
-class Slot<RetT(Args...)>;
+template <class... Args>
+class Slot<void(Args...)>;
 
-template <class RetT, class... Args>
-using Slot_shared = std::shared_ptr<Slot<RetT, Args...>>;
+template <class... Args>
+using Slot_shared = std::shared_ptr<Slot<Args...>>;
 
-template <class RetT, class... Args>
-using Slot_weak = std::weak_ptr<Slot<RetT, Args...>>;
+template <class... Args>
+using Slot_weak = std::weak_ptr<Slot<Args...>>;
+
+template <class>
+class SlotC;
+
+template <class... Args>
+class SlotC<void(Args...)>;
 
 template <class>
 class Signal;
 
-template <class RetT, class... Args>
-class Signal<RetT(Args...)>;
+template <class... Args>
+class Signal<void(Args...)>;
 
-template <class RetT, class... Args>
-using Signal_shared = std::shared_ptr<Signal<RetT, Args...>>;
+template <class... Args>
+using Signal_shared = std::shared_ptr<Signal<Args...>>;
 
-template <class RetT, class... Args>
-using Signal_weak = std::weak_ptr<Signal<RetT, Args...>>;
+template <class... Args>
+using Signal_weak = std::weak_ptr<Signal<Args...>>;
 
-template <class RetT, class... Args>
-class Slot<RetT(Args...)> : sigc::trackable
+template <class... Args>
+class Slot<void(Args...)>
 {
   public:
-    static Slot_shared<RetT(Args...)> create(std::function<RetT(Args...)> fun = nullptr)
+    static Slot_shared<void(Args...)> create(std::function<void(Args...)> fun = nullptr)
     {
-        auto ret     = Slot_shared<RetT(Args...)>(new Slot(fun));
+        auto ret     = Slot_shared<void(Args...)>(new Slot(fun));
         ret->own_ptr = ret;
         return ret;
     }
 
   protected:
-    Slot(std::function<RetT(Args...)> fun = nullptr) :
+    Slot(std::function<void(Args...)> fun = nullptr) :
         fun(fun)
     {
     }
@@ -58,59 +62,58 @@ class Slot<RetT(Args...)> : sigc::trackable
     {
     }
 
-    void setFun(std::function<RetT(Args...)> fun)
+    void setFun(std::function<void(Args...)> fun)
     {
         this->fun = fun;
     }
 
-    RetT on_emission(Args... args)
+    void on_emission(Args... args)
     {
         if (!fun)
         {
             throw "fun not set";
         }
-        return fun(args...);
+        fun(args...);
     }
 
-    Slot_shared<RetT(Args...)> getOwnPtr()
+    Slot_shared<void(Args...)> getOwnPtr()
     {
         return own_ptr.lock();
     }
 
-    sigc::slot<RetT(Args...)> make_sigc_slot()
-    {
-        return sigc::mem_fun(this, &Slot<RetT(Args...)>::on_emission);
-    }
-
   private:
-    Slot_weak<RetT(Args...)>     own_ptr;
-    std::function<RetT(Args...)> fun;
+    Slot_weak<void(Args...)>     own_ptr;
+    std::function<void(Args...)> fun;
 };
 
-template <class RetT, class... Args>
-class Signal<RetT(Args...)>
+template <class... Args>
+class SlotC<void(Args...)> : public Slot_shared<void(Args...)>
 {
   public:
-    using slot_type        = Slot<RetT(Args...)>;
-    using slot_type_shared = Slot_shared<RetT(Args...)>;
-    using slot_type_weak   = Slot_weak<RetT(Args...)>;
+    SlotC(std::function<void(Args...)> fun = nullptr) :
+        Slot_shared<void(Args...)>(Slot<void(Args...)>::create(fun))
+    {
+    }
 
-    using cb_on_result_function = std::function<void(slot_type_shared slot, RetT result)>;
+    ~SlotC()
+    {
+    }
+};
 
-    Signal(
-        cb_on_result_function cb_on_result
-    ) :
-        cb_on_result(cb_on_result)
+template <class... Args>
+class Signal<void(Args...)>
+{
+  public:
+    using slot_type        = Slot<void(Args...)>;
+    using slot_type_shared = Slot_shared<void(Args...)>;
+    using slot_type_weak   = Slot_weak<void(Args...)>;
+
+    Signal()
     {
     }
 
     ~Signal()
     {
-    }
-
-    void set_cb_on_result(cb_on_result_function cb_on_result)
-    {
-        this.cb_on_result = cb_on_result;
     }
 
     void connect(slot_type_shared slot_)
@@ -157,11 +160,7 @@ class Signal<RetT(Args...)>
 
         for (auto i : shared_connected_slots)
         {
-            auto res = i->on_emission(args...);
-            if (cb_on_result)
-            {
-                cb_on_result(res);
-            }
+            i->on_emission(args...);
         }
 
         for (auto i : shared_connected_slots)
@@ -174,7 +173,6 @@ class Signal<RetT(Args...)>
 
   private:
     std::deque<slot_type_weak> connected_slots;
-    cb_on_result_function      cb_on_result;
 };
 
 } // namespace wayround_i2p::ccedit

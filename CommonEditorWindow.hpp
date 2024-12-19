@@ -145,7 +145,7 @@ class CommonEditorWindow : public CodeEditorAbstract
 
     void force_redraw_linum();
 
-    Slot_shared<void()> subject_signal_modified_changed_slot2;
+    SlotC<void()> subject_signal_modified_changed_slot2;
 
     sigc::slot<void()> subject_signal_modified_changed_slot;
     sigc::slot<void()> subject_signal_editors_save_state_slot;

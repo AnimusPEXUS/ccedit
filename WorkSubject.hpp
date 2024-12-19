@@ -63,6 +63,7 @@ class WorkSubject
     sigc::signal<void()> &signal_editors_restore_state();
 
     sigc::signal<void()> &signal_modified_changed();
+    Signal<void()>       &signal_modified_changed2();
 
   private:
     RunOnce destroyer;

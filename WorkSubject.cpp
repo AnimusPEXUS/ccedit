@@ -115,6 +115,7 @@ void WorkSubject::emit_signal_modified_changed()
     std::cout << "WorkSubject::emit_signal_modified_changed(): "
               << txt_buff->get_modified() << std ::endl;
     priv_signal_modified_changed.emit();
+    priv_signal_modified_changed2.emit();
 }
 
 // shortcut to reload() with allow_nonexist=false
@@ -194,6 +195,11 @@ sigc::signal<void()> &WorkSubject::signal_editors_restore_state()
 sigc::signal<void()> &WorkSubject::signal_modified_changed()
 {
     return priv_signal_modified_changed;
+}
+
+Signal<void()> &WorkSubject::signal_modified_changed2()
+{
+    return priv_signal_modified_changed2;
 }
 
 } // namespace wayround_i2p::ccedit
