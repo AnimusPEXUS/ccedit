@@ -102,13 +102,7 @@ class SlotC<RetT(Args...)> : public Slot_shared<RetT(Args...)>
     }
 };
 
-template <
-    class RetT,
-    class... Args,
-    class RetTC = std::conditional<
-        std::same_as<RetT, void>,
-        RetT,
-        int>::type>
+template <class RetT, class... Args>
 class Signal<RetT(Args...)>
 {
   public:
@@ -116,19 +110,18 @@ class Signal<RetT(Args...)>
     using slot_type_shared = Slot_shared<RetT(Args...)>;
     using slot_type_weak   = Slot_weak<RetT(Args...)>;
 
+    // note: the point here is to remove second parameter from function if
+    //       it's type is void. I don't know how better to do it, so here
+    //       are some bdsm with std::conditionals.
+
     using cb_on_result_function = std::conditional<
-
         std::same_as<RetT, void>,
-
         std::function<void(slot_type_shared slot)>,
-
         std::function<
             void(
-                slot_type_shared slot,
-                RetTC            result
-            )>
-
-        >::type;
+                slot_type_shared                                      slot,
+                std::conditional<std::same_as<RetT, void>, int, RetT> result
+            )>>::type;
 
     Signal(cb_on_result_function cb_on_result = nullptr) :
         cb_on_result(cb_on_result)
