@@ -13,46 +13,48 @@ namespace wayround_i2p::ccedit
 template <class>
 class Slot;
 
-template <class... Args>
-class Slot<void(Args...)>;
+template <class RetT, class... Args>
+class Slot<RetT(Args...)>;
 
-template <class... Args>
-using Slot_shared = std::shared_ptr<Slot<Args...>>;
+template <class RetT, class... Args>
+using Slot_shared = std::shared_ptr<Slot<RetT, Args...>>;
 
-template <class... Args>
-using Slot_weak = std::weak_ptr<Slot<Args...>>;
+template <class RetT, class... Args>
+using Slot_weak = std::weak_ptr<Slot<RetT, Args...>>;
 
 template <class>
 class SlotC;
 
-template <class... Args>
-class SlotC<void(Args...)>;
+template <class RetT, class... Args>
+class SlotC<RetT(Args...)>;
 
 template <class>
 class Signal;
 
-template <class... Args>
-class Signal<void(Args...)>;
+template <class RetT, class... Args>
+class Signal<RetT(Args...)>;
 
-template <class... Args>
-using Signal_shared = std::shared_ptr<Signal<Args...>>;
+template <class RetT, class... Args>
+using Signal_shared = std::shared_ptr<Signal<RetT, Args...>>;
 
-template <class... Args>
-using Signal_weak = std::weak_ptr<Signal<Args...>>;
+template <class RetT, class... Args>
+using Signal_weak = std::weak_ptr<Signal<RetT, Args...>>;
 
-template <class... Args>
-class Slot<void(Args...)>
+template <class RetT, class... Args>
+class Slot<RetT(Args...)>
 {
   public:
-    static Slot_shared<void(Args...)> create(std::function<void(Args...)> fun = nullptr)
+    using slotted_function_type = std::function<RetT(Args...)>;
+
+    static Slot_shared<void(Args...)> create(slotted_function_type fun = nullptr)
     {
-        auto ret     = Slot_shared<void(Args...)>(new Slot(fun));
+        auto ret     = Slot_shared<RetT(Args...)>(new Slot(fun));
         ret->own_ptr = ret;
         return ret;
     }
 
   protected:
-    Slot(std::function<void(Args...)> fun = nullptr) :
+    Slot(slotted_function_type fun = nullptr) :
         fun(fun)
     {
     }
@@ -62,36 +64,36 @@ class Slot<void(Args...)>
     {
     }
 
-    void setFun(std::function<void(Args...)> fun)
+    void setFun(slotted_function_type fun)
     {
         this->fun = fun;
     }
 
-    void on_emission(Args... args)
+    RetT on_emission(Args... args)
     {
         if (!fun)
         {
             throw "fun not set";
         }
-        fun(args...);
+        return fun(args...);
     }
 
-    Slot_shared<void(Args...)> getOwnPtr()
+    Slot_shared<RetT(Args...)> getOwnPtr()
     {
         return own_ptr.lock();
     }
 
   private:
-    Slot_weak<void(Args...)>     own_ptr;
-    std::function<void(Args...)> fun;
+    Slot_weak<RetT(Args...)> own_ptr;
+    slotted_function_type    fun;
 };
 
-template <class... Args>
-class SlotC<void(Args...)> : public Slot_shared<void(Args...)>
+template <class RetT, class... Args>
+class SlotC<RetT(Args...)> : public Slot_shared<RetT(Args...)>
 {
   public:
-    SlotC(std::function<void(Args...)> fun = nullptr) :
-        Slot_shared<void(Args...)>(Slot<void(Args...)>::create(fun))
+    SlotC(std::function<RetT(Args...)> fun = nullptr) :
+        Slot_shared<RetT(Args...)>(Slot<RetT(Args...)>::create(fun))
     {
     }
 
@@ -100,20 +102,46 @@ class SlotC<void(Args...)> : public Slot_shared<void(Args...)>
     }
 };
 
-template <class... Args>
-class Signal<void(Args...)>
+template <
+    class RetT,
+    class... Args,
+    class RetTC = std::conditional<
+        std::same_as<RetT, void>,
+        RetT,
+        int>::type>
+class Signal<RetT(Args...)>
 {
   public:
-    using slot_type        = Slot<void(Args...)>;
-    using slot_type_shared = Slot_shared<void(Args...)>;
-    using slot_type_weak   = Slot_weak<void(Args...)>;
+    using slot_type        = Slot<RetT(Args...)>;
+    using slot_type_shared = Slot_shared<RetT(Args...)>;
+    using slot_type_weak   = Slot_weak<RetT(Args...)>;
 
-    Signal()
+    using cb_on_result_function = std::conditional<
+
+        std::same_as<RetT, void>,
+
+        std::function<void(slot_type_shared slot)>,
+
+        std::function<
+            void(
+                slot_type_shared slot,
+                RetTC            result
+            )>
+
+        >::type;
+
+    Signal(cb_on_result_function cb_on_result = nullptr) :
+        cb_on_result(cb_on_result)
     {
     }
 
     ~Signal()
     {
+    }
+
+    void set_cb_on_result(cb_on_result_function cb_on_result)
+    {
+        this->cb_on_result = cb_on_result;
     }
 
     void connect(slot_type_shared slot_)
@@ -160,7 +188,22 @@ class Signal<void(Args...)>
 
         for (auto i : shared_connected_slots)
         {
-            i->on_emission(args...);
+            if constexpr (std::same_as<RetT, void>)
+            {
+                i->on_emission(args...);
+                if (cb_on_result)
+                {
+                    cb_on_result(i);
+                }
+            }
+            else
+            {
+                auto ret = i->on_emission(args...);
+                if (cb_on_result)
+                {
+                    cb_on_result(i, ret);
+                }
+            }
         }
 
         for (auto i : shared_connected_slots)
@@ -173,6 +216,7 @@ class Signal<void(Args...)>
 
   private:
     std::deque<slot_type_weak> connected_slots;
+    cb_on_result_function      cb_on_result;
 };
 
 } // namespace wayround_i2p::ccedit
