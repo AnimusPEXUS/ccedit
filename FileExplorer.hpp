@@ -11,6 +11,7 @@
 #include "FileExplorerTables.hpp"
 
 #include "forward_declarations.hpp"
+#include "signal_sigc_compat.hpp"
 #include "utils.hpp"
 
 namespace wayround_i2p::ccedit
@@ -116,6 +117,8 @@ class FileExplorer
         dirTreeGenDirListStore(std::filesystem::path subpath);
 
     // signal handlers
+
+    SlotSigCCompat<void()> on_project_rename_slot;
 
     void on_project_rename();
 

@@ -6,9 +6,9 @@
 #include <tuple>
 
 #include <gtkmm.h>
-#include <sigc++/sigc++.h>
 
 #include "forward_declarations.hpp"
+#include "signal_sigc_compat.hpp"
 #include "utils.hpp"
 
 #include "ProjectCtlTables.hpp"
@@ -175,8 +175,8 @@ class ProjectCtl
     void showPrevEditor(CodeEditorAbstract_shared val);
     void showNextEditor(CodeEditorAbstract_shared val);
 
-    sigc::signal<void()> &signal_updated_name();
-    sigc::signal<void()> &signal_updated_path();
+    Signal<void()> &signal_updated_name();
+    Signal<void()> &signal_updated_path();
 
   private:
     Controller_shared controller;
@@ -191,8 +191,8 @@ class ProjectCtl
     Glib::RefPtr<Gio::ListStore<TableItemTpl<WorkSubject_shared>>>        work_subj_list_store;
     Glib::RefPtr<Gio::ListStore<TableItemTpl<CodeEditorAbstract_shared>>> editors_list_store;
 
-    sigc::signal<void()> priv_signal_updated_name;
-    sigc::signal<void()> priv_signal_updated_path;
+    Signal<void()> priv_signal_updated_name;
+    Signal<void()> priv_signal_updated_path;
 };
 
 } // namespace wayround_i2p::ccedit

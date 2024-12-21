@@ -29,9 +29,26 @@ class SlotSigCCompat<RetT(Args...)>
     {
     }
 
+    RetT on_emission(Args... args)
+    {
+        auto x = dynamic_cast<Slot_shared<RetT(Args...)> *>(this);
+        if (!x)
+        {
+            // todo: better error
+            throw "!x";
+        }
+
+        return (*x)->on_emission(args...);
+    }
+
     sigc::slot<RetT(Args...)> make_sigc_slot()
     {
-        return sigc::mem_fun(this, &Slot<RetT(Args...)>::on_emission);
+        return sigc::mem_fun(*this, &SlotSigCCompat<RetT(Args...)>::on_emission);
+    }
+
+    operator sigc::slot<RetT(Args...)>()
+    {
+        return make_sigc_slot();
     }
 };
 } // namespace wayround_i2p::ccedit

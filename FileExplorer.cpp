@@ -140,6 +140,15 @@ FileExplorer::FileExplorer(ProjectCtl_shared project_ctl) :
 
     win.set_child(main_box);
 
+    on_project_rename_slot->setFun(
+        [this]()
+        { updateTitle(); }
+    );
+
+    project_ctl->signal_updated_name().connect(
+        on_project_rename_slot
+    );
+
     reset_view_btn.signal_clicked().connect(
         [this]()
         { on_reset_view_btn(); }
@@ -163,11 +172,6 @@ FileExplorer::FileExplorer(ProjectCtl_shared project_ctl) :
     find_file_btn.signal_clicked().connect(
         [this]()
         { on_find_file_btn(); }
-    );
-
-    project_ctl->signal_updated_name().connect(
-        [this]()
-        { updateTitle(); }
     );
 
     dir_tree_view.signal_activate().connect(

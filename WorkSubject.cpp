@@ -42,9 +42,6 @@ WorkSubject::WorkSubject(
     destroyer(
         [this]()
         {
-            priv_signal_editors_save_state.clear();
-            priv_signal_editors_restore_state.clear();
-            priv_signal_modified_changed.clear();
             this->project_ctl->destroyWorkSubjectEditors(own_ptr);
             this->project_ctl->unregisterWorkSubject(own_ptr);
             own_ptr.reset();
@@ -115,7 +112,6 @@ void WorkSubject::emit_signal_modified_changed()
     std::cout << "WorkSubject::emit_signal_modified_changed(): "
               << txt_buff->get_modified() << std ::endl;
     priv_signal_modified_changed.emit();
-    priv_signal_modified_changed2.emit();
 }
 
 // shortcut to reload() with allow_nonexist=false
@@ -182,24 +178,19 @@ void WorkSubject::setText(std::string txt)
     return;
 }
 
-sigc::signal<void()> &WorkSubject::signal_editors_save_state()
+Signal<void()> &WorkSubject::signal_editors_save_state()
 {
     return priv_signal_editors_save_state;
 }
 
-sigc::signal<void()> &WorkSubject::signal_editors_restore_state()
+Signal<void()> &WorkSubject::signal_editors_restore_state()
 {
     return priv_signal_editors_restore_state;
 }
 
-sigc::signal<void()> &WorkSubject::signal_modified_changed()
+Signal<void()> &WorkSubject::signal_modified_changed()
 {
     return priv_signal_modified_changed;
-}
-
-Signal<void()> &WorkSubject::signal_modified_changed2()
-{
-    return priv_signal_modified_changed2;
 }
 
 } // namespace wayround_i2p::ccedit

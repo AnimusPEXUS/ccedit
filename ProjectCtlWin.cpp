@@ -108,9 +108,13 @@ ProjectCtlWin::ProjectCtlWin(ProjectCtl_shared project_ctl) :
         { on_rotate_paned_btn(); }
     );
 
-    project_ctl->signal_updated_name().connect(
+    on_project_renamed_slot->setFun(
         [this]()
         { updateTitle(); }
+    );
+
+    project_ctl->signal_updated_name().connect(
+        on_project_renamed_slot
     );
 
     win.signal_destroy().connect(

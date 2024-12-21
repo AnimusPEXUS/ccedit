@@ -30,6 +30,11 @@ WorkSubjectTableRowWidget::WorkSubjectTableRowWidget()
     append(edited_indicator);
     append(path);
 
+    ws_changed_slot->setFun(
+        [this]()
+        { this->on_ws_changed(); }
+    );
+
     btn_close.signal_clicked().connect(
         [this]()
         {
@@ -77,8 +82,7 @@ void WorkSubjectTableRowWidget::bind(const Glib::RefPtr<Gtk::ListItem> &list_ite
     path.set_text(bond_ws->getPath().string());
 
     bond_ws->signal_modified_changed().connect(
-        [this]()
-        { this->on_ws_changed(); }
+        ws_changed_slot
     );
 
     update_labels();

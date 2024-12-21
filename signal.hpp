@@ -46,7 +46,7 @@ class Slot<RetT(Args...)>
   public:
     using slotted_function_type = std::function<RetT(Args...)>;
 
-    static Slot_shared<void(Args...)> create(slotted_function_type fun = nullptr)
+    static Slot_shared<RetT(Args...)> create(slotted_function_type fun = nullptr)
     {
         auto ret     = Slot_shared<RetT(Args...)>(new Slot(fun));
         ret->own_ptr = ret;

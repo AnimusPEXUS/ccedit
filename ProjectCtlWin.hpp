@@ -7,11 +7,12 @@
 #include <tuple>
 
 #include <gtkmm.h>
-#include <sigc++/sigc++.h>
 
 #include "ProjectMenu.hpp"
 
 #include "forward_declarations.hpp"
+
+#include "signal_sigc_compat.hpp"
 
 namespace wayround_i2p::ccedit
 {
@@ -99,6 +100,8 @@ class ProjectCtlWin
     void on_hide_sig();
     void on_destroy_sig();
     bool on_signal_close_request();
+
+    SlotSigCCompat<void()> on_project_renamed_slot;
 };
 
 } // namespace wayround_i2p::ccedit

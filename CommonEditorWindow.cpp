@@ -45,12 +45,6 @@ CommonEditorWindow::CommonEditorWindow(
             this->project_ctl->unregisterEditor(
                 this->own_ptr
             );
-            subject_signal_modified_changed_slot.disconnect();
-            subject_signal_editors_save_state_slot.disconnect();
-            subject_signal_editors_restore_state_slot.disconnect();
-            project_ctl_signal_updated_name_slot.disconnect();
-            on_destroy_sig_slot.disconnect();
-            on_signal_close_request_slot.disconnect();
 
             win.destroy();
             own_ptr.reset();
@@ -123,56 +117,58 @@ CommonEditorWindow::CommonEditorWindow(
         }
     );
 
-    subject_signal_modified_changed_slot = [this]()
-    { updateTitle(); };
-
-    subject_signal_modified_changed_slot2->setFun(
+    subject_signal_modified_changed_slot->setFun(
         [this]()
-        {
-            std::cout << "subject_signal_modified_changed_slot2" << std::endl;
-            updateTitle();
-        }
+        { updateTitle(); }
     );
 
     subject->signal_modified_changed().connect(
         subject_signal_modified_changed_slot
     );
 
-    subject->signal_modified_changed2().connect(
-        subject_signal_modified_changed_slot2
+    subject_signal_editors_save_state_slot->setFun(
+        [this]()
+        { saveState(); }
     );
-
-    subject_signal_editors_save_state_slot = [this]()
-    { saveState(); };
 
     subject->signal_editors_save_state().connect(
         subject_signal_editors_save_state_slot
     );
 
-    subject_signal_editors_restore_state_slot = [this]()
-    { restoreState(); };
+    subject_signal_editors_restore_state_slot->setFun(
+        [this]()
+        { restoreState(); }
+    );
 
     subject->signal_editors_restore_state().connect(
         subject_signal_editors_restore_state_slot
     );
 
-    project_ctl_signal_updated_name_slot = [this]()
-    { updateTitle(); };
+    project_ctl_signal_updated_name_slot->setFun(
+        [this]()
+        { updateTitle(); }
+    );
 
     project_ctl->signal_updated_name().connect(
         project_ctl_signal_updated_name_slot
     );
 
-    on_destroy_sig_slot = [this]()
-    { on_destroy_sig(); };
+    on_destroy_sig_slot->setFun(
+        [this]()
+        { on_destroy_sig(); }
+    );
 
-    win.signal_destroy().connect(on_destroy_sig_slot);
+    win.signal_destroy().connect(
+        on_destroy_sig_slot.make_sigc_slot()
+    );
 
-    on_signal_close_request_slot = [this]() -> bool
-    { return on_signal_close_request(); };
+    on_signal_close_request_slot->setFun(
+        [this]() -> bool
+        { return on_signal_close_request(); }
+    );
 
     win.signal_close_request().connect(
-        on_signal_close_request_slot,
+        on_signal_close_request_slot.make_sigc_slot(),
         true
     );
 

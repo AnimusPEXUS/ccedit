@@ -8,10 +8,9 @@
 #include <tuple>
 
 #include <gtkmm.h>
-#include <sigc++/sigc++.h>
 
 #include "forward_declarations.hpp"
-#include "signal.hpp"
+#include "signal_sigc_compat.hpp"
 #include "utils.hpp"
 
 namespace wayround_i2p::ccedit
@@ -59,11 +58,11 @@ class WorkSubject
     std::string getText();
     void        setText(std::string txt);
 
-    sigc::signal<void()> &signal_editors_save_state();
-    sigc::signal<void()> &signal_editors_restore_state();
+    Signal<void()> &signal_editors_save_state();
+    Signal<void()> &signal_editors_restore_state();
 
-    sigc::signal<void()> &signal_modified_changed();
-    Signal<void()>       &signal_modified_changed2();
+    Signal<void()> &signal_modified_changed();
+    // Signal<void()>       &signal_modified_changed2();
 
   private:
     RunOnce destroyer;
@@ -76,11 +75,10 @@ class WorkSubject
 
     Glib::RefPtr<Gtk::TextBuffer> txt_buff;
 
-    sigc::signal<void()> priv_signal_editors_save_state;
-    sigc::signal<void()> priv_signal_editors_restore_state;
+    Signal<void()> priv_signal_editors_save_state;
+    Signal<void()> priv_signal_editors_restore_state;
 
-    sigc::signal<void()> priv_signal_modified_changed;
-    Signal<void()>       priv_signal_modified_changed2;
+    Signal<void()> priv_signal_modified_changed;
 
     void emit_signal_modified_changed();
 
