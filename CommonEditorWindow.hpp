@@ -10,7 +10,7 @@
 #include "forward_declarations.hpp"
 
 #include "modularity.hpp"
-#include "signal.hpp"
+#include "signal_sigc_compat.hpp"
 #include "utils.hpp"
 
 #include "CodeEditorAbstract.hpp"
@@ -145,7 +145,7 @@ class CommonEditorWindow : public CodeEditorAbstract
 
     void force_redraw_linum();
 
-    SlotC<void()> subject_signal_modified_changed_slot2;
+    SlotSigCCompat<void()> subject_signal_modified_changed_slot2;
 
     sigc::slot<void()> subject_signal_modified_changed_slot;
     sigc::slot<void()> subject_signal_editors_save_state_slot;

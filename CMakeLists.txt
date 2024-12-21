@@ -46,11 +46,12 @@ add_executable(
   ProjectMgr.cpp
   ProjectMgrEditor.cpp
   ProjectMgrTables.cpp
-  signal.cpp
-  utils.cpp
   WorkSubject.cpp
 
   posix_interface.cpp
+  utils.cpp
+  signal.cpp
+  signal_sigc_compat.cpp
 
   builtin_mods/ccpp/CodeEditorCCPP.cpp
   builtin_mods/ccpp/mod_ccpp.cpp
