@@ -145,16 +145,10 @@ class CommonEditorWindow : public CodeEditorAbstract
 
     void force_redraw_linum();
 
-    // SlotSigCCompat<void()> subject_signal_modified_changed_slot2;
-
     SlotSigCCompat<void()> subject_signal_modified_changed_slot;
     SlotSigCCompat<void()> subject_signal_editors_save_state_slot;
     SlotSigCCompat<void()> subject_signal_editors_restore_state_slot;
     SlotSigCCompat<void()> project_ctl_signal_updated_name_slot;
-    SlotSigCCompat<void()> on_destroy_sig_slot;
-    SlotSigCCompat<bool()> on_signal_close_request_slot;
-
-    SlotSigCCompat<void()> on_textview_scroll_adj_changed_slot;
 
     void on_destroy_sig();
     bool on_signal_close_request();

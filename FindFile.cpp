@@ -113,12 +113,7 @@ FindFile::FindFile(ProjectCtl_shared p_ctl) :
     find_text_widget_frame.set_margin_start(5);
     find_text_widget_frame.set_margin_end(5);
 
-    // if (find_text_widget have scrolled window) {
-    // find_text_widget_sw.set_child(find_text_widget);
-    // find_text_widget_frame.set_child(find_text_widget_sw);
-    // } else {
     find_text_widget_frame.set_child(find_text_widget);
-    // }
 
     search_contents_box.set_orientation(Gtk::Orientation::VERTICAL);
     search_contents_box.set_spacing(5);
@@ -389,7 +384,9 @@ void FindFile::updateProgressbar(
 {
     double fract = 0;
 
-    fract = 1. / (((double)dirs_count + (double)files_count) / ((double)dirs_done + (double)files_done));
+    fract = 1.
+          / (((double)dirs_count + (double)files_count)
+             / ((double)dirs_done + (double)files_done));
 
     std::string status_text("");
 

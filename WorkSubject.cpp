@@ -101,10 +101,12 @@ void WorkSubject::createNew()
 {
     txt_buff = Gtk::TextBuffer::create();
 
-    txt_buff->signal_modified_changed().connect(
+    on_buffer_changed_slot->setFun(
         [this]()
         { emit_signal_modified_changed(); }
     );
+
+    txt_buff->signal_modified_changed().connect(on_buffer_changed_slot);
 }
 
 void WorkSubject::emit_signal_modified_changed()

@@ -153,36 +153,25 @@ CommonEditorWindow::CommonEditorWindow(
         project_ctl_signal_updated_name_slot
     );
 
-    on_destroy_sig_slot->setFun(
+    win.signal_destroy().connect(
         [this]()
         { on_destroy_sig(); }
     );
 
-    win.signal_destroy().connect(
-        on_destroy_sig_slot
-    );
-
-    on_signal_close_request_slot->setFun(
-        [this]() -> bool
-        { return on_signal_close_request(); }
-    );
-
     win.signal_close_request().connect(
-        on_signal_close_request_slot,
+        [this]() -> bool
+        { return on_signal_close_request(); },
         true
     );
 
-    on_textview_scroll_adj_changed_slot->setFun(
+    text_view_sw.get_vscrollbar()->get_adjustment()->signal_changed().connect(
         [this]()
         { force_redraw_linum(); }
     );
 
-    text_view_sw.get_vscrollbar()->get_adjustment()->signal_changed().connect(
-        on_textview_scroll_adj_changed_slot
-    );
-
     text_view_sw.get_vscrollbar()->get_adjustment()->signal_value_changed().connect(
-        on_textview_scroll_adj_changed_slot
+        [this]()
+        { force_redraw_linum(); }
     );
 
     updateTitle();

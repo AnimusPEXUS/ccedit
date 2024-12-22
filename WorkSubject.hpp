@@ -83,6 +83,8 @@ class WorkSubject
     void emit_signal_modified_changed();
 
     void sanitizeFilePath(std::filesystem::path &fpth);
+
+    SlotSigCCompat<void()> on_buffer_changed_slot;
 };
 
 } // namespace wayround_i2p::ccedit

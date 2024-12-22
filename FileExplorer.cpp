@@ -145,9 +145,7 @@ FileExplorer::FileExplorer(ProjectCtl_shared project_ctl) :
         { updateTitle(); }
     );
 
-    project_ctl->signal_updated_name().connect(
-        on_project_rename_slot
-    );
+    project_ctl->signal_updated_name().connect(on_project_rename_slot);
 
     reset_view_btn.signal_clicked().connect(
         [this]()
