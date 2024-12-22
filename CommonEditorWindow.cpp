@@ -159,7 +159,7 @@ CommonEditorWindow::CommonEditorWindow(
     );
 
     win.signal_destroy().connect(
-        on_destroy_sig_slot.make_sigc_slot()
+        on_destroy_sig_slot
     );
 
     on_signal_close_request_slot->setFun(
@@ -168,18 +168,21 @@ CommonEditorWindow::CommonEditorWindow(
     );
 
     win.signal_close_request().connect(
-        on_signal_close_request_slot.make_sigc_slot(),
+        on_signal_close_request_slot,
         true
     );
 
-    text_view_sw.get_vscrollbar()->get_adjustment()->signal_changed().connect(
+    on_textview_scroll_adj_changed_slot->setFun(
         [this]()
         { force_redraw_linum(); }
     );
 
+    text_view_sw.get_vscrollbar()->get_adjustment()->signal_changed().connect(
+        on_textview_scroll_adj_changed_slot
+    );
+
     text_view_sw.get_vscrollbar()->get_adjustment()->signal_value_changed().connect(
-        [this]()
-        { force_redraw_linum(); }
+        on_textview_scroll_adj_changed_slot
     );
 
     updateTitle();

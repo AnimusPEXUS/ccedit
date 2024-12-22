@@ -154,6 +154,8 @@ class CommonEditorWindow : public CodeEditorAbstract
     SlotSigCCompat<void()> on_destroy_sig_slot;
     SlotSigCCompat<bool()> on_signal_close_request_slot;
 
+    SlotSigCCompat<void()> on_textview_scroll_adj_changed_slot;
+
     void on_destroy_sig();
     bool on_signal_close_request();
 };

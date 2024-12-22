@@ -6,7 +6,6 @@
 #include <vector>
 
 #include <gtkmm.h>
-#include <sigc++/sigc++.h>
 
 #include "build_num.hpp"
 
@@ -14,6 +13,7 @@
 
 #include "modularity.hpp"
 #include "utils.hpp"
+#include "signal_sigc_compat.hpp"
 
 #include "ProjectMgrTables.hpp"
 
@@ -142,7 +142,7 @@ class Controller
     int addBuiltinMods();
     int addBuiltinMod(CodeEditorMod *mod);
 
-    sigc::slot<void()> app_signal_startup_slot;
+    SlotSigCCompat<void()> app_signal_startup_slot;
 
     void on_app_startup();
 };
