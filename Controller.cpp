@@ -8,6 +8,7 @@
 
 #include "ProjectCtl.hpp"
 #include "ProjectMgr.hpp"
+#include "ProjectSelectorForFile.hpp"
 
 #include "Controller.hpp"
 
@@ -486,6 +487,97 @@ void Controller::destroyProjCtl(ProjectCtl_shared p_ctl)
         x->proj_ctl.reset();
         // z->own_ptr.reset();
     }
+}
+
+std::deque<std::string> Controller::determineProjectsByFilePath(
+    std::filesystem::path pth
+)
+{
+    std::deque<std::string> ret;
+
+    pth = pth.lexically_normal();
+
+    for (
+        int i = 0;
+        i != project_list_store->get_n_items();
+        i++
+    )
+    {
+        auto i_proj_name = project_list_store->get_item(i)->proj_name();
+        auto i_proj_path = project_list_store->get_item(i)->proj_path();
+        i_proj_path      = i_proj_path.lexically_normal();
+
+        auto pth_b         = pth.begin();
+        auto i_proj_path_b = i_proj_path.begin();
+
+        while (true)
+        {
+            if (pth_b == pth.end())
+            {
+                goto main_continue;
+            }
+
+            if (i_proj_path_b == i_proj_path.end())
+            {
+                goto main_continue;
+            }
+
+            if ((*pth_b) != (*i_proj_path_b))
+            {
+                goto main_continue;
+            }
+        }
+
+        ret.push_back(i_proj_name);
+
+    main_continue:;
+    }
+
+    return ret;
+}
+
+int Controller::openFile(
+    std::filesystem::path pth,
+    bool                  allow_nonexisting,
+    bool                  always_global
+)
+{
+    // todo: should this function be modal?
+    //       and should function to wait file to close?
+    //       this may be good for command line
+
+    std::deque<std::string> names;
+
+    if (!always_global)
+    {
+        names = determineProjectsByFilePath(pth);
+    }
+
+    auto names_count = names.size();
+
+    if (names_count == 0)
+    {
+        auto gpctl = getGlobalProjCtl();
+        auto ed    = gpctl->workSubjectExistingOrNewEditor(pth);
+        ed->show();
+        return 0;
+    }
+
+    if (names_count == 1)
+    {
+        auto [pctl, err] = getProjCtl(names[0]);
+        if (err != 0)
+        {
+            return err;
+        }
+        auto ed = pctl->workSubjectExistingOrNewEditor(pth);
+        ed->show();
+        return 0;
+    }
+
+    auto pstor = ProjectSelectorForFile::create(names, pth);
+    pstor->show();
+    return 0;
 }
 
 int Controller::findProjectIndex(std::string proj_name)

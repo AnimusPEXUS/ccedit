@@ -1,9 +1,9 @@
-#ifndef WAYROUND_I2P_20241208_155643_188113
-#define WAYROUND_I2P_20241208_155643_188113
+#ifndef WAYROUND_I2P_20241223_224139_486289
+#define WAYROUND_I2P_20241223_224139_486289
 
 namespace wayround_i2p::ccedit {
 
-const unsigned int ccedit_version[] = { 
+const unsigned int ccedit_version[] = {
 2024,
 12,
 22,
@@ -12,7 +12,7 @@ const unsigned int ccedit_version[] = {
 45
 };
 
-const std::string ccedit_version_string = 
+const std::string ccedit_version_string =
 	"2024.12.22."
 	"22.21.45"
 	;

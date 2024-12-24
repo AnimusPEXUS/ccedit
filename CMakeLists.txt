@@ -30,8 +30,8 @@ add_executable(
   CommonEditorWindow.cpp
   Controller.cpp
   FileExplorer.cpp
-  FileExplorerTables.cpp
   FileExplorerMakeFileDir.cpp
+  FileExplorerTables.cpp
   FindFile.cpp
   FindTables.cpp
   FindText.cpp
@@ -46,7 +46,9 @@ add_executable(
   ProjectMgr.cpp
   ProjectMgrEditor.cpp
   ProjectMgrTables.cpp
+  ProjectSelectorForFile.cpp
   WorkSubject.cpp
+
 
   posix_interface.cpp
   utils.cpp

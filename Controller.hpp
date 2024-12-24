@@ -1,5 +1,5 @@
-#ifndef WAYROUND_I2P_20241210_171354_649512
-#define WAYROUND_I2P_20241210_171354_649512
+#ifndef WAYROUND_I2P_20241223_224139_473489
+#define WAYROUND_I2P_20241223_224139_473489
 
 #include <filesystem>
 #include <memory>
@@ -12,9 +12,10 @@
 #include "forward_declarations.hpp"
 
 #include "modularity.hpp"
-#include "utils.hpp"
 #include "signal_sigc_compat.hpp"
+#include "utils.hpp"
 
+#include "CodeEditorAbstract.hpp"
 #include "ProjectMgrTables.hpp"
 
 namespace wayround_i2p::ccedit
@@ -71,20 +72,13 @@ class Controller
         std::filesystem::path new_path
     );
 
-    std::tuple<std::string, int>
-        getNameProject(ProjectCtl_shared p_ctl);
+    std::tuple<std::string, int>           getNameProject(ProjectCtl_shared p_ctl);
+    std::tuple<std::filesystem::path, int> getPathProject(std::string name);
+    std::tuple<std::filesystem::path, int> getPathProject(ProjectCtl_shared p_ctl);
 
-    std::tuple<std::filesystem::path, int>
-        getPathProject(std::string name);
+    Glib::RefPtr<Gio::ListStore<ProjectTableRow>> getProjectListStore();
 
-    std::tuple<std::filesystem::path, int>
-        getPathProject(ProjectCtl_shared p_ctl);
-
-    Glib::RefPtr<Gio::ListStore<ProjectTableRow>>
-        getProjectListStore();
-
-    std::vector<CodeEditorMod *>
-        getBuiltinMods();
+    std::vector<CodeEditorMod *> getBuiltinMods();
 
     bool isGlobalProjCtl(ProjectCtl_shared p_ctl);
 
@@ -97,25 +91,27 @@ class Controller
     void              showGlobalProjCtlWin();
     void              destroyGlobalProjCtlWin();
 
-    std::tuple<ProjectCtl_shared, int>
-        createProjCtl(std::string name);
+    std::tuple<ProjectCtl_shared, int> createProjCtl(std::string name);
     // resulting pointer is empty if function failed
-    std::tuple<ProjectCtl_shared, int>
-        getProjCtl(std::string name);
-    int
-        destroyProjCtl(std::string name);
+    std::tuple<ProjectCtl_shared, int> getProjCtl(std::string name);
+    int                                destroyProjCtl(std::string name);
 
     // error if not found
-    int
-        showProjCtlWin(std::string name);
-    void
-        destroyProjCtlWin(std::string name);
+    int  showProjCtlWin(std::string name);
+    void destroyProjCtlWin(std::string name);
 
     // this also calls closeGlobalProjCtl if global ProjectCtl passed
-    void
-        destroyProjCtl(ProjectCtl_shared p_ctl);
+    void destroyProjCtl(ProjectCtl_shared p_ctl);
 
     Glib::RefPtr<Gtk::IconTheme> icon_theme;
+
+    std::deque<std::string> determineProjectsByFilePath(std::filesystem::path pth);
+
+    int openFile(
+        std::filesystem::path pth,
+        bool                  allow_nonexisting = false,
+        bool                  always_global     = false
+    );
 
   private:
     RunOnce destroyer;
