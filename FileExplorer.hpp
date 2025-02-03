@@ -11,8 +11,8 @@
 #include "FileExplorerTables.hpp"
 
 #include "forward_declarations.hpp"
-#include "signal_sigc_compat.hpp"
 #include "utils.hpp"
+#include <wayround_i2p/ccutils/signal/signal_sigc_compat.hpp>
 
 namespace wayround_i2p::ccedit
 {
@@ -118,7 +118,7 @@ class FileExplorer
 
     // signal handlers
 
-    SlotSigCCompat<void()> on_project_rename_slot;
+    wayround_i2p::ccutils::signal::SlotSigCCompat<void()> on_project_rename_slot;
 
     void on_project_rename();
 

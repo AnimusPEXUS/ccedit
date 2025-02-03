@@ -682,12 +682,12 @@ FileExplorer_shared ProjectCtl::createNewFileExplorer()
     return ret;
 }
 
-Signal<void()> &ProjectCtl::signal_updated_name()
+wayround_i2p::ccutils::signal::Signal<void()> &ProjectCtl::signal_updated_name()
 {
     return priv_signal_updated_name;
 }
 
-Signal<void()> &ProjectCtl::signal_updated_path()
+wayround_i2p::ccutils::signal::Signal<void()> &ProjectCtl::signal_updated_path()
 {
     return priv_signal_updated_path;
 }

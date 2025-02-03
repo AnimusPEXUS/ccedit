@@ -12,8 +12,8 @@
 #include "forward_declarations.hpp"
 
 #include "modularity.hpp"
-#include "signal_sigc_compat.hpp"
 #include "utils.hpp"
+#include <wayround_i2p/ccutils/signal/signal_sigc_compat.hpp>
 
 #include "CodeEditorAbstract.hpp"
 #include "ProjectMgrTables.hpp"
@@ -138,7 +138,7 @@ class Controller
     int addBuiltinMods();
     int addBuiltinMod(CodeEditorMod *mod);
 
-    SlotSigCCompat<void()> app_signal_startup_slot;
+    wayround_i2p::ccutils::signal::SlotSigCCompat<void()> app_signal_startup_slot;
 
     void on_app_startup();
 };

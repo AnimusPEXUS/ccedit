@@ -5,6 +5,8 @@ project(ccedit)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+include(FetchContent)
+
 find_package(PkgConfig REQUIRED)
 
 # set(Boost_USE_STATIC_LIBS      ON)
@@ -23,6 +25,19 @@ pkg_check_modules(sigc REQUIRED IMPORTED_TARGET sigc++-3.0)
 find_package(ICU 73.0 COMPONENTS uc i18n REQUIRED)
 
 set(ICU_DEBUG OFF)
+
+FetchContent_Declare(
+  ccutils
+  # URL             "../ccutils"
+  GIT_REPOSITORY    "https://github.com/AnimusPEXUS/ccutils.git"
+  GIT_TAG           "origin/master"
+  # CMAKE_CACHE_ARGS  "-D CCUTILS_SIGNAL_ENABLE_SIGC_WRAPPER:BOOL=ON"
+)
+
+# todo: make this work inside of FetchContent_Declare
+set(CCUTILS_SIGNAL_ENABLE_SIGC_WRAPPER      ON)
+
+FetchContent_MakeAvailable(ccutils)
 
 add_executable(
   ccedit
@@ -52,8 +67,6 @@ add_executable(
 
   posix_interface.cpp
   utils.cpp
-  signal.cpp
-  signal_sigc_compat.cpp
 
   builtin_mods/ccpp/CodeEditorCCPP.cpp
   builtin_mods/ccpp/mod_ccpp.cpp
@@ -85,11 +98,16 @@ target_link_libraries(
   Boost::regex
   ICU::uc
   ICU::i18n
+  ccutils_signal
 )
+
+# message(STATUS "ccutils_signal_INCLUDE_DIRS ${ccutils_signal_INCLUDE_DIRS}")
 
 target_include_directories(
   ccedit
   PUBLIC
   ${Boost_INCLUDE_DIRS}
   ${ICU_INCLUDE_DIRS}
+  ${ccutils_signal_INCLUDE_DIRS}
 )
+

@@ -180,17 +180,17 @@ void WorkSubject::setText(std::string txt)
     return;
 }
 
-Signal<void()> &WorkSubject::signal_editors_save_state()
+wayround_i2p::ccutils::signal::Signal<void()> &WorkSubject::signal_editors_save_state()
 {
     return priv_signal_editors_save_state;
 }
 
-Signal<void()> &WorkSubject::signal_editors_restore_state()
+wayround_i2p::ccutils::signal::Signal<void()> &WorkSubject::signal_editors_restore_state()
 {
     return priv_signal_editors_restore_state;
 }
 
-Signal<void()> &WorkSubject::signal_modified_changed()
+wayround_i2p::ccutils::signal::Signal<void()> &WorkSubject::signal_modified_changed()
 {
     return priv_signal_modified_changed;
 }

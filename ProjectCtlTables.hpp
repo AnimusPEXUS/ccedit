@@ -5,7 +5,7 @@
 
 #include "forward_declarations.hpp"
 
-#include "signal_sigc_compat.hpp"
+#include <wayround_i2p/ccutils/signal/signal_sigc_compat.hpp>
 #include "types.hpp"
 
 namespace wayround_i2p::ccedit
@@ -38,7 +38,7 @@ class WorkSubjectTableRowWidget : public Gtk::Box
 
     void on_ws_changed();
 
-    SlotSigCCompat<void()> ws_changed_slot;
+    wayround_i2p::ccutils::signal::SlotSigCCompat<void()> ws_changed_slot;
 };
 
 class CodeEditorTableRowWidget : public Gtk::Box

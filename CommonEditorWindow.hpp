@@ -10,8 +10,8 @@
 #include "forward_declarations.hpp"
 
 #include "modularity.hpp"
-#include "signal_sigc_compat.hpp"
 #include "utils.hpp"
+#include <wayround_i2p/ccutils/signal/signal_sigc_compat.hpp>
 
 #include "CodeEditorAbstract.hpp"
 #include "ProjectCtl.hpp"
@@ -145,10 +145,10 @@ class CommonEditorWindow : public CodeEditorAbstract
 
     void force_redraw_linum();
 
-    SlotSigCCompat<void()> subject_signal_modified_changed_slot;
-    SlotSigCCompat<void()> subject_signal_editors_save_state_slot;
-    SlotSigCCompat<void()> subject_signal_editors_restore_state_slot;
-    SlotSigCCompat<void()> project_ctl_signal_updated_name_slot;
+    wayround_i2p::ccutils::signal::SlotSigCCompat<void()> subject_signal_modified_changed_slot;
+    wayround_i2p::ccutils::signal::SlotSigCCompat<void()> subject_signal_editors_save_state_slot;
+    wayround_i2p::ccutils::signal::SlotSigCCompat<void()> subject_signal_editors_restore_state_slot;
+    wayround_i2p::ccutils::signal::SlotSigCCompat<void()> project_ctl_signal_updated_name_slot;
 
     void on_destroy_sig();
     bool on_signal_close_request();

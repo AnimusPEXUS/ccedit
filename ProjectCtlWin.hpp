@@ -12,7 +12,7 @@
 
 #include "forward_declarations.hpp"
 
-#include "signal_sigc_compat.hpp"
+#include <wayround_i2p/ccutils/signal/signal_sigc_compat.hpp>
 
 namespace wayround_i2p::ccedit
 {
@@ -101,7 +101,7 @@ class ProjectCtlWin
     void on_destroy_sig();
     bool on_signal_close_request();
 
-    SlotSigCCompat<void()> on_project_renamed_slot;
+    wayround_i2p::ccutils::signal::SlotSigCCompat<void()> on_project_renamed_slot;
 };
 
 } // namespace wayround_i2p::ccedit

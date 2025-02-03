@@ -10,8 +10,8 @@
 #include <gtkmm.h>
 
 #include "forward_declarations.hpp"
-#include "signal_sigc_compat.hpp"
 #include "utils.hpp"
+#include <wayround_i2p/ccutils/signal/signal_sigc_compat.hpp>
 
 namespace wayround_i2p::ccedit
 {
@@ -58,10 +58,10 @@ class WorkSubject
     std::string getText();
     void        setText(std::string txt);
 
-    Signal<void()> &signal_editors_save_state();
-    Signal<void()> &signal_editors_restore_state();
+    wayround_i2p::ccutils::signal::Signal<void()> &signal_editors_save_state();
+    wayround_i2p::ccutils::signal::Signal<void()> &signal_editors_restore_state();
 
-    Signal<void()> &signal_modified_changed();
+    wayround_i2p::ccutils::signal::Signal<void()> &signal_modified_changed();
     // Signal<void()>       &signal_modified_changed2();
 
   private:
@@ -75,16 +75,16 @@ class WorkSubject
 
     Glib::RefPtr<Gtk::TextBuffer> txt_buff;
 
-    Signal<void()> priv_signal_editors_save_state;
-    Signal<void()> priv_signal_editors_restore_state;
+    wayround_i2p::ccutils::signal::Signal<void()> priv_signal_editors_save_state;
+    wayround_i2p::ccutils::signal::Signal<void()> priv_signal_editors_restore_state;
 
-    Signal<void()> priv_signal_modified_changed;
+    wayround_i2p::ccutils::signal::Signal<void()> priv_signal_modified_changed;
 
     void emit_signal_modified_changed();
 
     void sanitizeFilePath(std::filesystem::path &fpth);
 
-    SlotSigCCompat<void()> on_buffer_changed_slot;
+    wayround_i2p::ccutils::signal::SlotSigCCompat<void()> on_buffer_changed_slot;
 };
 
 } // namespace wayround_i2p::ccedit
