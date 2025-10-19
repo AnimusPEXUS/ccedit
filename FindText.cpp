@@ -259,6 +259,10 @@ FindTextQuery FindTextWidget::getFindTextQuery()
     ret.query   = icu::UnicodeString::fromUTF8(icu::StringPiece(query.get_text()));
     ret.replace = icu::UnicodeString::fromUTF8(icu::StringPiece(replace.get_text()));
 
+    ret.search_method          = getSearchMethod();
+    ret.casesensitive          = casesensitive.get_active();
+    ret.stop_after_first_match = stop_after_first_match.get_active();
+
     // ----------
     ret.std_re_mod_icase     = std_re_mod_icase.get_active();
     ret.std_re_mod_nosubs    = std_re_mod_nosubs.get_active();
@@ -284,8 +288,6 @@ FindTextQuery FindTextWidget::getFindTextQuery()
     ret.boost_re_common_mod_collate     = boost_re_common_mod_collate.get_active();
     ret.boost_re_common_mod_newline_alt = boost_re_common_mod_newline_alt.get_active();
 
-    ret.search_method = getSearchMethod();
-
     return ret;
 }
 
@@ -297,6 +299,11 @@ int FindTextWidget::setFindTextQuery(FindTextQuery q)
         x = "";
         replace.set_text(q.replace.toUTF8String(x));
     }
+
+    setSearchMethod(q.search_method);
+
+    casesensitive.set_active(q.casesensitive);
+    stop_after_first_match.set_active(q.stop_after_first_match);
 
     std_re_mod_icase.set_active(q.std_re_mod_icase);
     std_re_mod_nosubs.set_active(q.std_re_mod_nosubs);
@@ -319,10 +326,11 @@ int FindTextWidget::setFindTextQuery(FindTextQuery q)
     boost_re_common_mod_collate.set_active(q.boost_re_common_mod_collate);
     boost_re_common_mod_newline_alt.set_active(q.boost_re_common_mod_newline_alt);
 
-    setSearchMethod(q.search_method);
-
     return 0;
 };
+
+// todo: search must use ccutils string instead of directly using unicode backends
+// damn: i forgot: ccedit written before ccutils, so ccutil's string wasn existed yet
 
 int FindTextWidget::search_in_text(
     const icu::UnicodeString       in_text,
@@ -342,7 +350,13 @@ int FindTextWidget::search_in_text(
 {
     auto query = getFindTextQuery();
 
-    auto in_text_iter = icu::StringCharacterIterator(in_text);
+    auto in_text_converted = in_text;
+    if (!query.casesensitive)
+    {
+        in_text_converted = in_text_converted.toLower();
+    }
+
+    // auto in_text_iter = icu::StringCharacterIterator(in_text);
 
     int err = 0;
 
@@ -357,6 +371,10 @@ int FindTextWidget::search_in_text(
         case PLAIN:
         {
             auto subj = query.query;
+            if (!query.casesensitive)
+            {
+                subj = subj.toLower();
+            }
 
             // auto subj_iter = icu::StringCharacterIterator(subj);
 
@@ -371,7 +389,7 @@ int FindTextWidget::search_in_text(
             auto iter = std::shared_ptr<icu::StringSearch>(
                 new icu::StringSearch(
                     subj,
-                    in_text,
+                    in_text_converted,
                     icu::Locale::getDefault(),
                     icu::BreakIterator::createCharacterInstance(
                         icu::Locale::getDefault(),
@@ -399,6 +417,8 @@ int FindTextWidget::search_in_text(
 
                 icu::UnicodeString substr("");
 
+                // note: we getting substring from original in_text because
+                //       in_text_converted maybe lowercased by current function
                 in_text.extract(
                     r0, r1 - r0, substr
                 );
