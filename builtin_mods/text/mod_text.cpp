@@ -15,7 +15,7 @@ CodeEditorMod mod_info_text = {
     name : "text",
     title : "Plain Text Editor",
     description : "Editor for editing plain texts",
-    supported_fn_masks : {"*.txt", "*.md", "README"},
+    supported_fn_masks : {"*.txt", "*.md", "*.cmake", "README"},
     newEditorForSubject : &createTextEditor
 };
 
