@@ -167,11 +167,10 @@ std::tuple<std::string, int> clang_format_txt(
         ::close(out_pipe[0]);
         ::close(out_pipe[1]);
         // todo: compiler says null is wrong here
-        execlp("clang-format", (char *)NULL);
+        execlp("clang-format", "clang-format", (char *)NULL);
         return {"", 6};
     }
-
-    if (pid != 0)
+    else
     {
         se01.release();
         se02.release();

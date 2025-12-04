@@ -167,18 +167,11 @@ std::tuple<std::string, int> autopep8_text(
         ::close(in_pipe[1]);
         ::close(out_pipe[0]);
         ::close(out_pipe[1]);
-        // todo:
-        // fixme: this doens't work: autopep8 doesn't accept stdin/stdout pipes
-        // and shows help
-        execlp(
-            "autopep8",
-            "-",
-            (char *)NULL
-        );
+
+        execlp("autopep8", "autopep8", "-", (char *)NULL);
         return {"", 3};
     }
-
-    if (pid != 0)
+    else
     {
         se01.release();
         se02.release();
@@ -260,7 +253,7 @@ std::tuple<std::string, int> autopep8_text(
         int exitstatus = 0;
 
         auto res = waitpid(pid, &exitstatus, 0);
-        if (exitstatus == 0)
+        if (exitstatus >= 0 && exitstatus <= 1)
         {
             return {str_to_read, 0};
         }
