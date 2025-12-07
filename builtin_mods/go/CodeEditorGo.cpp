@@ -166,7 +166,7 @@ std::tuple<std::string, int> golang_fmt_txt(
         ::close(in_pipe[1]);
         ::close(out_pipe[0]);
         ::close(out_pipe[1]);
-        execlp("gofmt", (char *)NULL);
+        execlp("gofmt", "gofmt", (char *)NULL);
         return {"", 2};
     }
 
