@@ -1,3 +1,6 @@
+BreakInheritanceList: BeforeComma 
+PackConstructorInitializers: NextLineOnly
+BreakConstructorInitializers: BeforeComma
 UseTab: Never
 IndentWidth: 4
 TabWidth: 4
@@ -69,7 +72,6 @@ BreakAfterAttributes: Always
 BreakArrays: true
 BreakBeforeBinaryOperators: true
 BreakBeforeTernaryOperators: false
-BreakConstructorInitializers: AfterColon
 CompactNamespaces: true
 DerivePointerAlignment: false
 EmptyLineAfterAccessModifier: Never
