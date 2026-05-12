@@ -19,10 +19,12 @@ CodeEditorMod mod_info_text = {
                           "*.txt",
                           "*.md",
                           "*.cmake",
+                          "*.mk",
+                          "*.toml",
+                          ".gitignore",
                           "README",
                           "Makefile",
-                          "Doxyfile",
-                          "*.mk"
+                          "Doxyfile"
     },
     newEditorForSubject : &createTextEditor
 };
