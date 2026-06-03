@@ -168,7 +168,14 @@ std::tuple<std::string, int> autopep8_text(
         ::close(out_pipe[0]);
         ::close(out_pipe[1]);
 
-        execlp("autopep8", "autopep8", "-", (char *)NULL);
+        execlp(
+            "autopep8",
+            "autopep8",
+            "--ignore-local-config",
+            "--ignore=E226,E24,W50,W690,E402",
+            "-",
+            (char *)NULL
+        );
         return {"", 3};
     }
     else

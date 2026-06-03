@@ -4,17 +4,17 @@
 namespace wayround_i2p::ccedit {
 
 const unsigned int ccedit_version[] = { 
-2025,
-2,
+2026,
+6,
 3,
-18,
-29,
-7
+14,
+30,
+31
 };
 
 const std::string ccedit_version_string = 
-	"2025.2.3."
-	"18.29.7"
+	"2026.6.3."
+	"14.30.31"
 	;
 
 }
