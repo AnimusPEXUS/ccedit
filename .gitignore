@@ -3,3 +3,4 @@
 *.gch
 *.o
 *.so
+/clang_log

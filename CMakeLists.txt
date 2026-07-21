@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.30.5)
 
+include("ccucts_searcher.cmake")
+
 project(ccedit)
 
 set(CMAKE_CXX_STANDARD 23)
@@ -26,13 +28,20 @@ find_package(ICU 73.0 COMPONENTS uc i18n REQUIRED)
 
 set(ICU_DEBUG OFF)
 
+set(CCUTILS_TEMP_REPO_DIR "")
+ccucts_path_dir_search(ccutils CCUTILS_TEMP_REPO_DIR)
+if (NOT DEFINED CCUTILS_TEMP_REPO_DIR)
+  message(STATUS "local copy of ccutils not found. issuing downloading.")
+  set(CCUTILS_TEMP_REPO_DIR "https://github.com/AnimusPEXUS/ccutils.git")
+endif()
+
 FetchContent_Declare(
   ccutils
-  # URL             "../ccutils"
-  GIT_REPOSITORY    "https://github.com/AnimusPEXUS/ccutils.git"
+  GIT_REPOSITORY    "${CCUTILS_TEMP_REPO_DIR}"
   GIT_TAG           "origin/master"
   # CMAKE_CACHE_ARGS  "-D CCUTILS_SIGNAL_ENABLE_SIGC_WRAPPER:BOOL=ON"
 )
+unset(CCUTILS_TEMP_REPO_DIR)
 
 # todo: make this work inside of FetchContent_Declare
 set(CCUTILS_SIGNAL_ENABLE_SIGC_WRAPPER      ON)
