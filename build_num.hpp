@@ -5,16 +5,16 @@ namespace wayround_i2p::ccedit {
 
 const unsigned int ccedit_version[] = { 
 2026,
-6,
-3,
-14,
-30,
-31
+7,
+22,
+22,
+56,
+6
 };
 
 const std::string ccedit_version_string = 
-	"2026.6.3."
-	"14.30.31"
+	"2026.7.22."
+	"22.56.6"
 	;
 
 }
