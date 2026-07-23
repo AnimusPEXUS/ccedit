@@ -1,11 +1,11 @@
-# CCUCTS sercher/downloader. version 2026-07-21T14:45`
+# CCUCTS sercher/downloader. version 2026-07-24T01:00`
 
 message(STATUS "==v== CCUCTS searcher/downloader ==v==")
 
 set(CCUCTS_IMPORT_FILENAME "_import_me.cmake")
 
 if (NOT DEFINED CCUCTS_VERSION)
-  
+
   cmake_path(GET CMAKE_CURRENT_LIST_FILE PARENT_PATH CCUCTS_DIR_SEARCH_CWD)
   cmake_path(ABSOLUTE_PATH CCUCTS_DIR_SEARCH_CWD BASE_DIRECTORY / NORMALIZE)
 
@@ -27,7 +27,7 @@ if (NOT DEFINED CCUCTS_VERSION)
       cmake_path(GET CCUCTS_DIR_SEARCH_CURRENT_PATH PARENT_PATH CCUCTS_DIR_SEARCH_CURRENT_PATH)
       # message(STATUS "CCUCTS_DIR_SEARCH_CURRENT_PATH == ${CCUCTS_DIR_SEARCH_CURRENT_PATH}")
       if ((CCUCTS_DIR_SEARCH_CURRENT_PATH STREQUAL "") OR (CCUCTS_DIR_SEARCH_CURRENT_PATH STREQUAL "/"))
-          break()
+        break()
       endif()
       message(STATUS "searching in ${CCUCTS_DIR_SEARCH_CURRENT_PATH}/ccucts")
       set(CCUCTS_DIR_SEARCH_CURRENT_PATH_FILE_TO_CHECK "${CCUCTS_DIR_SEARCH_CURRENT_PATH}/ccucts/${CCUCTS_IMPORT_FILENAME}")
@@ -44,9 +44,9 @@ if (NOT DEFINED CCUCTS_VERSION)
 
   if (NOT DEFINED CCUCTS_VERSION)
     message(STATUS "failed to find existing CCUCTS. downloading...")
-  
+
     include(FetchContent)
-  
+
     FetchContent_Declare(
       ccucts_download
       GIT_REPOSITORY "https://github.com/AnimusPEXUS/ccucts.git"
@@ -81,5 +81,6 @@ endif()
 
 unset(CCUCTS_DIR_SEARCH_CURRENT_PATH)
 unset(CCUCTS_DIR_SEARCH_CURRENT_PATH_FILE_TO_CHECK)
+unset(CCUCTS_IMPORT_FILENAME)
 
 message(STATUS "==^== CCUCTS searcher/downloader ==^==")
